@@ -1,0 +1,87 @@
+1.PECS(Producer extends and Consumer super) 是从集合的视角去看
+
+	① 从 集合  只取         ------> ? extends E
+	② 从 集合  只放         ------> ? super E
+	③          又取又放     ------>  先?，后<E>
+	https://stackoverflow.com/questions/2723397/what-is-pecs-producer-extends-consumer-super
+
+	只取(对s1和s2)
+	   
+	   Set<Integer> s1 = new HashSet<>(Arrays.asList(1, 2));
+	   Set<Double>  s2 = new HashSet<>(Arrays.asList(0.11, 0.22));
+	   Set<Number> number = union(s1, s2);
+
+	   public static <E> Set<E> union(Set<? extends E> s1, Set<? extends E> s2){
+	      Set<E> result = new HashSet<>();
+	      return result;
+	   }
+
+	只放
+	   Box<Integer> a = new Box<>();
+	   a.put(1);
+	   a.put(2);
+	   Set<Number> result = new HashSet<>();
+	   a.popAll(result);
+
+	   public class Box<E>{
+	      private Set<E> thingSet = new HashSet<>();
+	      public void popAll(Set<? super E> container){
+		 for(E e : thingSet){
+		    container.add(e);
+		 }
+	      }
+	      public void put(E e){
+		 thingSet.put(e);
+	      }
+	   }
+
+	又取又放
+	    先 ?
+	    public static void swap(List<?> list, int i, int j){
+		   swapInternal(list, i , j);
+	    }
+	    
+	    后<E>
+	    private static <E> void swapInternal(List<E> list, int i, int j) {
+		list.set(j, list.set(i, list.get(j)));
+	    }
+
+
+
+
+2、recursive type parameter（例如 class Builder<T extends Builder<T>>）的作用
+
+   class Builder<T extends Builder<T>>
+
+   A、T 是参数化类型
+   B、T 是Builder的子类
+   C、T extends Builder<T> ，第二个T必须和前一个T一样
+
+作用
+   A、保证自己和自己比较
+
+   public static <E extend Comparable<E>> E min(List<E> src){
+       E min = null;
+       for(E e : src){
+          if(min == null || min.compareTo(e) < 0){
+	      min = e;
+	  }
+       }
+   }
+
+   理由: 因为接口 Comparable，不限制自己只能和自己比，所以需要利用 class Builder<T extends Builder<T>>，来进行限制
+                                       |
+				       |
+				       ∨ 下面是  Comparable不限制自己只能和自己比 的例子
+
+    public interface Comparable<T> {
+       int compareTo(T o);
+    }
+
+    public class User implements Comparable<Integer>{ // 这样实现，就不是自己和自己比较，即 u1.compareTo(u2)过不了编译
+       public int compareTo(int u){
+           return 0;
+       }
+    }
+
+    

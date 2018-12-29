@@ -1,0 +1,1008 @@
+1.<import resource="位置">，
+    这个位置一定是相对与  当前配置文件   的，/dao.xml和dao.xml是一样的都是相对位置
+
+
+
+2.Spring 自动生成bean名字的方法
+
+  a.配置在XML文件中，名字为  包名+类名+#+n (n >= 1),    例如 com.tdr.bbs.test.A#1
+  b.用注解配置的，   名字为  类名(首字母小写或者都不变) 例如 A->a AA->AA(不包括包名)
+
+  a.用的是DefaultBeanNameGenerator，b.用的是AnnotationBeanNameGenerator
+
+
+
+3.用构造方法注入时的顺序
+
+  a.一般XML定义的顺序要和构造方法中的顺序一致
+  b.当不一致时，如果是
+      <constructor-arg value="基本类型"  />必须通过index给出顺序或者type指出类型
+      而
+      <constructor-arg ref="引用其他bean"  />则仍可以使用
+
+
+4. XML配置自动装配，只会应用于setter方法或是构造方法
+	
+	 <bean id="u" class="com.tdr.bbs.test.User" autowire="有三个可填的值,见下面" />
+	                                                    byName, byType, constructor
+
+
+	public class User {
+	    private A a;
+	    private B b;//不会被装配，因为它既没有 setter方法， 也不在构造方法中
+	    private C c;
+
+	    public User(C c) {
+		this.c = c;
+	    }
+
+	    public void setA(A a) {
+		this.a = a;
+	    }
+	}
+
+
+5. @Autowired 
+
+	a. 默认是   按类型    进行自动装配
+	b. @Autowired在构造函数上  可有可无 , 所以下面两种写法一样
+
+	public class U{
+	    public U(C c){}
+	}
+
+	public class U{
+	    @Autowired
+	    public U(C c){}
+	}
+
+
+6. @Autowired 和 @Resource 
+
+	a.二者默认都要求 依赖必须存在  否则 抛异常
+
+	b. @Autowired可以 @Autowired(required=false)使上条失效
+
+	c. 
+	  @Autowired  按 类型 匹配  可以放在 Field、Method、Constructor
+	  @Resource   按 名字 匹配  可以放在 Field、Method
+	  注意 @Resource 在按 名字 匹配失败后，会按 类型进行匹配 
+
+         
+
+
+7. @Required的用法
+
+	a.它不是用于自动装配的
+
+	b.它标注setter方法后，会检查该属性是否被注入了，若没则会抛异常，所以必须和 @Autowired 和 @Resource 一起使用
+
+	c.属性注入的方式有
+	   
+	   <bean><property name="" value=""/></bean>
+	   
+	   @Autowired
+
+	   @Resource
+
+	d.它放在setter方法才有用
+	  
+	  setA(A a); //这是setter方法
+	  
+	  prepare(A a, B b) //这不是,因为多于两个参数
+
+
+8.java中的bridge method
+
+      请看https://stackoverflow.com/questions/5007357/java-generics-bridge-method，它答案后面的另外两个链接
+           
+      http://www.angelikalanger.com/GenericsFAQ/FAQSections/TechnicalDetails.html#FAQ102
+
+
+9. BeanFactory  的  dependencyComparator 是用来
+   
+   a.在注册BeanFactoryPostProcessor、BeanPostProcessor时，对它们进行排序的用的
+   
+   b.默认 dependencyComparator = null，此时则使用  OrderComparator.INSTANCE，
+   
+     它会对那些没有实现Ordered接口的直接赋  最低order
+   
+   c.若使用 <context:component-scan/> 或 <context:auto-config/> 时
+
+     BeanFactory  的  dependencyComparator 会被注册为 
+     
+     AnnotationAwareOrderComparator.INSTANCE，它覆盖了 findOrder 方法
+
+
+10. <context:component-scan /> 默认会注册被这些注释标注的类
+    @Component, @Repository, @Service, @Controller，@ControllerAdvice
+
+    扫描两遍
+    a.找出标注 @Component, @Repository, @Service, @Controller，@ControllerAdvice 的.class文件,然后
+
+      ScannedGenericBeanDefinition sbd = new ScannedGenericBeanDefinition(metadataReader);
+
+    b.再判断 sbd是  具体类 或 有 @Lookup注释的抽象类
+    
+    AnnotationMetadata metadata = beanDefinition.getMetadata();
+		return (metadata.isIndependent() && (metadata.isConcrete() ||
+				(metadata.isAbstract() && metadata.hasAnnotatedMethods(Lookup.class.getName()))));
+
+
+11. <context:component-scan base-package="com.tdr.bbs.test"  />
+    
+    会扫描 com.tdr.bbs.test 和 其子包 下的所有类
+
+
+12. @Bean不给name属性赋值时，采用的是方法的名字
+
+	@Configuration
+	public class Config {
+	    @Bean
+	    public Person getU(){
+		return new PersonImplA(); //PersonImplA 这个Bean 在容器里的名字 为 getU
+	    }
+	}
+
+
+
+13.Spring 绑定、校验及错误信息转换
+   
+	  绑定 相关的类及接口
+		   
+		    Databinder    ------> 绑定器，其Javadoc提供了好多信息
+		    BindingResult ------> 绑定结果, 包含
+					       a 绑定后的对象		              ===== getTarget    返回绑定后的对象
+					       b 绑定过程中产生的错误，               ===== getAllErrors 返回其包含的所有错误
+					       c 后面校验，如果出错可以用它来注册错误 ===== addError、reject等方法 来注册错误
+
+		    PropertyValue ------>  new PropertyValue(属性名，属性值) 
+
+						‖ 等价
+
+					   bean.set属性名(属性值)
+
+		    ObjectError  ------>  FieldError 是 ObjectError 的子类，它们都代表 绑定错误 和 校验错误
+		    FieldError
+					  且主要由 errorCode、args、defaultMessage 组成
+
+					  假设有一个配置文件 vaild.properties
+
+					   //////////////////  vaild.properties配置文件  //////////////////
+					  //                                                            //
+					 //           empty.user.name=用户名不可为空                   //
+					//            empty.user=用户的，${property}不可为空          //
+				       //                                                            //
+				      ///////////////////  vaild.properties配置文件  /////////////////
+
+				      其中 empty.user.name 是 errorCode，
+				      而   ${property}     是 args
+
+	  
+	  校验 相关的类及接口
+		    
+		    Validator    -----> 校验器一般实现这个接口，且一般在 绑定完成后（即 Databinder.bind()）再进行校验（这是有原因的，看下面）
+
+	  错误信息转换 相关的类及接口
+		   
+		   MessageSource -----> 它将 ObjectError 及 FieldError 转换为 String
+					
+					根据的是errorCode、args、defaultMessage
+	  
+	------------------------------------------------------------ 下面是 A 13.Spring 绑定、校验及错误信息转换  具体的例子 -----------------------------------------------------------------------------
+
+
+		User user = new User();
+
+		PropertyValue[] userProperties = {
+			new PropertyValue("name", "zh3"),
+			new PropertyValue("age", 10)
+		};
+
+		PropertyValues userPropertyValues = new MutablePropertyValues(Arrays.asList(userProperties));
+
+
+		DataBinder binder = new DataBinder(user, "user");
+		binder.bind(userPropertyValues);
+		BindingResult result = binder.getBindingResult();
+
+		
+		Validator myValidator = new Validator() {
+		    @Override
+		    public boolean supports(Class<?> clazz) {
+			return true;
+		    }
+
+		    @Override
+		    public void validate(Object target, Errors errors) {
+			ValidationUtils.rejectIfEmpty(errors,"name", "empty");
+		    }
+		};
+
+		myValidator.validate(result.getTarget(), result);
+
+	    
+		List<String> messages = new ArrayList<>(1);
+		
+		if(result.hasErrors()){
+		    MessageSource messageSource = new ResourceBundleMessageSource();
+		    for (ObjectError e : result.getAllErrors()) {
+			messages.add(messageSource.getMessage(e, Locale.getDefault()));
+		    }
+		}else{
+		    messages.add("bean User 成功 绑定 且 通过 myValidator的 校验");
+		}
+
+		for (String message : messages) {
+		    System.out.println(message);
+		}
+
+
+	------------------------------------------------------------ 下面是 B 13.Spring 绑定、校验及错误信息转换  具体的例子 -----------------------------------------------------------------------------
+
+
+		//  待绑定的bean
+		User user = new User();
+
+		//  每一一个 PropertyValue 都是要绑定到 user属性上的值
+		//  PropertyValue 本质是  属性名 ----  属性值
+		//  new PropertyValue("name", "zh3")  就是将 user.setName("zh3")
+		PropertyValue[] userProperties = {
+			new PropertyValue("name", "zh3"),
+			new PropertyValue("age", 10)
+		};
+		PropertyValues userPropertyValues = new MutablePropertyValues(Arrays.asList(userProperties));
+
+
+		//  创建绑定器
+		DataBinder binder = new DataBinder(user, "user");
+		//  开始绑定
+		binder.bind(userPropertyValues);
+
+
+		//  DataBinder --创造--> BindingResult --创造--> BeanWrapper，
+		// 而 DataBinder本质是
+		//              1. 靠 BeanWrapper 来对被包含对象进行绑定，
+		//                     BeanWrapper.setPropertyValue(PropertyValue);
+
+		//              2. 并在内部通过 BindingResult.addError(ObjectError) 来注册绑定过程中产生的错误
+
+		//  BindingResult 这是绑定结果
+		//  它包含
+		//        1 完成绑定的 bean
+		//        2 绑定过程中的所有错误 （用ObjectError 以及 FieldError来表示）
+		//        3 BeanWrapper, 它可以通过给出属性名，来对被它包含属性进行设置，和取值
+		//
+		//  它可以通过下面方法注册新的错误
+		//            1  BindingResult.addError(ObjectError);
+		//                  a  ObjectError 和 FieldError 主要由 errorCodes arguments defaultMessage 组成
+		//                           ObjectError 多 objectName,
+		//                            FieldError 多  objectName, fileName
+		//                  b FieldError 是ObjectError的子类
+		//
+		//            2   BindingResult.rejectValue(field, errorCode);
+		//
+
+
+		//  BindingResult 这是绑定结果，
+		// BindingResult.getTarget 获得绑定后的bean
+		// BindingResult.getAllError 获得所有错误
+		BindingResult result = binder.getBindingResult();
+
+
+
+		//  自己的校验器
+		//    1. 一般都要实现 org.springframework.validation.Validator
+		//    2. 一般 在 绑定器DataBinder 完成绑定 后 验证
+		//    2. 一般 在 绑定器DataBinder 完成绑定 后 验证
+		//    2. 一般 在 绑定器DataBinder 完成绑定 后 验证  重要的事情说三遍！！！
+
+		//    3。 因为 只有这样 下面这个工具类才能正常使用
+		//
+		//                ValidationUtils.rejectIfEmpty(errors,"name", "empty"); error是 Errors类型
+		//
+		//                上面是检查 errors 里包含的对象，这里是 user 的 name 属性 是否为空， 若是则 注册一个错误
+		//                传入的 errors 一般是  binder.getBindingResult()
+		//                BindingResult 实现了 Errors 接口， 且它包含 BeanWrapper ， 而 BeanWrapper 包含了 要被绑定的 bean 这里是 user
+		//                而
+		Validator myValidator = new Validator() {
+		    @Override
+		    public boolean supports(Class<?> clazz) {
+			return true;
+		    }
+
+		    @Override
+		    public void validate(Object target, Errors errors) {
+			ValidationUtils.rejectIfEmpty(errors,"name", "empty");
+		    }
+		};
+
+		myValidator.validate(result.getTarget(), result);
+
+		// 无论是绑定时产生的错误，还是自己实现的校验器进行校验的错误，
+		// Spring 把 这些错误都抽象为  ObjectError 和 FieldError（ObjectError 的子类）
+		//  它 二者最重要的部分为
+		//     1 errorCodes
+		//           在valid.properties文件中
+		//                 empty.user.name=用户名不可以为空
+		//           此处的 empty.user.name 就是 errorCodes
+		//     2 arguments
+		//           在valid.properties文件中
+		//                 empty.user=用户的，${property}不可以为空
+		//           此处的 ${property} 就是 arguments
+		//     3 defaultMessage
+
+		// 为了将 ObjectError 和 FieldError 变成最终的消息信息，我们需要
+		//  MessageSource, 常用的为 ResourceBundleMessageSource，它可以实现 errorCodes 的替换
+		// 下面这个并不能用，因为  ResourceBundleMessageSource 一般需要配置 baseName属性
+		//  像 baseName = valid，从而可以根据 Locale 把
+		// valid_zh_CN.properties   valid_en_US.properties 都可以找到
+
+		List<String> messages = new ArrayList<>(1);
+		if(result.hasErrors()){
+		    MessageSource messageSource = new ResourceBundleMessageSource();
+		    for (ObjectError e : result.getAllErrors()) {
+			messages.add(messageSource.getMessage(e, Locale.getDefault()));
+		    }
+		}else{
+		    messages.add("bean User 成功 绑定 且 通过 myValidator的 校验");
+		}
+
+		for (String message : messages) {
+		    System.out.println(message);
+		}
+
+
+
+14. java反射中的Type接口  具体看 http://loveshisong.cn/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/2016-02-16-Type%E8%AF%A6%E8%A7%A3.html
+
+	a.Type 子接口 及实现类
+	   
+	   ParameterizedType (子接口)   举例 List<String> a  --> a就是 ParameterizedType 类型
+	   
+	   TypeVariable      (子接口)   举例  T entity       --> entity就是 TypeVariable 类型
+	   
+	   GenericArrayType   (子接口)  举例  T[] b          --> b就是 GenericArrayType 类型
+	   
+	   WildcardType       (子接口)
+	   
+	   Class              (实现Type接口的类)
+
+
+	b.一般通过 
+	    
+	    Field.getGenericType()(返回Type)  
+	    
+	    或者 
+	    
+	    Method.getGenericParameterTypes() (返回 Type[])
+
+	    然后 Type c = Field.getGenericType() 
+		 
+		 c instanceof ParameterizedType、TypeVariable、GenericArrayType
+
+	c.-------------------------- 举例 ----------------------------------
+	    
+	    ① ParameterizedType(下面是接口内的方法)         List<String> a
+	       
+	       Type[] getActualTypeArguments();              String
+
+	       Type getRawType();                            List
+
+	       Type getOwnerType();                          不常用
+
+
+	    ② TypeVariable(下面是接口内的方法)             public class A<T extend String>{ 
+								  T entity
+							     }
+							    
+							    Field entity = A.class.getDeclaredField("key");
+							    TypeVariable entityType = (TypeVariable)entity.getGenericType();
+							    entityType.getBounds()
+	       
+	       
+	       Type[] getBounds()                           对于 T entity  ====   String                      
+
+	       getGenericDeclaration()                      对于 T entity  ====   A(声明 T entity 的 类)
+
+	       String getName()                             对于 T entity  ====   T
+ 
+
+ 15.dispatcherServlet流程
+	
+    ①之前 在request里设置了
+            WEB_APPLICATION_CONTEXT_ATTRIBUTE  ----->  getWebApplicationContext()
+	    LOCALE_RESOLVER_ATTRIBUTE          ----->  this.localeResolver
+	    THEME_RESOLVER_ATTRIBUTE           ----->  this.themeResolver
+	    THEME_SOURCE_ATTRIBUTE             ----->  getThemeSource()
+  (有条件的)INPUT_FLASH_MAP_ATTRIBUTE          ----->  inputFlashMap
+	    OUTPUT_FLASH_MAP_ATTRIBUTE         ----->  new FlashMap()
+	    FLASH_MAP_MANAGER_ATTRIBUTE        ----->  this.flashMapManager
+
+     
+
+
+	① HandlerInterceptor.preHandle()
+
+	② ModelAndView mv = HandlerAdapter.handle() // 自己定义的Controller运行
+
+	③ HandlerInterceptor.postHandle()
+
+	④ DipatcherServlet.processDispatchResult()
+	   有异常 
+	     先找 HandleMethod 里的 @ExceptionHandler 方法
+	     再找 ControllerAdvice里的 @ExceptionHandler 方法
+	   没有异常
+
+	⑤ HandlerInterceptor.afterCompletion()
+
+
+16.RequestMappingHandlerAdapter执行流程
+
+   ① ServletWebRequest
+
+   ② WebDataBinderFactory // 查找 @ControllerAdvic下 和当前 @Controller 下的所有 @InitBinder方法
+
+   ③ ModelFactory // 查找 @ControllerAdvic下 和当前 @Controller 下的所有 @ModelAttribute 方法
+                   
+                  // 查找 @Controller 类上的 @SessionAttributes
+
+
+
+   ④ ServletInvocableHandlerMethod
+
+   ⑤ ModelAndViewContainer
+  
+   ⑥ ModelFactory.init(ModelAndViewContainer) // 将 @SessionAttributes(在当前Controller类上) 指定的属性，从HttpSession取出并 放入 ModelAndViewContainer
+
+                                               // 将 @ModelAttribute方法(包括 当前Controller类中的 和 @ControllerAdvice类中的) 
+					              方法的返回值 放入 ModelAndViewContainer
+
+					   
+
+
+   ⑦ invocableMethod.invokeAndHandle(webRequest, mavContainer);
+
+   ⑧ getModelAndView(mavContainer, modelFactory, webRequest)
+
+
+
+17 <mvc:annotation-driver>都加载了什么
+
+	1.HandlerMapping
+	    RequestMappingHandlerMapping.class        order=0
+
+	2.HandlerAdapter
+	    RequestMappingHandlerAdapter.class        order=Ordered.LOWEST_PRECEDENCE
+	3.HandlerExceptionResolver
+	    ExceptionHandlerExceptionResolver.class   order=0
+	    ResponseStatusExceptionResolver.class     order=1
+	    DefaultHandlerExceptionResolver.class     order=2
+
+	4.ViewResolver(没有)
+
+◆18 <mvc:resources mapping="/css/**" location="/WEB-INF/css/"  order="设置的比上面RequestMappingHandlerMapping小 避免 @RequestMapping默认匹配，具体请看下面"/> 怎么用
+
+	<mvc:resources mapping="①" location="②"/>
+
+	      a. 若①不以/开头，后面会加上/，即 "css/**"  -----> "/css/**"
+	      
+	      b. 所以① 总是相对于当前的contextPath
+		  
+			★非根应用时   
+			     contextPath不为空  http://主机地址:端口/contextPath
+			  
+			  ★根应用时
+			    contextPath=空      http://主机地址:端口/
+
+		     /a	  ☆当<servlet-mapping>中的<url-pattern>为 /a  时
+			   非根应用时
+			     http://主机地址:端口/bbs/a        可以调用当前servlet,   contextPath=/bbs servletPath=/a
+			     http://主机地址:端口/bbs/a/sada   不可以调用当前servlet
+
+			   根应用时
+			     http://主机地址:端口/a        可以调用当前servlet,   contextPath=空 servletPath=/a
+			     http://主机地址:端口/a/sada   不可以调用当前servlet
+			  
+		     /a/*  ☆当<servlet-mapping>中的<url-pattern>为 /a/*  时
+			   非根应用时
+			     http://主机地址:端口/bbs/a        可以调用当前servlet,   contextPath=/bbs servletPath=/a PathInfo=null
+			     http://主机地址:端口/bbs/a/sada   可以调用当前servlet,   contextPath=/bbs servletPath=/a PathInfo=/sada
+
+			   根应用时
+			     http://主机地址:端口/a        可以调用当前servlet,       contextPath=空 servletPath=/a PathInfo=null
+			     http://主机地址:端口/a/sada   可以调用当前servlet,       contextPath=空 servletPath=/a PathInfo=/sada
+
+		     /	  ☆当<servlet-mapping>中的<url-pattern>为 /  时
+			   非根应用时
+			     http://主机地址:端口/bbs/         可以调用当前servlet,   contextPath=/bbs servletPath=/       PathInfo=null
+			     http://主机地址:端口/bbs/a/sada   可以调用当前servlet,   contextPath=/bbs servletPath=/a/sada PathInfo=null
+
+			   根应用时
+			     http://主机地址:端口/        可以调用当前servlet,       contextPath=空 servletPath=/        PathInfo=null
+			     http://主机地址:端口/a/sada   可以调用当前servlet,       contextPath=空 servletPath=/a/sada PathInfo=null
+			    
+	      
+	      c. 若①="/css"、"css/"、"/css/" 
+		    则只能匹配具体的路径 
+		    http://localhost/bbs/css
+		    而一般不这么用，因为我们需要匹配
+		    http://localhost/bbs/css/a.css
+		
+	      d.故①一般要与通配符一起用  <mvc:resources mapping="/css/**" location="②"/>
+		 /css/** 匹配
+			 http://localhost/bbs/css/a.css          --->  ②a.css         ②是上行的 location
+		注意这个 http://localhost/bbs/css/d/e/f/a.css    --->  ②d/e/f/a.css
+	      
+	      e. <mvc:resources mapping="/css/**" location="②"/> 中的②
+		  
+		  ★② 无论加不加 / 都会在后面自动加上，即 "abc/"  -----> "/abc/"
+		  ★② 结尾必须以/结尾，否则就默认资源在根目录下
+
+		  <mvc:resources mapping="/css/**" location="/WEB-INF"/>  -------未以 / 结尾
+		  对于 http://localhost/bbs/css/a.css
+		  会匹配   /a.css 即a.css必须出现在应用根目录
+
+		  <mvc:resources mapping="/css/**" location="/WEB-INF/"/> -------以 / 结尾
+		  对于 http://localhost/bbs/css/a.css
+		  会匹配  /WEB-INF/a.css ,即 a.css必须出现在应用根目录下WEB-INF文件夹下
+
+		  ★② 总是相对于应用的根目录，且它是 一种Resource(ServletContextResource)
+
+
+19. @RequestMapping(path=""),这里的path怎么设置
+    
+	    public class IndexController{
+		 
+		① @RequestMapping            ---------------> 这个是默认匹配，即其他 @RequestMapping 都不匹配时会匹配
+		 public String index1(){
+		    return null;
+		 }
+		 
+		② @RequestMapping(path="/")  -----------------> 这个只匹配 /
+		 public String index1(){
+		    return null;
+		 }
+	    }
+
+	    http://localhost/bbs/              /           匹配 ①和② 但②优先级更高
+	    http://localhost/bbs/asdadada      /asdadada   只匹配①
+
+
+20.RequestMappingHandlerMapping 在处理 @RequestMapping 时用到的几个map
+
+	mappingLookup
+	  RequestMappingInfo  ---> HandlerMethod
+
+	urlLookup
+	  url                 ---> RequestMappingInfo
+
+	nameLookup
+	  name                ---> List<HandlerMethod>
+
+
+21. BeanDefiniton 的子类及其属性 role
+
+     ①           AbstractBeanDefiniton
+			  ↓
+		      ↙      ↘
+        RootBeanDefinition    GenericBeanDefinition
+
+      
+     ② BeanDefiniton接口给role定义了三个常量
+        
+	int ROLE_APPLICATION = 0;
+
+	int ROLE_SUPPORT = 1;
+
+	int ROLE_INFRASTRUCTURE = 2;
+
+	默认role = ROLE_APPLICATION = 0
+
+
+22.在web.xml配置的Listener总是早于Servlet被初始化 
+       所以
+        ContextLoaderListener
+	早于
+	DispatcherServlet
+	初始化
+
+
+
+23. RequestMappingHandlerAdapter 默认注册的 argumentResolvers
+
+	方法参数须符合什么条件
+					     // Annotation-based argument resolution
+	@RequestParam	参数为基本类型			resolvers.add(new RequestParamMethodArgumentResolver(getBeanFactory(), false)); 
+
+	@RequestParam(name=不设值)且参数类型为Map	resolvers.add(new RequestParamMapMethodArgumentResolver());
+						
+	@PathVariable					resolvers.add(new PathVariableMethodArgumentResolver());
+							
+	@PathVariable(name=不设值)且参数类型为Map	resolvers.add(new PathVariableMapMethodArgumentResolver());
+							
+							resolvers.add(new MatrixVariableMethodArgumentResolver());
+							
+							resolvers.add(new MatrixVariableMapMethodArgumentResolver());
+							
+	@ModelAttribute	或者参数  不是  基本类型	resolvers.add(new ServletModelAttributeMethodProcessor(false));
+							
+							resolvers.add(new RequestResponseBodyMethodProcessor(getMessageConverters(), this.requestResponseBodyAdvice));
+							
+							resolvers.add(new RequestPartMethodArgumentResolver(getMessageConverters(), this.requestResponseBodyAdvice));
+							
+							resolvers.add(new RequestHeaderMethodArgumentResolver(getBeanFactory()));
+							
+							resolvers.add(new RequestHeaderMapMethodArgumentResolver());
+							
+							resolvers.add(new ServletCookieValueMethodArgumentResolver(getBeanFactory()));
+							
+							resolvers.add(new ExpressionValueMethodArgumentResolver(getBeanFactory()));
+							
+							resolvers.add(new SessionAttributeMethodArgumentResolver());
+							
+							resolvers.add(new RequestAttributeMethodArgumentResolver());
+
+							// Type-based argument resolution
+							resolvers.add(new ServletRequestMethodArgumentResolver());
+							resolvers.add(new ServletResponseMethodArgumentResolver());
+							resolvers.add(new HttpEntityMethodProcessor(getMessageConverters(), this.requestResponseBodyAdvice));
+							resolvers.add(new RedirectAttributesMethodArgumentResolver());
+							resolvers.add(new ModelMethodProcessor());
+							resolvers.add(new MapMethodProcessor());
+							resolvers.add(new ErrorsMethodArgumentResolver());
+							resolvers.add(new SessionStatusMethodArgumentResolver());
+							resolvers.add(new UriComponentsBuilderMethodArgumentResolver());
+
+							// Custom arguments
+							if (getCustomArgumentResolvers() != null) {
+								resolvers.addAll(getCustomArgumentResolvers());
+							}
+
+							// Catch-all
+							resolvers.add(new RequestParamMethodArgumentResolver(getBeanFactory(), true));
+							resolvers.add(new ServletModelAttributeMethodProcessor(true));
+
+
+24. RequestMappingHandlerMapping 默认会令
+
+	 a. /post 等价于 /post.* 
+	 b. 所以导致 /post 也会匹配 /post.abca、/post.sadafa
+	 c.要关闭该功能
+	  
+	    <mvc:annotation-driven >
+		<mvc:path-matching suffix-pattern="false"/>
+	    </mvc:annotation-driven>
+
+25. @ModelAttribute 的作用
+
+	  ①直接标注在方法上，会让该方法的返回值存储到
+	    
+	    ModelAndViewContainer ----进而----> ModelAndView ----进而----> HttpServletRequest Attrubite
+
+		  @ModelAttribute(这里可以给返回的Post起名字，否则默认名字为首字母小写的类名)
+		  public Post addPost(){
+		    return new Post();
+		  }
+
+
+	  ②同上但是，这个方法不仅是将返回值加入到ModelAndViewContainer
+	     
+	     同时，它也处理 请求/post，它多一个 @RequestMapping("/post")
+	  
+		  @RequestMapping("/post")
+		  @ModelAttrubite
+		  public Post getPost(){
+		     return new Post();
+		  }
+
+	  ③在参数上标注 @ModelAttribute
+	    
+	    a.post 存在于ModelAndViewContainer 则会直接赋值
+
+	    b.否则 先创建一个Post，然后再用requst.getParamMap和URI_TEMPLATE_VARIABLES，进行绑定，并最终填充到 HttpServletRequest Attrubite
+
+	    @RequestMapping("/post")
+	    public String deletePost(@ModelAttribute Post post){
+	       ...
+	    }
+
+
+26. Spring <form:errors />应该怎么用
+    
+	    <form:errors path="绑定对象.属性" />
+	    
+	    绑定对象    看controller方法的参数的类名(这里是user)
+	    属性        看你要显示那个属性的错误
+
+	     public String login(@Valid User user, BindingResult result{
+
+	    <form:errors path="user.username" />
+	   
+	    
+	    -------------- ① 绑定前台form的对象(带了验证) -------------- 
+	    
+	    public class User{
+	      @NotNull
+	      private String username;
+	    }
+	    
+	    -------------- ② controller方法 --------------
+
+	    public String login(@Valid User user, BindingResult result){
+	       
+	       if(result.hasErrors()){
+		  return "login";
+	       }
+		省略细节....
+	       return "index";
+		  
+	    }
+
+	    -------------- ③ ServletModelAttributeMethodProcessor 中实现参数解析和验证 --------------
+		
+	    WebDataBinder binder = binderFactory.createBinder(webRequest, attribute, name);
+			
+		   if (binder.getTarget() != null) {
+			if (!mavContainer.isBindingDisabled(name)) {
+	      ▲绑定           bindRequestParameters(binder, webRequest); //这里只会产生 类型转换错误,具体看源码
+									   所以errorCode都以 typeMismatch 打头(注意首字母 小写)
+		   }
+	      ▲校验	validateIfApplicable(binder, parameter);  //这里的errorCode都以校验注释类的类名打头，如这里
+								    
+								    @NotNull
+								    
+								    errorCode都以 NotNull 打头(注意首字母  不小写)
+
+	       //下面生成的Map,会放到 ModelAndViewContainer ----进而----> ModelAndView ----进而----> HttpServletRequest Attrubite
+		   
+	       // bindingResultModel的具体内容：
+	      //       key                                                                               value
+
+			org.springframework.validation.BindingResult.绑定对象的名字   <----------->     binder.getBindingResult()
+			
+			绑定对象的名字                                                <----------->     binder.getTarget()
+
+		//这里 绑定对象的名字 为 user
+	       
+	       Map<String, Object> bindingResultModel = binder.getBindingResult().getModel();
+
+	       mavContainer.addAllAttributes(bindingResultModel);     
+	    
+
+	    -------------- ④ 生成的ObjectError的种类 --------------
+
+	      ObjectError 主要由下面三个组成
+		errorCode
+		arg
+		defaultMessage
+
+		我们主要利用 errorCode 来写   vaild.properties
+		因为errorCode一般都有如下格式
+		
+		错误类型.绑定对象的名字.属性名字
+		
+		typeMismatch.user.username=请输入正确的用户名
+
+
+						   //////////////////  vaild.properties配置文件  //////////////////
+						  //                                                            //
+						 //           typeMismatch.user.username=请输入正确的用户名    //
+						//            NotEmpty.user.username=用户名不可以为空         //
+					       //                                                            //
+					      ///////////////////  vaild.properties配置文件  /////////////////
+
+	    -------------- ⑤ 配置MessageSource --------------
+
+	     String message = ApplicationContext.getMessage(ObjectError)
+	     
+	     默认的MessageSource不可以用，所以要重新配
+
+	    <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+		<property name="basenames" >
+		    <list>
+			<value>vaild</value>
+		    </list>
+		</property>
+	    </bean>     
+
+	    -------------- ⑥ 设置<form:errors> --------------
+
+	    <form:errors path="绑定对象的名字.属性名">
+	       其实现类ErrorsTag
+	      首先利用  绑定对象的名字 来拿到 BindingResult
+
+	     BindingResult result =  request.getAttribute(BindingResult.MODEL_KEY_PREFIX + 绑定对象名)
+	 
+	     当属性名为具体名字时
+	       result.getFiledErrors(属性名)
+
+	     当属性名为*时
+		result.getAllErrors()
+
+	   
+	     <form:errors path="user.username">
+	     
+	     //第③步放进去的
+	     BindingResult result =  request.getAttribute(BindingResult.MODEL_KEY_PREFIX + "user")
+	    
+	     List<ObjectErrors> errors = result.getFiledErrors("username")
+	     List<String> messages = new ArrayList<>();
+	     
+	     for(ObjectError e: errors){
+		String message = ApplicationContext.getMessage(ObjectError)
+		messages.add(message);
+	     }
+
+27、Spring初始化bean的流程 (在类AbstractAutowireCapableBeanFactory的doCreateBean方法中定义)
+
+1、new 类名()  ===========> 具体查看 类AbstractAutowireCapableBeanFactory的方法createBeanInstance
+
+     A.当有AutowiredAnnotationBeanPostProcessor(即<context:component-scan>会注册的)，
+        会以 <构造方法注入> 的方式，new一个对象
+
+     B.没有AutowiredAnnotationBeanPostProcessor，拿到<默认的构造方法>，new 一个对象
+
+	   在有AutowiredAnnotationBeanPostProcessor时，去扫描bean @Autowired注释的Field
+	   请看 类AbstractAutowireCapableBeanFactory的doCreateBean方法，下面的方法
+		
+		synchronized (mbd.postProcessingLock) {
+				if (!mbd.postProcessed) {
+					try {
+						applyMergedBeanDefinitionPostProcessors(mbd, beanType, beanName);
+					}
+					catch (Throwable ex) {
+						throw new BeanCreationException(mbd.getResourceDescription(), beanName,
+								"Post-processing of merged bean definition failed", ex);
+					}
+					mbd.postProcessed = true;
+				}
+			}
+2、给 bean 依赖注入
+3、调用 bean 实现的Aware接口的方法(BeanNameAware、BeanClassLoaderAware和BeanFactoryAware)
+4、调BeanPostProcessor
+     A.postProcessBeforeInitialization
+     B.postProcessAfterInitialization
+
+
+28. @EnableWebFlux注释谁处理
+  ConfigurationClassPostProcessor 在处理 @Import注释会处理
+  因为 @EnableWebFlux 被 @Import 注释
+
+29、结合 netty 和 Spring 5
+
+        ① ApplicationContext context = new AnnotationConfigApplicationContext(Bootstrap.class);
+        
+	② HttpHandler handler = WebHttpHandlerBuilder.applicationContext(context).build();
+        
+	③ ReactorHttpHandlerAdapter adapter = new ReactorHttpHandlerAdapter(handler);
+        
+	④ HttpServer.create(60000).newHandler(adapter).block();
+
+       ① 先利用 Bootstrap.class 向 ApplicationContext注册一些默认的组件
+       HandlerMapping           --------> 如 RequestMappingHandlerMapping(处理 @RequestMapping的controller)
+					  注意：处理webSocket请求的WebSocketHandler默认没有对应的
+					  HandlerMapping，官方教程使用SimpleUrlHandlerMapping做映射，可以扩展它以实现
+					  类似 RequestMappingHandlerMapping 根据 @RequestMapping 
+					  自动装配注释有 @RequestMapping的controller的功能
+
+       HandlerAdapter           --------> 如 RequestMappingHandlerAdapter(它会自装配 @ControllerAdvice)
+                                          WebSocketHandler 有对应的 HandlerAdapter，即
+					  WebSocketHandlerAdapter
+
+       HandlerResultHandler     --------> 看官网
+        
+       DispatcherHandler        --------> 会从ApplicationContext收集上述组件，它作用类似DispatcherServlet
+
+      ② 把 WebHandler 转换为 HttpHandler(具体看源码)
+           因为 DispatcherHandler 是 WebHandler，而Spring封装的各大Http服务器认识的Controller是HttpHandler
+	   所以需要转换，转换过程中，加入了
+	   WebFilter、WebExceptionHandler等等
+
+      ③ 再把 HttpHandler 转换为 Spring封装的服务器所认识的Controller, 这里的服务器是Netty
+         它需要BiFunction(jdk8带的Functional接口)
+
+      ④ 启动Netty
+
+32、SpringBoot 的配置文件分两种
+
+	普通配置文件(它默认的profile=null)                   profiles相关的
+	application.properties                               application-[profiles].properties 
+	application.yml                                      application-[profiles].yml
+       
+       注意配置文件一般形式
+       
+      ####################### application.properties ########################################################
+      # spring.profiles.active = dev   ----> 指定要激活的pofiles，                                          #  
+      #                                      即读完该配置文件后，                                           #
+      #					    就读该profile文件(application-dev.properties)                   #
+      # server.port = 88                                                                                    #
+      # person.name = 张三             ----> 这两个配置了                                                   #
+      #				            两个 PropertySource(<server.port = 88>, <person.name = 张三>) ，#
+      #				    而两个 PropertySource组成一个MutablePropertySources                     #
+      #######################################################################################################
+
+31、SpringBoot 读取配置文件的过程(看源码可知ConfigFileApplicationListener.Loader.load())
+
+	①：通过配置文件，设置Environment活动的Profile
+			 (仅配置第一个含有spring.profiles.active的配置文件，
+			  后面的配置文件的spring.profiles.active都不会生效，
+			  配置文件读取的顺序：从上到下
+				  file:./config/         -------->  相对于user.dir
+				  file:./                -------->  相对于user.dir
+				  classpath:./config/
+				  classpath:./)
+	
+	②：通过配置文件，设置属性源MutablePropertySources 
+	                  
+
+	③: 当Environment有活动Profile时，按①、②读取profiles相关的的配置文件(application-[profiles].properties)       
+
+        ④：注意SpringBoot读取配置文件，都会产生属性源MutablePropertySources，并绑定到配置文件对应的profile上，
+	                    (
+			       同一个profile上的MutablePropertySources，会按先后顺序加到数组后面
+
+			       <MutablePropertySources = List<PropertySource>，每个PropertySource代表一个键值对>
+
+			       MutablePropertySources ms = HashMap.get(profile);
+                               if(ms == null){
+			           HashMap.put(profile, ms);
+			       }
+			       ms.addLast(当前配置文件产生的MutablePropertySources);
+			    )
+	   
+           
+	   配置文件                                          profile
+
+           file:./config/application.properties              null
+           file:./application.properties                     null     (它会和上面的配置文件合并，因为他俩profile相同)
+           file:./application-dev.properties                 dev
+           
+	 
+32、SpringBoot配置文件优先级
+①：有profiles的配置文件，优于普通配置文件
+    
+    application-dev.properties 
+          覆盖 
+    application.properties配置的属性
+   
+   见源码ConfigFileApplicationListener.Loader.addLoadedPropertySources()
+
+②：出现在上面路径下的配置文件，会覆盖出现在下面的配置文件
+    覆盖
+    最高优先级                                      file:./config/         -------->  相对于user.dir
+                                                    file:./                -------->  相对于user.dir
+                                                    classpath:./config/
+    会被上面三个按由下向上的顺序覆盖                classpath:./
+    
+    见源码ConfigFileApplicationListener.Loader.load()
+
+③：一般会按下面顺序
+      file:./config/         -------->  相对于user.dir
+      file:./                -------->  相对于user.dir
+      classpath:./config/
+      classpath:./
+    
+    !!!
+	    加载普通配置文件(例如application.properties)，
+	    然后加载，如果有的话，普通配置文件指定的profile相关的配置文件(例如application-[profile].properties)
+	    最后，先将 application-[profile].properties 产生的 MutablePropertySources加入到Environment
+	    再将application.properties产生的MutablePropertySources加入到Environment
+    !!!
+
+33、YAML文件的语法
+
+	对象
+	a: "a"(注意冒号:后面必须有一个空格) {"a": "a"}
+
+	数组
+	- "1"   (短杠后面必须有一个空格, 1会被解释为boolean true, 所以要加引号)   [1, 2, 3]
+	- 2
+	- 3
+
+34、AOP详解
+    整体介绍       https://blog.csdn.net/javazejian/article/details/56267036
+    匹配规则的介绍 https://blog.csdn.net/qq_23167527/article/details/78623639
+
+35、spring cloud的教程
+https://www.cnblogs.com/lenve/p/7985943.html?tdsourcetag=s_pcqq_aiomsg

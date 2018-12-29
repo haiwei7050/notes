@@ -1,0 +1,20 @@
+1、基于远程分支建立本地分支
+   git branch -a # 查看所有分支
+   git checkout -b 本地分支名  远程仓库昵称/远程分支名
+   git checkout -b dev          origin/dev
+
+2、基于远程标签建立本地分支
+   git tag [-l]         # 查看所有标签(无论在哪个分支，无论远程或本地)
+   git show 标签名字    # 查看标签指向那个提交点
+   git checkout -b tags/远程tag名  本地分支名
+   git checkout -b tags/v1.6.5     v1.6.5
+
+
+3、打标签
+   git tag 标签名字
+   git tag -a 标签名字 -m"标签注释"
+   
+   上面两个都是给当前提交点打标签
+   而下面是给某个提交点打标签
+
+   git tag -a v1.2 提交点的hash -m "Message here"

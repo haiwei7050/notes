@@ -1,0 +1,142 @@
+ChannelHandler生命周期
+handlerAdded
+channelRegistered
+channelActive
+channelRead();
+
+
+GET /a.jsp HTTP/1.1
+Host: localhost:8080
+Aceept: */*
+
+WebSocketServerHandshakerFactory
+
+WebSocketServerProtocolHandler
+WebSocketServerProtocolHandshakeHandler (handshake()在握手的时候把编码和解码放进去了)
+
+
+
+        pipeline.addLast(new HttpServerCodec());
+        pipeline.addLast(new HttpObjectAggregator(65536));
+        pipeline.addLast(new WebSocketServerProtocolHandler(WEBSOCKET_PATH, null, true));
+
+
+Mono.fromDirect(handler.apply((INBOUND) this, (OUTBOUND) this))
+		       .subscribe(this);
+
+
+ this.httpHandler.handle(adaptedRequest, adaptedResponse)
+				.doOnError(ex -> logger.error("Handling completed with error", ex))
+				.doOnSuccess(aVoid -> logger.debug("Handling completed with success"));
+				.onErrorResume(ex -> handleFailure(request, response, ex))
+				.then(Mono.defer(response::setComplete))
+
+
+
+
+http://www.ruanyifeng.com/blog/2018/06/javascript-this.html
+http://www.ruanyifeng.com/blog/2017/05/websocket.html
+http://www.ruanyifeng.com/blog/2010/05/object-oriented_javascript_encapsulation.html
+http://www.ruanyifeng.com/blog/2010/05/object-oriented_javascript_inheritance.html
+http://www.ruanyifeng.com/blog/2010/05/object-oriented_javascript_inheritance_continued.html
+https://medium.com/@weberino/you-can-create-truly-private-properties-in-js-without-es6-7d770f55fbc3
+
+
+
+1、unix 五种 IO 模型
+   a、阻塞    System.in.read();         当前线程阻塞，所以一个线程只能读写一个文件
+   
+   b、非阻塞  System.in.read(timeout);  当前线程不阻塞，不过必须循环来判断是否可以读写文件
+
+   c、IO复用  select、poll和epoll      一个线程可以读写好多个文件，线程将多个文件句柄交个这三个方法，
+                                       这三个方法复制判断 文件 是否可读 可写，线程只阻塞在 这三个方法上
+
+   d、信号                             不阻塞线程，应用向内核注册钩子函数，在文件状态发生变化时，内核通知应用
+   
+   f、异步                             和d一样，只是内核在文件状态发生变化时，会把数据自动拷到应用的内存中，并在
+                                       此时通知应用
+
+      select 样例代码  http://www.tutorialspoint.com/unix_system_calls/_newselect.htm
+      poll   样例代码  http://pubs.opengroup.org/onlinepubs/009695399/functions/poll.html
+      epoll  样例代码  https://www.cnblogs.com/lojunren/p/3856290.html
+
+      select、poll和epoll的核心作用: 
+      
+      让一个线程通过它们来同时检测许多文件是否可读可写，
+      当它们检测到线程，委托它们管理的文件变为可读或可写时，
+      它们会把这些文件返回给线程，线程拿到这些文件就可以进行读或写操作，
+      文件不是随时都可以读写的，当一个线程对一个状态为不可读的文件进行读操作时，
+      线程会阻塞，写操作也是一样的，而通过上述三个方法返回的文件，一定是可读或可写的，所以线程不需要等待
+				     
+     对应到socket编程就为：
+     代表连接的socket也是一种文件，所以线程也可以将它委托给 select、poll和epoll 进行管理
+     从而可以只用一个线程就可以管理成千上万个连接(连接就是socket, socket是一种文件)
+
+
+      select 一次只能管1024个文件，
+             因为代码写死为1024个文件，
+	     而且它判断文件是否已好，是通过循环遍历，文件数组，所以文件越多，性能越差
+
+      poll  和select 几乎一样，只是poll没有 1024，这个文件数量限制
+      epoll 比它们好的地方是，它不需要遍历文件数组来获得文件状态的改变，
+            它通过给每个文件注册钩子函数来感知文件状态的变化，
+	    当文件状态发生改变时，会调用这个钩子函数
+
+
+[备注] c语言写socket的基本流程为 (https://github.com/hnakamur/luajit-examples/blob/master/socket/c/epoll-server.c)
+                                 
+socket fd = socket();              先创建一个socket文件
+bind(fd, port);                    绑定socket文件到某一个端口
+listen(fd);                        监听
+select(fd), poll(fd), epoll(fd)    然后把socket文件委托给这三个方法，(即线程阻塞到这里)
+                                   它们会在socket文件状态发生变化时，告知应用
+
+java nio 采用的是 (IO复用中的epoll),  Selector 就相当于 epoll，而 ServerSocketChannel就相当于 socket文件
+
+2、EventLoopGroup、EventLoop、Channel的关系
+
+EventLoopGroup 相当于线程池,
+
+EventLoop     相当于 线程
+
+a、每个EventLoop 有一个Selector(就是 select、poll和epoll，默认是epoll)
+
+b、每一个Selector，可以绑定许多javaChannel(就是socket，也就是连接，也就是文件，也就是可以让Selector进行管理)
+
+c、每一个javaChannel，又仅绑定了一个netty channel
+
+d、Selector，当检测到绑定到它身上的javaChannel的状态变为可读或可写时，
+   将这个javaChannel返回给EventLoop。
+
+e、EventLoop从javaChannel身上取出netty channel，
+   并让netty channel从javaChannel身上读数据
+
+f、netty channel将读到的byte[]data传递到绑定到它身上的channelHandler，进行后续处理
+
+
+综上所述、若每个netty channel绑定的都是同一个channelHandler，那么这个channelHandler有可能有并发的问题，
+   比如，netty channel 1 绑定到 EventLoop 1
+         netty channel 2 绑定到 EventLoop 2
+	 而 netty channel 1 和  netty channel 2 又都绑定了同一个 channelHandler，
+	 EventLoop 1 和 EventLoop 2 有可能并发的去执行 channelHandler 上的方法
+另外 
+     NioEventLoopGroup boss = new NioEventLoopGroup(1); 
+     NioEventLoopGroup worker = new NioEventLoopGroup(1);  ---> 这里1表示可以并发的处理多少个socket的数据
+     
+     boss线程池和worker线程池，都仅有一个线程
+     boss线程只需将 ServerSocketChannel 绑定到自身的 Selector既可以，处理
+    ServerSocketChannel.accept(), 来接受客户端的连接，并把连接传递给worker，
+    所以 它只需一个线程 处理 一个 javachannel
+
+    而 worker 虽然只有一个线程，但它却可以连接无数个 javachannel，
+    只需将 javachannel 绑定到它的 Selector 既可以，但因为它只有一个线程，
+    所以一次只能 读取 一个 javachannel的 数据
+
+    而传统的socket编程， 需要
+    一个线程来accept, accept多少个连接，就需要再起多少个线程来
+    处理accept的socket, 但是一个应用可以开启的线程是有限制的
+    
+                                                       
+
+	      
+	        

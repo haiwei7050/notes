@@ -1,0 +1,12 @@
+问题1：PATH的每一个量都以冒号:作为分隔符，这不利于显示.
+
+  echo $PATH
+
+#上条的输出如下所示
+#/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin
+
+需求：如何将让每一条占一行，即将冒号都换成回车换行  ':' ----> '\n'
+
+解决方法:
+
+echo $PATH | tr ':' '\n'

@@ -1,0 +1,306 @@
+1、dependencyManagement中scope为import的意义
+   https://stackoverflow.com/questions/11778276/what-is-the-difference-between-scope-import-and-pom-type-dependency
+
+2、maven supper pom 位置
+   maven-model-builder-3.5.4.jar   \org\apache\maven\model\pom-4.0.0.xml
+
+3、maven 三个生命周期定义的位置
+   maven-core-3.5.4.jar            \META-INF\plexus\components.xml
+   http://maven.apache.org/ref/3.5.2/maven-core/lifecycles.html
+
+4、maven每个生命周期的各个阶段，默认绑定的插件定义在
+   maven-core-3.5.4.jar            \META-INF\plexus\default-bindings.xml
+   http://maven.apache.org/ref/3.5.2/maven-core/default-bindings.html
+
+5、maven 官方参考文档
+   pom文件详解：http://maven.apache.org/pom.html
+   插件详解:    http://maven.apache.org/pom.html#Plugins (先看这里)
+                http://maven.apache.org/guides/mini/guide-configuring-plugins.html
+
+   插件解绑:    
+    重绑定到其它阶段(搜rebind)  http://maven.apache.org/guides/mini/guide-configuring-plugins.html
+    绑定到none                  https://stackoverflow.com/questions/15249345/disable-phases-in-maven-lifecycle
+                
+
+6、maven的生命周期
+   生命周期由phase组成，共三个生命周期 default Lifecycle、clean Lifecycle 、site Lifecycle
+
+   default:
+      validate
+      initialize
+      generate-sources
+      process-sources           
+      generate-resources
+    * process-resources         maven-resources-plugin:2.6:resources
+    * compile                   maven-compiler-plugin:3.1:compile
+      process-classes
+      generate-test-sources
+      process-test-sources      
+      generate-test-resources
+    * process-test-resources    maven-resources-plugin:2.6:testResources
+    * test-compile              maven-compiler-plugin:3.1:testCompile
+      process-test-classes
+    * test                      maven-surefire-plugin:2.12.4:test
+      prepare-package
+    * package                   maven-jar-plugin:2.4:jar
+      pre-integration-test
+      integration-test
+      post-integration-test
+      verify
+    * install                   maven-install-plugin:2.4:install
+    * deploy                    maven-deploy-plugin:2.7:deploy
+
+   clean:
+      pre-clean
+   *  clean                     maven-clean-plugin:2.5:clean
+      post-clean
+
+   site:
+     pre-site
+   * site                       maven-site-plugin:3.3:site
+     post-site
+   * site-deploy                maven-site-plugin:3.3:deploy
+
+7a、mvn 语法
+   通过 mvn --help可知 mvn后可以跟 goal 或 phase
+   
+   a、phase的情况
+      mvn clean test
+   
+   b、goal的情况
+      mvn groupId:artifactId:version:goal
+      mvn groupId:artifactId:goal
+      mvn prefix:goal
+      https://stackoverflow.com/questions/30833919/what-is-the-syntax-to-run-a-maven-plugin-from-the-command-line
+
+7b、mvn prefix:goal这种是怎么运行的
+   
+   prefix会被maven映射为groupId:artifactId，映射的方法是:
+   
+   a、看setting.xml中是否定义了
+      <pluginGroups>
+        <pluginGroup>插件的groupId</pluginGroup>
+      </pluginGroups>
+  
+   b、从插件库中, 下载 maven-metadata.xml
+      Downloaded from <仓库名字>: https://repo.maven.apache.org/maven2/     <groupId>         /maven-metadata.xml
+      Downloaded from central_backup: https://repo.maven.apache.org/maven2/<org/codehaus/mojo>/maven-metadata.xml
+
+      并将下好的 maven-metadata.xml 重命名为 maven-metadata-仓库名.xml
+      其中groupId为 步骤a <pluginGroups>中配置的 groupId，和两个默认的 org.apache.maven.plugins、org.codehaus.mojo.
+  
+   c、查看maven-metadata.xml，里面有prefix 和 artifactId的对应关系，然后再对应maven-metadata.xml位于哪个groupId下
+      即可得到 prefix ----> groupId:artifactId
+  
+  prefix有个约定
+  maven官方插件的的artifactId: maven-prefix-plugins
+  第三方的artifactId:          prefix-maven-plugins
+  
+  参考资料
+  https://stackoverflow.com/questions/40205664/how-does-maven-plugin-prefix-resolution-work-why-is-it-resolving-findbugs-but
+  https://maven.apache.org/guides/introduction/introduction-to-plugin-prefix-mapping.html
+
+8、maven的pom继承
+   
+   a、合并
+      <properties>
+      <dependencys>
+      <plugins>
+
+   b、覆盖
+      <resources>
+      
+
+   c、合并是指
+      parent的定义会和child的定义合并，结果为二者的合集
+
+   d、覆盖是指
+      1、当parent定义了，但child没有定义，则以parent定义的为准
+         parent
+            <project>
+	 	<build>
+	          <resources>
+                   <resource>
+                     <directory>parent</directory>
+                   </resource>
+                  </resources>
+	        </build>
+             </project>
+	 
+	  child 无
+	  
+	  结果
+            <project>
+	 	<build>
+	          <resources>
+                   <resource>
+                     <directory>parent</directory>
+                   </resource>
+                  </resources>
+	        </build>
+             </project>
+
+      2、当parent定义了，且child也定义了，则child的定义覆盖parent的定义
+
+         parent
+            <project>
+	 	<build>
+	          <resources>
+                   <resource>
+                     <directory>parent</directory>
+                   </resource>
+                  </resources>
+	        </build>
+             </project>
+	 
+	  child 
+            <project>
+	 	<build>
+	          <resources>
+                   <resource>
+                     <directory>child</directory>
+                   </resource>
+                  </resources>
+	        </build>
+             </project>	  
+	  结果
+            <project>
+	 	<build>
+	          <resources>
+                   <resource>
+                     <directory>child</directory>
+                   </resource>
+                  </resources>
+	        </build>
+             </project>
+
+9、maven <build>下<plugin>默认的结构为
+ <project>
+  <build>
+    ...
+    <plugins>
+      <plugin>
+        groupId
+        artifactId
+        version
+        extensions
+        inherited
+        configuration
+        dependencies
+        executions
+      </plugin>
+    </plugins>
+  </build>
+</project>
+  具体看 https://maven.apache.org/pom.html#Plugins
+
+10、maven plugin详解请看
+    http://maven.apache.org/guides/mini/guide-configuring-plugins.html
+
+    maven plugin由goal组成，goal只有绑定到phase才会被执行，一般通过配置
+    
+    <project>
+      <build>
+        <plugins>
+	  <plugin>
+	    ######### 通过配置下面这个，来绑定goal到某个phase #########
+            <executions>
+	      <execution>
+	        <goals>
+		    <goal></goal>
+		</goals>
+		<phase></phase>
+	       <exectuion>
+	    </executions>
+
+       若没有写<phase>，goal会绑定到其默认的phase，若没有，则goal不会执行，下面就是个完整的例子，
+       这个例子在上面的网页中(搜下面的那段话)
+
+<project>
+  ...
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-myquery-plugin</artifactId>
+        <version>1.0</version>
+        <executions>
+          <execution>
+            <id>execution1</id>
+            <phase>test</phase>
+            <configuration>
+              <url>http://www.foo.com/query</url>
+              <timeout>10</timeout>
+              <options>
+                <option>one</option>
+                <option>two</option>
+                <option>three</option>
+              </options>
+            </configuration>
+            <goals>
+              <goal>query</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>execution2</id>
+            <configuration>
+              <url>http://www.bar.com/query</url>
+              <timeout>15</timeout>
+              <options>
+                <option>four</option>
+                <option>five</option>
+                <option>six</option>
+              </options>
+            </configuration>
+            <goals>
+              <goal>query</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+  ...
+</project>
+
+
+    它有一段话：
+      The first execution with id "execution1" binds this configuration to the test phase. The second execution does not have a <phase> tag, how do you think will this execution behave? Well, goals can have a default phase binding as discussed further below. If the goal has a default phase binding then it will execute in that phase. But if the goal is not bound to any lifecycle phase then it simply won't be executed during the build lifecycle
+
+11、maven对pom的处理流程
+   a. maven会把super pom的内容和项目的pom文件进行合并
+   b. maven会把三个生命周期各个phase都绑定到对应的插件上
+      通过下面的方法绑定
+      <project>
+        <build>
+	  <plugins>
+	    <plugin>
+	        <groupId></groupId>
+                <artifactId></artifactId>
+                <version></version>
+               [-------->
+		<executions>
+		  <execution>
+		    <goals></goals>
+		    <phase></phase>
+		  </execution>
+		</executions>
+                -------->]
+	    </plugin>
+	  </plugins>
+	</build>
+      </project>
+
+   c、验证上述说法方法
+
+   1、新建一个最小的pom
+   <?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.tdr</groupId>
+    <artifactId>bbs</artifactId>
+    <version>1.0-SNAPSHOT</version>
+</project>
+  
+  2、mvn help:effective-pom

@@ -1,0 +1,822 @@
+mysql配置
+1、用systemd管理
+   https://www.google.co.uk/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&cad=rja&uact=8&ved=2ahUKEwiYyqq46MbdAhVCSN8KHXUAAekQFjAAegQIABAB&url=https%3A%2F%2Fdev.mysql.com%2Fdoc%2Frefman%2F5.7%2Fen%2Fusing-systemd.html&usg=AOvVaw1c_8RSOxPd7zeviyIfBvSD
+
+2、用mysql_safe (通过yum安装的mysql，不会安装这个)
+   https://dev.mysql.com/doc/refman/5.7/en/using-systemd.html#mysqld-safe-to-systemd-migration
+
+3、mysqld一般需要和mysql_safe配合运行，因为有些配置必须由mysql_safe设置
+    --pid-file, --open-files-limit, or --nice  # 这些只有mysql_safe可以读取而mysqld无法读取
+
+    mysql_safe支持的             <选项>  https://dev.mysql.com/doc/refman/5.7/en/mysqld-safe.html
+    mysqld和mysql_safe共同支持的 <选项>  https://dev.mysql.com/doc/refman/5.7/en/server-options.html
+    galera                       <选项>  http://galeracluster.com/documentation-webpages/mysqlwsrepoptions.html#index-23
+
+4、mysql配置文件my.cnf
+   语法 ---> https://dev.mysql.com/doc/refman/5.7/en/option-files.html
+   内容 ---> https://dev.mysql.com/doc/refman/5.7/en/server-option-variable-reference.html
+
+5、mysql有 
+   a、system variable  (https://dev.mysql.com/doc/refman/5.7/en/server-system-variables.html)
+      可以用 SHOW VARIABLES LIKE ""  来查看;
+      可以用 SET 变量名 值           来改变
+   b、status variable  (https://dev.mysql.com/doc/refman/5.7/en/server-status-variables.html)
+      可以用 SHOW STATUS LIKE "";
+   c、option
+      写在配置文件和命令行上的上面两种
+   参考 https://dev.mysql.com/doc/refman/5.7/en/server-option-variable-reference.html
+
+6、着重看下，注意页面最左侧的列表，可以看5的介绍
+   https://dev.mysql.com/doc/refman/5.7/en/server-options.html
+
+   节选
+   mysqld --verbose --help
+   
+   Some of the items in the list are actually system variables that can be set at server startup. 
+   These can be displayed at runtime using the SHOW VARIABLES statement.
+   Some items displayed by the preceding mysqld command do not appear in SHOW VARIABLES output;
+   this is because they are options only and not system variables.
+
+
+   Some options take file name values. 
+   Unless otherwise specified, the default file location is the data directory if the value is a relative path name.
+   To specify the location explicitly, use an absolute path name. 
+   Suppose that the data directory is /var/mysql/data. 
+   If a file-valued option is given as a relative path name, it will be located under /var/mysql/data.
+   If the value is an absolute path name, its location is as given by the path name.
+
+   
+----------------------------------------------------------------》下面配置只对 mysql-5.7.23
+
+主从配置步骤
+
+1、编辑master的配置文件
+	[mysqld]
+	server-id=1
+	log-bin=mysql-bin # 相对路径是相对于datadir ---> /var/lib/mysql/
+	
+	#bin-log专属
+	innodb_flush_log_at_trx_commit=1
+	sync_binlog=1
+
+	#GTID专属
+        gtid_mode=ON
+        enforce_gtid_consistency=true
+
+2、在master上建立新账号并赋权限
+	CREATE USER repl IDENTIFIED BY '1';
+	GRANT ALL ON *.* TO repl;
+	FLUSH PRIVILEGES;
+
+3、开两个客户端连上master #bin-log专属
+   客户端1 
+           FLUSH TABLES WITH READ LOCK; -- 加锁不让数据库的数据发生变化
+   客户端2 
+           SHOW MASTER STATUS\G          -- 查看binlog的坐标
+   客户端1
+           UNLOCK TABLES;
+
+4、编辑slave的配置文件
+    [mysqld]
+    server-id=2
+
+    #GTID专属
+     gtid_mode=ON
+     enforce-gtid-consistency=true
+
+5、在slave配置
+
+#bin-log专属
+CHANGE MASTER TO
+           MASTER_HOST='192.168.1.231',
+           MASTER_USER='repl',
+           MASTER_PASSWORD='1',
+           MASTER_LOG_FILE='mysql-bin.000001',
+           MASTER_LOG_POS=154;
+
+#GTID专属
+CHANGE MASTER TO
+           MASTER_HOST='192.168.1.231',
+           MASTER_USER='repl',
+           MASTER_PASSWORD='1',
+           MASTER_AUTO_POSITION=1;
+
+6、在slave上启动repliaction
+START SLAVE;
+
+7、验证replication是否成功，靠下面两个命令
+
+   a、在SLAVE上执行
+   SHOW SLAVE STATUS\G
+
+   b、在MASTER上执行
+   SHOW SLAVE HOSTS\G
+   
+   c、在5之后6之前 (SHOW PROCESSLIST的介绍https://dev.mysql.com/doc/refman/5.7/en/show-processlist.html)
+   SHOW PROCESSLIST; -- 只显示一个线程，即当前链接到msqld上的线程
+
+   d、在6之后
+   SHOW PROCESSLIST; -- 显示三个线程, 一个当前链接线程, 一个slave IO线程, 一个slave SQL线程
+
+DROP DATABASE IF EXISTS tdr;
+CREATE DATABASE tdr CHARACTER SET utf8 COLLATE utf8_bin;
+USE tdr;
+
+DROP TABLE IF EXISTS tbl_users;
+CREATE TABLE tbl_users (
+  col_id     INT            NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  col_name   VARCHAR(255)   NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+INSERT INTO tbl_users(col_name)VALUES('h1_1'),('h1_2'),("h1_3"),("h1_4");
+INSERT INTO tbl_users(col_name)VALUES('h1_5'),('h1_6'),("h1_7"),("h1_8");
+INSERT INTO tbl_users(col_name)VALUES('h2_1'),('h2_2'),("h2_3"),("h2_4");
+SELECT * FROM tbl_users;
+TRUNCATE TABLE tbl_users;
+
+
+CREATE TABLE tbl_orders (
+  col_id     INT            NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  col_name   VARCHAR(255)   NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+galera集群和PXC集群的必要条件
+   1、关闭防火墙
+      firewall、zone和firewall-cmd，详细介绍: https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/security_guide/sec-using_firewalls
+      firewall-cmd，                详细介绍：https://zhuanlan.zhihu.com/p/23519454
+
+   2、关闭selinux
+      查看、临时和永久更改，        详细介绍: https://linuxize.com/post/how-to-disable-selinux-on-centos-7/
+
+   3、不关防火墙，节点之间不能通信
+
+   4、不关闭selinux，会报"[ERROR]:Failed to read 'ready <addr>' from: wsrep_sst_rsync ..."，这样的错误
+      上面错误的详情，https://groups.google.com/forum/embed/?place=forum/codership-team&showsearch=true&showpopout=true&hl=en&parenturl=http%3A%2F%2Fgaleracluster.com%2Fcommunity%2F#!searchin/codership-team/Failed$20to$20read$20$27ready$20<addr>$27/codership-team/5jBXvX6CJB0/oVBbkBFlAQAJ
+   
+   5、至少三台机子
+
+galera集群
+[安装]
+   1、全新安装_1
+      a、添加 "galera" 的yum源，见<配置文件1_galera.repo>
+         vi /etc/yum.repos.d/galera.repo 
+      b、yum安装galera
+         yum install galera-3 mysql-wsrep-5.6
+      c、上步要是<报错>看这里： 
+         http://galeracluster.com/documentation-webpages/installmysql.html#centos-mysql-shared-compt
+   
+   2、全新安装_2
+      cd /usr/local/src
+      unzip galera.zip
+      cd galera
+      yum install -y *
+
+   3、非全新安装
+      a、复制配置文件并删除原mysql
+          mv /etc/my.cnf  /etc/my.cnf.bak  
+          yum remove mysql\*               
+      b、执行上面两个方法<全新安装_1>或<全新安装_2>，任一个即可
+
+[运行]
+   1、初始化运行
+      a、编辑mysqld的配置文件，见<配置文件2_初始化运行时的my.cnf>
+         vi /etc/my.cnf 
+      b、启动mysqld
+         systemctl start mysqld
+      c、获得root的初始密码
+         grep 'temporary password' /var/log/mysqld.log
+      d、登录并修改root密码
+         mysql -uroot -p
+	 ALTER USER 'root'@'localhost' IDENTIFIED BY 'a1b2c3d4F0.';
+	 uninstall plugin validate_password;            
+	 ALTER USER 'root'@'localhost' IDENTIFIED BY '1';
+   
+   2、为集群做准备并
+      a、暂停mysql服务器
+         systemctl stop mysqld
+      b、禁止mysql开机重启
+         systemctl disable mysqld.service
+      c、编辑mysqld的配置文件，见<配置文件3_galera集群的my.cnf>
+         vi /etc/my.cnf
+      d、重启
+        reboot
+
+  3、开启集群
+     1、开启第一个节点，任选一台机子作为初始节点, 并执行下面命令
+        systemctl stop mysqld
+	/usr/bin/mysqld_bootstrap
+     2、在其他机子上正常重启mysql即可 (一次起一台)
+        systemctl restart mysqld 
+     3、验证集群是否开启
+        SHOW STATUS LIKE 'wsrep_cluster_size';          -- 查看集群中有几个机子
+        SHOW STATUS LIKE 'wsrep_local_state_comment';   -- 查看本机的状态：Synced = 正常
+        SHOW STATUS LIKE 'wsrep_ready';                 
+
+[故障恢复]
+   galera至少需要三个机器才能组成集群，当集群运行起来时，任一个节点的关掉都不影响其他节点的工作
+   
+   1、一个或多个节点挂掉  --------> 非整个集群挂掉
+     在挂掉的节点重启mysqld即可
+     systemctl restart mysqld
+
+   2、整个集群挂掉 (https://dba.stackexchange.com/questions/157500/how-to-recover-mariadb-galera-cluster-after-full-crash)
+      1、确定最后一个挂掉的机子
+         
+	 a、查看每台机子的grastate.dat文件
+            vi /var/lib/mysql/grastate.dat
+	
+	 b、查看最后的GTID序号
+	    mysqld --wsrep-recover;grep "Recovered position" /var/log/mysqld.log
+            
+	    输出的格式: uuid                                :GTID
+            输出:       f778c03e-b57b-11e8-bba3-f7d65d9750ca:11
+
+	 c、比较步骤a和步骤b中的GTID，选取
+	      GTID最大
+	      且
+	      grastate.dat文件 safe_to_bootstrap为1
+	      的机子作为，第一个节点
+
+       2、在第一个节点执行
+          systemctl stop mysqld
+	  /usr/bin/mysqld_bootstrap
+
+       3、在其他节点执行
+          systemctl restart mysqld
+
+    3、脑裂
+       a、什么情况出现
+          集群只剩两台机子且: 
+	     没挂但没网了: systemctl disable network
+	         或， 
+	     任一个挂了且没来及通知对方：killall -9 mysqld
+       b、出现后的状况
+          这时仅剩的机子不提供服务
+       c、怎么解决
+          在任意一台机子上，执行下面命令，并开网
+	  mysql -uroot -p  
+          SET GLOBAL wsrep_provider_options='pc.bootstrap=1';
+[官方文档]
+   http://galeracluster.com/documentation-webpages/
+
+PXC集群
+[安装]
+   1、全新安装_1
+      a、添加 "PXC" 的yum源
+         yum install http://www.percona.com/downloads/percona-release/redhat/0.1-6/percona-release-0.1-6.noarch.rpm
+      b、yum安装PXC cluster
+         yum install Percona-XtraDB-Cluster-57
+      
+   2、全新安装_2
+      cd /usr/local/src
+      unzip PXC.zip
+      cd PXC
+      yum install -y *
+
+[运行]
+   1、初始化运行
+      a、编辑mysqld的配置文件，见<配置文件2_初始化运行时的my.cnf>
+         vi /etc/my.cnf 
+      b、启动mysqld
+         systemctl start mysql
+      c、获得root的初始密码
+         grep 'temporary password' /var/log/mysqld.log
+      d、登录并修改root密码
+         mysql -uroot -p           
+	 ALTER USER 'root'@'localhost' IDENTIFIED BY '1';
+      e、创建集群需要的用户
+         CREATE USER repl IDENTIFIED BY '1';  -- 这里创建的用户不能带主机地址，因为PXC会自己加(默认为 @localhost)
+	 GRANT RELOAD, LOCK TABLES, PROCESS, REPLICATION CLIENT ON *.* TO repl;
+   
+   2、为集群做准备并
+      a、暂停mysql服务器
+         systemctl stop mysql
+      b、禁止mysql开机重启
+         systemctl disable mysql.service
+      c、编辑mysqld的配置文件，见<配置文件4_PXC集群的my.cnf>
+         vi /etc/my.cnf
+      d、重启
+        reboot
+
+  3、开启集群
+     1、开启第一个节点，任选一台机子作为初始节点, 并执行下面命令
+        systemctl stop mysql
+	systemctl start mysql@bootstrap.service
+     2、在其他机子上正常重启mysql即可 (一次起一台)
+        systemctl restart mysql
+     3、验证集群是否开启
+        SHOW STATUS LIKE 'wsrep_cluster_size';
+        SHOW STATUS LIKE 'wsrep_local_state_comment';
+        SHOW STATUS LIKE 'wsrep_ready';
+
+[故障恢复]
+   PXC至少需要三个机器才能组成集群，当集群运行起来时，任一个节点的关掉都不影响其他节点的工作
+   
+   1、一个或多个节点挂掉  --------> 非整个集群挂掉
+     在挂掉的节点重启mysqld即可
+     systemctl restart mysql
+
+   2、整个集群挂掉 (https://dba.stackexchange.com/questions/157500/how-to-recover-mariadb-galera-cluster-after-full-crash)
+      1、确定最后一个挂掉的机子
+         
+	 a、查看每台机子的grastate.dat文件
+            vi /var/lib/mysql/grastate.dat
+	
+	 b、查看最后的GTID序号
+	    mysqld --wsrep-recover;grep "Recovered position" /var/log/mysqld.log
+            
+	    输出的格式: uuid                                :GTID
+            输出:       f778c03e-b57b-11e8-bba3-f7d65d9750ca:11
+
+	 c、比较步骤a和步骤b中的GTID，选取GTID最大的机子作为，第一个节点
+
+       2、在第一个节点执行
+          systemctl stop mysql
+	  systemctl start mysql@bootstrap.service
+
+       3、在其他节点执行
+          systemctl restart mysql
+          
+
+    3、脑裂
+       a、什么情况出现
+          集群只剩两台机子且: 
+	     没挂但没网了: systemctl disable network
+	         或， 
+	     任一个挂了且没来及通知对方：killall -9 mysqld
+       b、出现后的状况
+          这时仅剩的机子不提供服务
+       c、怎么解决
+          在任意一台机子上，执行下面命令，并开网
+          SET GLOBAL wsrep_provider_options='pc.bootstrap=1';
+[官方文档]
+https://www.percona.com/doc/percona-xtradb-cluster/5.7/index.html
+
+附录
+
+<配置文件1_galera.repo>
+[galera]
+name = Galera
+baseurl = http://releases.galeracluster.com/galera-3/DIST/RELEASE/ARCH
+gpgkey = http://releases.galeracluster.com/GPG-KEY-galeracluster.com
+gpgcheck = 1
+
+[mysql-wsrep]
+name = MySQL-wsrep
+baseurl =  http://releases.galeracluster.com/mysql-wsrep-VERSION/DIST/RELEASE/ARCH
+gpgkey = http://releases.galeracluster.com/GPG-KEY-galeracluster.com
+gpgcheck = 1
+
+
+<配置文件2_初始化运行时的my.cnf>
+[mysqld]
+datadir=/var/lib/mysql
+socket=/var/lib/mysql/mysql.sock
+symbolic-links=0
+
+log-error=/var/log/mysqld.log
+pid-file=/var/run/mysqld/mysqld.pid
+user=mysql
+explicit_defaults_for_timestamp=1
+log_timestamps=SYSTEM
+character-set-server=utf8
+collation-server=utf8_bin
+
+[client]
+default-character-set=utf8
+
+
+<配置文件3_galera集群的my.cnf>
+[mysqld]
+datadir=/var/lib/mysql
+socket=/var/lib/mysql/mysql.sock
+symbolic-links=0
+
+log-error=/var/log/mysqld.log
+pid-file=/var/run/mysqld/mysqld.pid
+user=mysql
+explicit_defaults_for_timestamp=1
+log_timestamps=SYSTEM
+character-set-server=utf8
+collation-server=utf8_bin
+
+binlog_format=ROW
+bind-address="*"
+default_storage_engine=innodb
+innodb_autoinc_lock_mode=2
+innodb_flush_log_at_trx_commit=0
+innodb_buffer_pool_size=122M
+
+wsrep_provider=/usr/lib64/galera-3/libgalera_smm.so
+wsrep_provider_options="gcache.size=300M; gcache.page_size=300M"
+wsrep_cluster_name="tdr"
+ # 下面是集群机器的地址列表
+ # 但是不需要列出集群的所有机子，
+ # 因为本机在加入集群时，会挨个试这个列表中的机子，
+ # 只要任意一个在集群中本机就能加入到集群里
+wsrep_cluster_address="gcomm://192.168.1.231,192.168.1.232,192.168.1.233"
+wsrep_sst_method=rsync
+
+wsrep_node_name=node1
+wsrep_node_address="192.168.1.231"
+
+[client]
+default-character-set=utf8
+
+
+<配置文件4_PXC集群的my.cnf>
+[mysqld]
+datadir=/var/lib/mysql
+socket=/var/lib/mysql/mysql.sock
+symbolic-links=0
+
+log-error=/var/log/mysqld.log
+pid-file=/var/run/mysqld/mysqld.pid
+user=mysql
+explicit_defaults_for_timestamp=1
+log_timestamps=SYSTEM
+character-set-server=utf8
+collation-server=utf8_bin
+
+binlog_format=ROW
+bind-address="*"
+default_storage_engine=innodb
+innodb_autoinc_lock_mode=2
+wsrep_cluster_name="tdr"
+ # 下面是集群机器的地址列表
+ # 但是不需要列出集群的所有机子，
+ # 因为本机在加入集群时，会挨个试这个列表中的机子，
+ # 只要任意一个在集群中本机就能加入到集群里
+wsrep_cluster_address="gcomm://192.168.1.231,192.168.1.232,192.168.1.233"
+wsrep_provider=/usr/lib64/galera3/libgalera_smm.so
+wsrep_sst_method=xtrabackup-v2
+wsrep_sst_auth=repl:1
+pxc_strict_mode=ENFORCING
+
+wsrep_node_name=node1
+wsrep_node_address="192.168.1.231"
+
+
+[keeplived安装]
+
+1、下载安装编译需要的库
+    yum install -y openssl-devel libnl3-devel ipset-devel iptables-devel libnfnetlink-devel file-devel net-snmp-devel glib2-devel json-c-devel pcre2-devel python-sphinx epel-release python-sphinx_rtd_theme
+    cd /usr/local/src
+    tar -zxf keepalived-2.0.7.tar.gz
+    cd keepalived-2.0.7
+    ./configure && make && make install
+    mkdir /etc/keepalived
+    cp /usr/local/etc/keepalived/keepalived.conf /etc/keepalived
+    cp /usr/local/etc/sysconfig/keepalived /etc/sysconfig/
+    vi /etc/keepalived/keepalived.conf
+
+2、启动
+   systemctl restart keepalived
+
+3、验证 
+   开两台机子
+   A: 启动 keepalived
+      ip addr show ens33  # 此时应该 <没有> 虚拟ip的信息
+   B: ping 192.168.1.110
+   A: ip addr show ens33  # 此时应该 <有> 虚拟ip的信息
+
+4、日志
+   tail -f /var/log/messages
+   修改日志 : https://blog.csdn.net/u013256816/article/details/49356689
+
+5、注意
+   一定要设置Jdbc Driver的延时，否则，当主从切换时，驱动不会报错，而是一直阻塞在那里
+   jdbc:mysql://192.168.1.110:3306?useSSL=false&connectTimeout=10&socketTimeout=10
+   其中 connectTimeout 是初始建立连接的超时
+        socketTimeout  是通信中的超时
+
+    https://stackoverflow.com/questions/7360520/connectiontimeout-versus-sockettimeout
+
+vrrp_instance VI_1 {
+    state MASTER
+    interface ens33
+    virtual_router_id 51
+    priority 100   # 从机把这个改小
+    advert_int 1
+    authentication {
+        auth_type PASS
+        auth_pass 123456
+    }   
+    virtual_ipaddress {
+        192.168.1.110/24
+    }   
+}
+
+
+
+[HAProxy安装]
+1、下载并安装
+   yum install -y make gcc perl pcre-devel zlib-devel openssl-devel systemd-devel
+   cd /usr/local/src
+   tar -zxf haproxy-1.8.14.tar.gz
+   cd haproxy-1.8.14
+   make TARGET=linux2628 USE_PCRE=1 USE_GETADDRINFO=1 USE_OPENSSL=1 USE_ZLIB=1 USE_SYSTEMD=1 && make install
+   
+   vi /etc/haproxy.conf
+   
+   vi /etc/bashrc
+   
+   haproxy -f /etc/haproxy.conf -D -p /var/run/haproxy.pid -sf $(cat /var/run/haproxy.pid)
+
+alias hd='/usr/local/sbin/haproxy -f /etc/haproxy.conf -D -p /var/run/haproxy.pid -sf $(cat /var/run/haproxy.pid)'
+
+global
+ daemon
+ maxconn 1
+
+defaults
+ timeout connect 5000ms
+ timeout client  50000ms
+ timeout server  50000ms
+
+listen mysql
+ mode  tcp
+ bind *:3306
+  ##########################################
+ # 这里也有maxconn，且如果不指定默认值为2000，
+ # 见文档(http://cbonte.github.io/haproxy-dconv/1.8/configuration.html#4-maxconn)
+ # 当global中的maxconn不大于2000时，这里可以不写，否则必须改为和global一样大
+ #maxconn   
+
+ server c7e 192.168.1.234:3306
+ server c7f 192.168.1.235:3306
+
+timeout connect --->  haproxy 和  <后端服务器> 建立连接需要的最大时长, 即socket.connect阻塞的最大时长
+timeout client  --->  haproxy 阻塞在读取 <客户端>     输入上的最大时长,   即socket.read阻塞的最大时长，超时则断开连接
+timeout server  --->  haproxy 阻塞在读取 <后端服务器> 输入上的最大时长,   即socket.read阻塞的最大时长，超时则断开连接
+2、文档
+http://cbonte.github.io/haproxy-dconv/1.8/configuration.html
+
+
+
+[LVS]
+1、LVS是什么
+   介绍:     https://blog.csdn.net/cywosp/article/details/38056811
+   官方文档: http://www.linuxvirtualserver.org/software/ipvs.html
+             http://www.linuxvirtualserver.org/VS-DRouting.html
+2、必要条件
+   a、三台机子
+   192.168.1.230(LVS,     主机) 
+   192.168.1.234(mycat_1, 从机)
+   192.168.1.235(mycat_2, 从机)
+   
+   b、虚拟ip
+   192.168.1.110(虚拟ip)
+   ***上面三台机子都配置虚拟ip***
+
+   c、LVS的内核参数配置(主机)
+      vi /etc/sysctl.conf
+net.ipv4.tcp_tw_reuse = 1            # 不是必需的
+net.ipv4.tcp_tw_recycle = 1          # 不是必需的
+
+
+
+   d、mycat_1, mycat_2的内核参数配置(从机)
+      vi /etc/sysctl.conf
+net.ipv4.tcp_tw_reuse = 1            # 不是必需的
+net.ipv4.tcp_tw_recycle = 1          # 不是必需的
+net.ipv4.conf.all.arp_ignore = 1     # 必需的      -->这个影响怎么配置虚拟网卡，一定要看文档理解它的意思(在下面)
+net.ipv4.conf.all.arp_announce = 2   # 不是必需的
+net.ipv4.conf.lo.arp_ignore = 1      # 必需的
+net.ipv4.conf.lo.arp_announce = 2    # 不是必需的
+net.ipv4.ip_forward = 1              # 必需的
+   
+   e1、配置虚拟网卡(LVS, 主机)
+      vi /etc/sysconfig/network-scripts/ifcfg-ens33:0
+      ifup ens33:0
+
+DEVICE="ens33:0"
+ONBOOT="yes"
+TYPE="Ethernet"
+BOOTPROTO=static
+BROADCAST=192.168.1.255
+IPADDR=192.168.1.110
+NETMASK=255.255.255.0
+ONBOOT=yes
+TYPE=Ethernet
+NM_CONTROLLED="no"
+
+   e2、配置虚拟网卡(mycat, 从机)                                               
+      firewall-cmd --permanent --direct --add-rule ipv4 nat PREROUTING 0 -p tcp -d 192.168.1.110 --dport 3306 -j REDIRECT --to-ports 3306
+
+3、LVS
+   a、安装
+      yum install -y ipvsadm
+      touch /etc/sysconfig/ipvsadm
+      systemctl enable ipvsadm
+      lsmod | grep ip_vs # 验证ipvs内核模块是否加载，默认不加载，该命令输出为空=没有加载，不为空=加载
+      systemctl start ipvsadm # 加载ipvs内核模块
+   
+   b、使用
+      建立一个LVS :  ipvsadm COMMAND [protocol] service-address [scheduling-method] [persistence options]
+                  ipvsadm -A -t 192.168.1.110:3306 -s wlc
+      建立LVS的转发: ipvsadm command [protocol] service-address server-address [packet-forwarding-method] [weight options]
+                  ipvsadm -a -t 192.168.1.110:3306 -r 192.168.1.234:3306 -g
+                  ipvsadm -a -t 192.168.1.110:3306 -r 192.168.1.235:3306 -g
+
+4、内核参数的文档
+   官方手册: https://github.com/torvalds/linux/blob/v4.5-rc6/Documentation/networking/ip-sysctl.txt
+   arp_ignore
+   arp_announce 具体介绍这两个的：https://www.jianshu.com/p/734640384fda (比上面的好理解)
+
+5、端口映射的方法
+   a、修改内核参数(这步其实不是必需的)
+      net.ipv4.ip_forward = 1(默认为0)
+   b、三种工具
+      
+      假设本机的ip为 192.168.1.234，通过LVS(修改192.168.1.110的主机的MAC地址为本机)
+      收到了一个IP数据包<源地址:192.168.1.104, 目的地址: 192.168.1.110>，
+      现需要
+      将目的地址为192.168.1.110,端口号为3306的包，重定向到本地3306端口上(下面是三种工具的实现)
+
+      ipchains      ipchains -A input -j REDIRECT 23 -d 192.168.1.110 3306 -p tcp
+      iptables      iptables -t nat -A PREROUTING -p tcp -d 192.168.1.110 --dport 3306 -j REDIRECT --to-ports 3306
+      firewall-cmd  firewall-cmd --permanent --direct --add-rule ipv4 nat PREROUTING 0 -p tcp -d 192.168.1.110 --dport 3306 -j REDIRECT --to-ports 3306
+      只有firewall-cmd能永久保存
+
+      ipchains参考资料：
+                      google ipchains或者google man ipchains
+      iptables参考资料:
+                      man iptables
+		      man iptables-extensions
+                      https://unix.stackexchange.com/questions/111433/iptables-redirect-outside-requests-to-127-0-0-1
+      firewall-cmd参考资料:
+                      man iptables
+		      man iptables-extensions
+		      man firewall-cmd  并搜索 --direct
+       用法总结
+       iptables -t table {增删改查的命令} chain (过滤包的条件) -j target
+       firewall-cmd --permanent --direct --add-rule {ipv4|ipv6|eb} table chain 权限 (过滤包的条件) -j target
+
+       table          ------> 可以查man iptables
+       chain          ------> 和table配套，所以也可以查 man iptables
+       增删改查的命令 ------> 可以查man iptables
+       过滤包的条件   ------> 可以查man iptables
+       target         ------> 可以查man iptables-extensions
+       权限           ------> 可以查man firewall-cmd  并搜索 --direct
+     
+
+     
+6、一些有用的工具
+   a、抓包工具tcpdump
+   yum install -y tcpdump
+
+   b、简易的tcp连接工具 nc
+   yum install -y nmap-ncat
+
+   假设有两台机子 A、B
+   
+   在机子A：
+   nc -l ip地址:端口  # 监听<ip地址:端口>
+   
+   在机子B(一个窗口)：
+     格式: tcpdump -i 要监听的网卡 -ent 表达式 # 表达式介绍请看 man pcap-filter
+     实际: tcpdump -i ens33 -ent '(dst 192.168.1.110 and src 192.168.1.235) or (dst 192.168.1.235 and src 192.168.1.110)'
+     上面是监听ARP报文
+
+   在机子B(另一个窗口)：
+   nc ip地址:端口 #即向A发起tcp连接请求
+
+
+[mysql负库存解决方法]
+解决方法              https://www.cnblogs.com/wuyifu/p/4065664.html
+原理                  https://www.cnblogs.com/huanongying/p/7021555.html
+
+数据库事务和锁        http://www.cnblogs.com/crazylqy/p/7611069.html?tdsourcetag=s_pcqq_aiomsg(一定要看，非常经典)
+                      http://hedengcheng.com/?p=844
+总结:
+ 
+ A
+  select count from prod WHERE id = 13;
+  if count - buy > 0
+  then 
+    update prod set count = count - buy WHERE id = 13
+
+ B 
+   update prod set count = count - buy WHERE id = 13
+   select count from prod WHERE id = 13;
+   if(count > 0){
+      throw new RuntimeException("不能卖，负库存了");
+   }
+
+A可能出现负库存，而B不会出现负库存，因为(下面这句话摘抄自第二个链接，看第二个链接就能明白)
+ select操作不会更新版本号，是快照读（历史版本）；insert、update和delete会更新版本号，是当前读（当前版本）
+
+prod表
+id  count 
+13    1
+
+窗口1
+start transaction;
+select count from prod WHERE id = 13;            -- 输出 1
+
+窗口2
+start transaction;                           
+update prod SET count = count -1 WHERE id =13    -- 此时未提交事务，count = 0
+
+窗口1
+update prod SET count = count -1 WHERE id =13    -- 会卡住，因为 窗口2的事务没有提交
+
+窗口2
+  commit;                                         -- 上面的命令恢复运行，且 count = -1
+
+窗口1
+select count from prod WHERE id = 13;            -- 输出 1，这是因为(看第二个链接，搜下面的话)
+                                                            "select操作不会更新版本号，是快照读（历史版本）；
+		                                              insert、update和delete会更新版本号，是当前读（当前版本）"
+
+
+
+--------> 下面还有一些附录，看下
+
+
+
+
+
+
+
+
+http://www.linuxvirtualserver.org/VS-DRouting.html
+
+Flume
+Hbase
+Hive
+Zookeeper
+MR
+Impala
+ES
+Docker
+pika
+codis
+Raequet
+
+
+
+cat /proc/net/netstat | awk '/TcpExt/ { print $21,$22 }'
+
+
+
+
+
+
+
+mysql集群方案
+https://www.zhihu.com/question/21307639
+https://zhuanlan.zhihu.com/p/25960208
+galera Mycat
+http://galeracluster.com/documentation-webpages/
+
+
+https://www.percona.com/doc/percona-xtradb-cluster/5.7/index.html
+
+
+当启动第二个节点报错为[ Failed to read 'ready <addr>' from: wsrep_sst_rsync ...]时的解决方法
+这是因为没有关selinux,关掉selinux就好了
+关selinux的方法
+https://linuxize.com/post/how-to-disable-selinux-on-centos-7/
+https://groups.google.com/forum/embed/?place=forum/codership-team&showsearch=true&showpopout=true&hl=en&parenturl=http%3A%2F%2Fgaleracluster.com%2Fcommunity%2F#!searchin/codership-team/Failed$20to$20read$20$27ready$20<addr>$27/codership-team/5jBXvX6CJB0/oVBbkBFlAQAJ
+
+pt-online-schema-change
+
+附录1
+mysql -h"localhost" -uroot -p
+mysql -uroot -p
+上面两个都没有用TCP/IP跟mysql服务器通信，而是unix进程通信
+
+附录2
+权限分类
+1 Administrative privileges
+2 Database privileges
+3 Privileges for database objects such as tables, indexes, views
+
+附录3
+mysql配置文件my.cnf
+语法 ---> https://dev.mysql.com/doc/refman/5.7/en/option-files.html
+内容 ---> https://dev.mysql.com/doc/refman/5.7/en/server-option-variable-reference.html
+
+
+附录4 EXPLAIN 
+   type: system > const > eq_ref > ref > [unique_subquery > index_subquery ] > range > index > all
+   eq_ref vs ref https://stackoverflow.com/questions/4508055/what-does-eq-ref-and-ref-types-mean-in-mysql-explain
+   
+   a、unique_subquery 和 index_subquery 应用在 IN()：
+      SELECT * FROM tbl_prod WHERE pid IN(SELECT pid FROM tbl_order_details WHERE col_order_id = 1);
+
+   b、eq_ref 和 ref 应用在 连表查询：
+      SELECT * FROM tbl_prod p, (SELECT pid FROM tbl_order_details WHERE col_order_id = 1) a WHERE p.pid = a.pid;
+      
+   c、eq_ref 等同于 unique_subquery 
+      ref    等同于 index_subquery 
+   d、由上面性能排序可知，表联合查询优于 IN()子查询
+
+附录5 重要资源
+图像搜索框架python https://github.com/ascribe/image-match
+大数据介绍
+                   https://dbaplus.cn/news-73-1331-1.html
+                   https://chu888chu888.gitbooks.io/hadoopstudy/content/Content/chapter20.html
+

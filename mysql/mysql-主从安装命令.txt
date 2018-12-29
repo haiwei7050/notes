@@ -1,0 +1,305 @@
+[mysqld]
+datadir=/var/lib/mysql
+socket=/var/lib/mysql/mysql.sock
+symbolic-links=0
+
+log-error=/var/log/mysqld.log
+pid-file=/var/run/mysqld/mysqld.pid
+user=mysql
+character-set-server=utf8
+collation-server=utf8_bin
+server-id=1
+log-bin=mysql-bin
+innodb_flush_log_at_trx_commit=1
+sync_binlog=1
+log_slave_updates=true
+binlog_format=ROW
+
+[client]
+default-character-set=utf8
+
+
+
+[mysqld]
+datadir=/var/lib/mysql
+socket=/var/lib/mysql/mysql.sock
+symbolic-links=0
+
+log-error=/var/log/mysqld.log
+pid-file=/var/run/mysqld/mysqld.pid
+user=mysql
+character-set-server=utf8
+collation-server=utf8_bin
+server-id=2
+ 
+[client]
+default-character-set=utf8
+
+cd /usr/local/src
+tar -xf MySQL-5.5.61-1.el7.x86_64.rpm-bundle.tar -C md
+cd md
+yum install -y MySQL-{server,client,shared}-*
+mkdir /var/run/mysqld
+chown -R mysql:mysql /var/run/mysqld /var/lib/mysql
+vi /etc/my.cnf
+
+/etc/init.d/mysql start
+mysql -uroot
+SET PASSWORD FOR 'root'@'localhost' = PASSWORD('1');
+
+CREATE USER repl IDENTIFIED BY '1';
+GRANT ALL ON *.* TO repl;
+FLUSH PRIVILEGES;
+
+
+MY_BASEDIR_VERSION=/usr
+MYSQL_HOME=/usr
+ledir=/usr/sbin
+DATADIR=/var/lib/mysql
+oldpwd=/usr/bin
+want_syslog=0
+logdir=/var/log
+
+
+lockdir='/var/lock/subsys'
+lock_file_path="/var/lock/subsys/mysql"
+basedir=/usr
+bindir=/usr/bin
+datadir=/var/lib/mysql
+sbindir=/usr/sbin
+libexecdir=/usr/sbin
+
+
+CHANGE MASTER TO
+           MASTER_HOST='192.168.1.234',
+           MASTER_USER='repl',
+           MASTER_PASSWORD='1',
+           MASTER_LOG_FILE='mysql-bin.000002',
+           MASTER_LOG_POS=1232;
+
+
+DROP DATABASE IF EXISTS tdr;
+CREATE DATABASE tdr CHARACTER SET utf8 COLLATE utf8_bin;
+USE tdr;
+
+DROP TABLE IF EXISTS tbl_users;
+CREATE TABLE tbl_users (
+  col_id     INT            NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  a          INT            NOT NULL,
+  b          VARCHAR(10)    NOT NULL,
+  c          DATETIME       NOT NULL,
+  INDEX(a,b,c)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+INSERT INTO tbl_users(a,b,c)VALUES(1, "f", "2018-01-01"),
+(2, "e", "2018-02-01"),
+(3, "c", "2018-03-01"),
+(4, "b", "2018-04-01"),
+(5, "a", "2018-05-01")
+;
+
+
+SELECT * FROM tbl_users;
+
+USE tdr
+DESC tbl_users;
+
+
+
+
+
+
+
+cd /usr/local/src/md
+yum install -y mysql-community-{server,client,common,libs}-* mysql-5.*­ --exclude='*minimal*'
+vi /etc/my.cnf
+
+
+systemctl start mysqld
+grep 'temporary password' /var/log/mysqld.log
+mysql -uroot -p
+
+
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'a1b2c3d4F0.';
+uninstall plugin validate_password;             -- 删除密码验证工具，以便设置简单密码
+ALTER USER 'root'@'localhost' IDENTIFIED BY '1';
+
+CREATE USER repl IDENTIFIED BY '1';
+GRANT ALL ON *.* TO repl;
+FLUSH PRIVILEGES;
+FLUSH TABLES WITH READ LOCK; 
+SHOW MASTER STATUS\G
+UNLOCK TABLES;
+
+
+CREATE USER test IDENTIFIED BY '1';
+GRANT ALL ON *.* TO test;
+CREATE USER c7e IDENTIFIED BY '1';
+FLUSH PRIVILEGES;
+
+CREATE USER test IDENTIFIED BY '1';
+GRANT ALL ON *.* TO test;
+CREATE USER c7f IDENTIFIED BY '1';
+FLUSH PRIVILEGES;
+
+
+
+CREATE USER test IDENTIFIED BY '1';
+GRANT ALL ON *.* TO test;
+CREATE USER c7b IDENTIFIED BY '1';
+FLUSH PRIVILEGES;
+
+CREATE USER test IDENTIFIED BY '1';
+GRANT ALL ON *.* TO test;
+CREATE USER c7c IDENTIFIED BY '1';
+FLUSH PRIVILEGES;
+
+CREATE USER test IDENTIFIED BY '1';
+GRANT ALL ON *.* TO test;
+CREATE USER c7d IDENTIFIED BY '1';
+FLUSH PRIVILEGES;
+
+
+SELECT CONCAT(Host, '@', User) FROM mysql.user;
+
+[mysqld]
+datadir=/var/lib/mysql
+socket=/var/lib/mysql/mysql.sock
+symbolic-links=0
+
+log-error=/var/log/mysqld.log
+pid-file=/var/run/mysqld/mysqld.pid
+user=mysql
+explicit_defaults_for_timestamp=1
+log_timestamps=SYSTEM
+character-set-server=utf8
+collation-server=utf8_bin
+server-id=1
+log-bin=mysql-bin
+innodb_flush_log_at_trx_commit=1
+sync_binlog=1
+log_slave_updates=true
+binlog_format=ROW
+
+[client]
+default-character-set=utf8
+
+
+
+
+[mysqld]
+datadir=/var/lib/mysql
+socket=/var/lib/mysql/mysql.sock
+symbolic-links=0
+
+log-error=/var/log/mysqld.log
+pid-file=/var/run/mysqld/mysqld.pid
+user=mysql
+explicit_defaults_for_timestamp=1
+log_timestamps=SYSTEM
+character-set-server=utf8
+collation-server=utf8_bin
+server-id=2
+
+
+[client]
+default-character-set=utf8
+
+
+
+
+
+
+DROP DATABASE IF EXISTS tdr;
+CREATE DATABASE tdr CHARACTER SET utf8 COLLATE utf8_bin;
+USE tdr;
+
+DROP TABLE IF EXISTS tbl_prods;
+CREATE TABLE tbl_prods (
+  id     INT                      NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  a      INT                      NOT NULL,
+  b      VARCHAR(255)             NOT NULL,
+  key (a),
+  key (b)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+
+
+
+DROP TABLE IF EXISTS tbl_users;
+CREATE TABLE tbl_users (
+  col_id     INT                      NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  col_name   VARCHAR(255)             NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+DROP TABLE IF EXISTS tbl_products;
+CREATE TABLE tbl_products (
+  col_id        INT                 NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  col_name      VARCHAR(255)        NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+DROP TABLE IF EXISTS tbl_orders;
+CREATE TABLE tbl_orders (
+  col_id        INT                 NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  col_user_id   INT                 NOT NULL,
+  col_begin     DATETIME            NOT NULL,
+  FOREIGN KEY (col_user_id) REFERENCES tbl_users(col_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+DROP TABLE IF EXISTS tbl_order_details;
+CREATE TABLE tbl_order_details (
+  col_id        INT                 NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  col_order_id  INT                 NOT NULL,
+  col_prod_id   INT                 NOT NULL,
+  FOREIGN KEY (col_order_id) REFERENCES tbl_orders(col_id),
+  FOREIGN KEY (col_prod_id)  REFERENCES tbl_products(col_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+SET foreign_key_checks = 0;
+
+SELECT * FROM tbl_users;
+SELECT * FROM tbl_products;
+SELECT * FROM tbl_orders;
+SELECT * FROM tbl_order_details;
+
+SELECT COUNT(*) FROM tbl_users;
+SELECT COUNT(*) FROM tbl_products;
+SELECT COUNT(*) FROM tbl_orders;
+SELECT COUNT(*) FROM tbl_order_details;
+
+
+
+
+INSERT INTO tbl_order_details(col_order_id, col_prod_id)VALUES
+(1,1),
+(1,2),
+(1,3);
+
+INSERT INTO tbl_products(col_name)VALUES
+('p1'),
+('p2'),
+('p3');
+
+ALTER TABLE tbl_orders ADD INDEX index_begin(col_begin);
+
+SELECT col_id, col_name FROM tbl_products WHERE col_id IN (SELECT od.col_prod_id FROM tbl_orders o, tbl_order_details od WHERE o.col_id = od.col_order_id AND o.col_user_id = 926 ORDER BY o.col_begin DESC, o.col_id ASC) LIMIT 0, 5;
+SELECT p.col_id, p.col_name FROM tbl_orders o, tbl_order_details od, tbl_products p WHERE o.col_id = od.col_order_id AND od.col_prod_id = p.col_id  AND o.col_user_id = 926 ORDER BY o.col_begin DESC, o.col_id ASC LIMIT 0, 5
+
+
+SET foreign_key_checks = 0;
+TRUNCATE tbl_users;
+TRUNCATE tbl_orders;
+TRUNCATE tbl_order_details;
+TRUNCATE tbl_products;
+SET foreign_key_checks = 1;
+
+
+SELECT * FROM tbl_users;
+SELECT * FROM tbl_orders;
+
+EXPLAIN SELECT col_id, col_begin, col_money FROM tbl_orders WHERE col_begin BETWEEN '2013-10-09' AND '2013-10-09' + INTERVAL 1 DAY \G
+EXPLAIN SELECT col_id, col_begin, col_money FROM tbl_orders WHERE DATE(col_begin) = DATE('2013-10-09')\G
+
+SELECT col_id, col_begin, col_money FROM tbl_orders WHERE col_begin BETWEEN '2013-10-09' AND '2013-10-09' + INTERVAL 1 DAY;
+SELECT col_id, col_begin, col_money FROM tbl_orders WHERE DATE(col_begin) = '2013-10-09';
+

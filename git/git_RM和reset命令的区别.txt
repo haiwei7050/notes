@@ -1,0 +1,19 @@
+1、问
+    git reset HEAD filename  
+       和 
+    git rm --cached filename
+  有什么区别
+
+答：f1  (全新未被追踪的文件，即状态为untrack)
+    git add f1; (此操作会将f1的状态从untrack变为track)
+    此时后悔了，不想track f1，那么需要执行
+    git rm --cached f1
+
+
+    f1 （已经提交过一次，现在修改）
+    git add f1(将修改过的f1加到缓存区)
+    此时，发现有东西忘给f1加了,
+    若用
+    git reset HEAD f1，会撤销缓存区的内容，改好f1后再git add f1;(正解)
+    而用
+    git rm --cached f1，则会将f1标为untrack，这显然是不正确的。

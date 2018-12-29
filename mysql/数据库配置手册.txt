@@ -1,0 +1,43 @@
+apt install -y libaio1 libnuma1
+dpkg -i mysql-common_5.7.19-1ubuntu16.04_amd64.deb
+dpkg-preconfigure mysql-community-server_5.7.19-1ubuntu16.04_amd64.deb
+dpkg -i libmysqlclient20_5.7.19-1ubuntu16.04_amd64.deb
+dpkg -i libmysqlclient-dev_5.7.19-1ubuntu16.04_amd64.deb
+dpkg -i libmysqld-dev_5.7.19-1ubuntu16.04_amd64.deb
+dpkg -i mysql-community-client_5.7.19-1ubuntu16.04_amd64.deb
+dpkg -i mysql-client_5.7.19-1ubuntu16.04_amd64.deb
+dpkg -i mysql-common_5.7.19-1ubuntu16.04_amd64.deb
+apt-get -f install
+dpkg -i mysql-community-server_5.7.19-1ubuntu16.04_amd64.deb
+dpkg -i mysql-server_5.7.19-1ubuntu16.04_amd64.deb
+
+
+mysqld --help --verbose | less 可以查看mysql默认都加载了哪些配置文件
+
+vi /etc/conf.d/mysql.conf   --- 修改客户端[client]的编码, 注意 [mysql]只针对mysql-cli, 而[client]对所有客户端都生效
+
+default-character-set=utf8
+
+
+
+vi /etc/mysql/mysql.conf.d/my.cnf  --- 修改服务器[mysqld]的编码
+
+init_connect="SET CHARACTER SET"      --以非root(mysql的root)登录时,才执行
+character-set-server=utf8
+collation-server=utf8_bin
+
+
+
+mysql -uroot -p
+CREATE USER 'exrd'@'%' IDENTIFIED BY 'exrd';
+GRANT ALL ON *.* TO 'exrd'@'%';
+exit
+
+mysql -uexrd -p
+CREATE DATABASE littleant CHARACTER SET utf8 COLLATE utf8_bin;
+use littleant;
+SOURCE  /usr/local/src/littleant.sql
+
+
+
+

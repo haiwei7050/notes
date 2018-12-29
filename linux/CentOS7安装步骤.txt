@@ -1,0 +1,265 @@
+注：查看装了什么软件 rpm -qa kernel\* | sort
+
+1、关掉gnome-initial-setup
+   vim /etc/gdm/custom.conf
+   [daemon]
+   InitialSetupEnable=false
+
+2、网络设置
+   
+   a: 网卡和域名 
+   uuidgen ens33
+   vi -O /etc/hosts /etc/hostname /etc/sysconfig/network-scripts/ifcfg-ens33
+
+   b: 防火墙设置(https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/security_guide/sec-using_firewalls)
+   firewall-cmd [--zone=public] --list-port                       #列出 <public> zone默认允许的端口
+   firewall-cmd [--zone=public] --list-service                    #列出 <public> zone默认允许的服务
+   firewall-cmd [--zone=public] --remove-port=3306/tcp --permanet #永久 删除 <public> zone中的端口, --permanet表示永久，没有写就是临时
+   firewall-cmd                 --remove-port=3306/tcp            #临时 删除 <默认, 不写--zone=public就是用默认zone> zone中的端口，端口格式: port/protocol
+
+   firewall-cmd --zone=public --add-port=3306/tcp --permanent  #添加mysql需要的端口
+   firewall-cmd --reload                                       
+   
+   firewall-cmd --get-default-zone                             #查看默认的zone
+   
+   firewall-cmd --set-default-zone=trusted                     #将默认zone设为<trusted>，即放开所有端口
+   上面这个语句一般直接生效，但是有可能不生效，
+   生不生效可以这么验证：
+   firewall-cmd --get-active-zone
+   要是不生效，最简单是重启
+   reboot
+   或者
+   firewall-cmd --zone=trusted -set-interface=ens33(ens33是网卡的名字)
+
+
+   zone ---> 一组预先设置好的过滤规则,有block、dmz、public、trusted.... 默认为public, 而trusted接受所有端口
+
+3、关闭selinux
+   https://linuxize.com/post/how-to-disable-selinux-on-centos-7/
+   selinux三种状态: Enforcing、Permissive和Disabled
+   enforcing， 开启selinux并且<拦截>
+   permissive，开启selinux但<不拦截>，只是记录
+   disabled，  关闭selinux
+
+   查看
+   sestatus
+
+   临时更改
+   setenforce 0 # 0 = permissive, 1 = enforcing，不能disabled
+
+   永久更改
+   vi /etc/selinux/config
+   将
+     "SELINUX=enforcing"
+   改为
+     "SELINUX=disabled"
+   reboot
+
+4、设置/etc/bashrc
+   vim /etc/bashrc
+   PS1='[\u@\h \w]\$ '
+   alias rm='/usr/bin/rm -rf'
+   alias la='/usr/bin/ls -la --color=auto'
+   alias grep='/usr/bin/grep --color=auto -P'
+   alias vi='/usr/bin/vim'
+   alias mr='/usr/bin/mysql -uroot -p'
+
+   export IDEA_HOME='/usr/local/idea'
+   export M2_HOME='/usr/local/maven_3_5'
+   export JAVA_HOME='/usr/local/jdk8'
+   export PATH=${IDEA_HOME}/bin:${M2_HOME}/bin:${JAVA_HOME}/bin:$PATH
+
+   . /etc/bashrc
+
+5、更换yum源为阿里
+   cd /etc/yum.repos.d
+   mv CentOS-Base.repo CentOS-Base.repo.bak
+   wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo
+   yum clean all
+   rm -rf /var/cache/yum
+   yum makecache
+
+6、装必要的软件
+   yum install gcc kernel-devel-`uname -r` tree telnet
+
+   ///////////////////////////////////////////////////////////////////////////
+   // 注意，有些软件的版本号需要和当前的内核号一样(uname -r 查看内核号)， 
+   // 例如 
+   //       yum install kernel-devel  #没有指定版本号，默认安装最新的
+   //       yum install kernel-devel-`uname -r`  #指定了版本号，安装指定版本号的
+   ///////////////////////////////////////////////////////////////////////////
+7、删除自带的open-jdk
+   yum remove `yum list installed java\*`
+
+8、安装搜狗输入法
+   
+   a、装epel源和必备软件包
+      yum install -y epel-release 
+      yum install -y qtwebkit dpkg fcitx fcitx-configtool redhat-lsb
+   
+   b、添加环境变量
+      vi /etc/bashrc
+        export XMODIFIERS=@im=fcitx
+        export GTK_IM_MODULE=fcitx
+        export QT_IM_MODULE=fcitx
+        export XIM=fcitx
+
+   c、切换到fcitx并重启
+      imsettings-switch fcitx  #要在GUI界面下运行
+      reboot
+
+  下载搜狗输入法（https://pinyin.sogou.com/linux/?r=pinyin）
+   mkdir ~/sogou
+   mv sogoupinyin_2.2.0.0108_amd64.deb ~/sogou
+   ar vx sogoupinyin_2.2.0.0108_amd64.deb      #解压deb安装包 
+   tar -Jxvf data.tar.xz -C /
+   cp /usr/lib/x86_64-linux-gnu/fcitx/fcitx-sogoupinyin.so /usr/lib64/fcitx/
+   fcitx -r; fcitx-configtool #要在GUI界面下运行
+
+9、安装git
+   下载git源码
+   yum remove -y git
+   yum install -y dh-autoreconf curl-devel expat-devel gettext-devel openssl-devel perl-devel zlib-devel
+   cd /usr/local/src/
+   tar -zxf git-2.18.0.tar.gz -C ..
+   cd /usr/local/git-2.18.0
+   make configure && ./configure --prefix=/usr
+   make all && make install
+
+10、安装mysql
+  a、必要的依赖
+       yum -y install libaio numactl-libs
+  
+  b、下载mysql并解压
+     cd /usr/local/src/md
+  c、执行安装并运行
+      yum install -y mysql-community-{server,client,common,libs}-* mysql-5.*­ --exclude='*minimal*'
+      systemctl start mysqld
+  
+  d、获得root的初始密码
+     grep 'temporary password' /var/log/mysqld.log
+  
+  e、登录并修改
+	  mysql -uroot -p
+	  ALTER USER 'root'@'localhost' IDENTIFIED BY 'a1b2c3d4F0.';
+	  uninstall plugin validate_password;             -- 删除密码验证工具，以便设置简单密码
+	  ALTER USER 'root'@'localhost' IDENTIFIED BY '1';
+  
+  f、修改配置文件(vi /etc/my.cnf)
+	  [mysqld]
+	  log_timestamps=SYSTEM
+	  character-set-server=utf8
+	  collation-server=utf8_bin
+
+	  [mysql]    #[]里面写读下面配置的程序，这里是mysql命令行工具读配置default-character-set=utf8
+	  default-character-set=utf8
+  g、mysql的最大并发数为10000
+     https://dev.mysql.com/doc/refman/5.7/en/too-many-connections.html
+     即max_connections 最大为 10000
+
+11、vim的设置
+  a、解决粘贴带有注释时会多注释的问题 http://www.chenglin.name/linux/blog-linux/595.html
+     vi /etc/vim/.vimrc
+     set pastetoggle=<F9>
+
+
+12、内核参数优化
+
+    a、参考文档
+    https://wweir.cc/post/%E8%B5%84%E6%BA%90%E9%99%90%E5%88%B6rlimit_nofile%E7%9A%84%E8%B0%83%E6%95%B4%E7%BB%86%E8%8A%82%E5%8F%8A%E5%86%85%E9%83%A8%E5%AE%9E%E7%8E%B0/
+    https://github.com/torvalds/linux/blob/v4.5-rc6/Documentation/networking/ip-sysctl.txt
+    http://blog.51cto.com/qujunorz/1703295
+    
+    
+    b、修改资源限制的两个地方
+    vi /etc/security/limits.conf                    ------> 主要针对不是用systemctl启动的进程
+    vi /usr/lib/systemd/system/服务名称.service     ------> 主要针对用systemctl启动的进程
+
+    单个进程能够打开文件的上限为 ulimit -Hn
+    而ulimit -Hn的上限为fs.nr_open
+    fs.nr_open要在/etc/sysctl.conf中设置
+
+
+    c、具体步骤
+    ulimit -n
+    vi /etc/security/limits.conf
+*    soft    nproc  100000000
+*    hard    nproc  100000000
+*    soft    nofile 100000000
+*    hard    nofile 100000000
+    
+    sysctl -a | grep "fs\..+"
+    cat /etc/sys/fs/nr_open
+    vi /etc/sysctl.conf
+    sysctl -p
+fs.file-max=100000000                  #这个可有可无
+fs.nr_open=100000000
+net.ipv4.tcp_tw_reuse = 1
+net.ipv4.tcp_tw_recycle = 1
+net.ipv4.tcp_max_syn_backlog=32768     #这个是 <为完成三步握手的队列> 的大小
+net.core.somaxconn=32768               #这个是 <已建立连接但未accept的队列>的大小
+net.core.netdev_max_backlog = 2000000
+
+    vi /usr/lib/systemd/system/mysqld.service  # 一定要看下原来有没有LimitNOFILE
+    LimitNOFILE=100000000
+    LimitMEMLOCK=infinity
+
+附录1、yum的使用
+
+	yum repolist all                     # 列出所有仓库 <启用的> 和 <未启用的>
+	yum repolist enabled
+	yum repolist disabled                 
+	yum list            <软件包名字>     # 列出所有仓库中 <可以安装的软件包> 和 <已经安装到本机的软件包>
+	yum list installed  <软件包名字>     # 仅列出 <已经安装到本机的软件包>
+	yum list available  <软件包名字>     # 仅列出所有仓库中 <可以安装的软件包>
+	yum deplist         <软件包名字>     # 列出该软件包的所有依赖
+
+这里有个小技巧：软件包名字可以使用通配符
+CentOS7 自带的jdk为 : 
+  软件包名字            版本号      release   架构
+[java-1.8.0-openjdk]-[1.8.0.161]-[2.b14.el7]-[x86_64]
+
+所以下面这种干搜是搜不出来的
+    yum list installed java
+
+而使用通配符则可以(因为这是按软件包名字搜，而上面的软件名为‘java-1.8.0-openjdk’, 所以‘java’搜不出来)
+    yum list installed java\*
+
+
+附录2、wget 和 curl 的使用
+   
+   A、不指定文件名
+       wget https://www.baidu.com/a.txt
+       curl -O https://www.baidu.com/a.txt
+   B、不指定文件名
+       wget -O(大写) /tmp/b.txt https://www.baidu.com/a.txt
+       curl -O(大写) /tmp/b.txt https://www.baidu.com/a.txt
+
+附录3、shell通配符扩展
+   
+   cd /tmp
+   rm *
+   touch 4.txt a.txt
+   vi a.txt
+   ######## 编辑a.txt，增加如下内容 ########
+   ## 41
+   ## 33
+   ## 489
+   ##############
+
+
+   grep 4* a.txt            # 这样查不出来，因为*被扩展为当前目录下的文件名, 等同于下面语句
+                            # grep 4.txt a.txt, 即在文件a.txt中查找字符串"4.txt"
+   /usr/bin/grep "4*" a.txt # 这才是正确的
+
+附录3、UUID
+   a、UUID总共36个字符，32个16进制数字和4个连字符
+   b、UUID的形式为：前8-中4-中4-中4-后12
+   xxxxxxxx-xxxx-Mxxx-Nxxx-xxxxxxxxxxxx
+
+附录4、vim分屏教程
+https://www.jianshu.com/p/d82e28bff7a0
+
+附录5、maxconn、somaxconn的介绍
+
+https://coolshell.cn/articles/1679.html

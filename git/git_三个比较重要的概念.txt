@@ -1,0 +1,9 @@
+ 1、remote references
+	a.与本地仓库关联的远程仓库中的引用(如branches和tags)
+	b.查看命令为 git ls-remote [远程仓库名字]
+2、remote-tracking branches
+	a.git fetch或git clone会把远程仓库的所有分支拉回来，而remote-tracking branches是指向这些分支的指针(每一个分支一个)。格式为: 远程仓库名:分支名，这些指针不可移动
+	b.查看remote-tracking branches的命令为：git branch -r
+3、tracking branches
+	a.这是一个基于"git fetch或git clone拉回的远程分支"而建立的本地分支。
+	b、创建tracking branches的命令：git chekout -b 本地分支名 远程仓库/远程分支

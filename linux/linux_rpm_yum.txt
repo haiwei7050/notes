@@ -1,0 +1,64 @@
+sudo      -1.7.2p1     -5.el5.     i386         .rpm
+软件名称  主版本号     次版本号    硬件平台      扩展名
+
+vim-common  -7.0.109     -6.el5     
+软件名称    主版本号     次版本号    硬件平台      扩展名
+
+
+----------------------------------------------RPM----------------------------------------------
+1、删除（只需软件名）
+rpm -e 软件名称
+rpm -e sudo
+
+
+2、查询（只需软件名）
+rpm -q 软件名称
+rpm -q sudo
+
+rpm -qa | grep "关键字"，-qa表示列出所有安装的软包，然后用grep过滤
+rpm -qa | grep "tomcat*"
+
+
+rpm -qf 完整路径+文件名   #查询文件归属哪个软件包,或命令是由哪个软件包安装的
+rpm -qf /etc/services 
+rpm -qf /bin/ls
+
+rpm -ql 软件名或包全名   #查询软件安装了那些文件
+rpm -ql sudo
+
+3、安装（需要完整包名）
+rpm -i 软件名称.主版本号.次版本号.硬件平台.rpm
+rpm -i sudo-1.7.2p1-5.el5.i386.rpm
+
+rpm -ivh   #v显示安装过程，h现实安装进度
+
+rpm -ivh --excludedocs #excludedocs不安装软件的文档
+
+rpm -ivh --prefix=安装路径  #prefix可以指定安装路径(注意要有=)，
+                            #默认的安装路径为
+			    #默认不使用，因为大多数软件不支持指定路径
+                                
+rpm -ivh --replacepkgs #覆盖安装软件
+
+4、升级软件（需要完整包名）
+rpm -U 软件名称.主版本号.次版本号.硬件平台.rpm
+rpm -U sudo-1.7.2p1-5.el5.i386.rpm
+
+
+
+----------------------------------------------YUM----------------------------------------------
+1、安装（只需软件名）
+yum install 软件名
+yum install sudo
+
+2、查询yum源上的软件，即在网上找rpm包（只需软件名）
+yum list | grep 软件名
+yum install | grep sudo
+
+3、升级（只需软件名）
+yum update 软件名
+yum update sudo
+
+4、删除（只需软件名）
+yum remove 软件名
+yum remove sudo

@@ -1,0 +1,113 @@
+1、先装Erlang/OTP
+https://www.erlang-solutions.com/resources/download.html
+
+wget https://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb
+dpkg -i erlang-solutions_1.0_all.deb
+apt-get update
+apt-get install erlang
+
+/etc/apt/preferences.d/
+# /etc/apt/preferences.d/erlang
+Package: erlang*
+Pin: version 1:20.1-1
+Pin-Priority: 1000
+
+Package: esl-erlang
+Pin: version 1:20.1.7
+Pin-Priority: 1000
+
+2、安装RabbitMQ
+echo "deb https://dl.bintray.com/rabbitmq/debian artful main" | tee /etc/apt/sources.list.d/bintray.rabbitmq.list
+wget -O- https://dl.bintray.com/rabbitmq/Keys/rabbitmq-release-signing-key.asc | apt-key add -
+apt-get update
+apt-get install rabbitmq-server
+
+ vi /lib/systemd/system/rabbitmq-server.service
+[Service]
+LimitNOFILE=300000
+
+https://ro-che.info/articles/2017-03-26-increase-open-files-limit
+
+
+3、rabbitmq配置文件
+① 不会主动创建，总共有两个配置文件(rabbitmq.conf,rabbitmq-env.conf).
+② 名字固定必须为rabbitmq.conf和rabbitmq-env.conf
+③ 会默认从下面地址读取，名为rabbitmq.conf,rabbitmq-env.conf，如果有的话，的两个配置文件
+	Generic UNIX - $RABBITMQ_HOME/etc/rabbitmq/
+	Debian - /etc/rabbitmq/
+	RPM - /etc/rabbitmq/
+	Mac OSX (Homebrew) - ${install_prefix}/etc/rabbitmq/, the Homebrew prefix is usually /usr/local
+	Windows - %APPDATA%\RabbitMQ\
+④ 如果想自己制定配置文件的名称和位置，必须通过设置下面的环境变量 [ 在linux下(使用apt或RPM安装时),  ${install_prefix} = 空，即 RABBITMQ_CONFIG_FILE	=${install_prefix}/etc/rabbitmq/rabbitmq = /etc/rabbitmq/rabbitmq ]
+RABBITMQ_CONFIG_FILE	            ${install_prefix}/etc/rabbitmq/不带后缀的文件名，例如
+RABBITMQ_CONFIG_FILE=/etc/rabbitmq/a 其实会去加载名为a.conf的配置文件
+
+具体看网址 https://www.rabbitmq.com/configure.html#configuration-file， https://www.rabbitmq.com/configure.html#config-location， https://www.rabbitmq.com/relocate.html
+
+
+rabbitmq 默认从以下地址加载配置文件(https://www.rabbitmq.com/relocate.html)
+ 
+在linux下(使用apt或RPM安装时),  ${install_prefix} = 空，即 RABBITMQ_CONFIG_FILE	=${install_prefix}/etc/rabbitmq/rabbitmq = /etc/rabbitmq/rabbitmq 
+ 
+RABBITMQ_BASE	                    (Not used - Windows only)
+RABBITMQ_CONFIG_FILE	            ${install_prefix}/etc/rabbitmq/
+RABBITMQ_MNESIA_BASE	            ${install_prefix}/var/lib/rabbitmq/mnesia
+RABBITMQ_MNESIA_DIR	            $RABBITMQ_MNESIA_BASE/$RABBITMQ_NODENAME
+RABBITMQ_LOG_BASE	            ${install_prefix}/var/log/rabbitmq
+RABBITMQ_LOGS	                    $RABBITMQ_LOG_BASE/$RABBITMQ_NODENAME.log
+RABBITMQ_SASL_LOGS	            $RABBITMQ_LOG_BASE/$RABBITMQ_NODENAME-sasl.log
+RABBITMQ_PLUGINS_DIR	            /usr/lib/rabbitmq/plugins:$RABBITMQ_HOME/plugins
+                                    Note that /usr/lib/rabbitmq/plugins is used only when RabbitMQ is installed into the standard (default) location.
+
+RABBITMQ_ENABLED_PLUGINS_FILE	    ${install_prefix}/etc/rabbitmq/enabled_plugins
+RABBITMQ_PID_FILE	            $RABBITMQ_MNESIA_DIR.pid
+
+
+# CentOS7安装方法
+
+1、rabbitmq的依赖
+   erlang
+   socat
+   logrotate
+其中erlang的版本必需和rabbitmq一一对应，具体请看 https://www.rabbitmq.com/which-erlang.html
+
+2、添加yum源
+   cd /etc/yum.repo.d/
+   vi rabbitmq-server.repo
+   rpm --import https://www.rabbitmq.com/rabbitmq-release-signing-key.asc
+   yum install rabbitmq-server
+
+[bintray-rabbitmq-server]
+name=bintray-rabbitmq-rpm
+baseurl=https://dl.bintray.com/rabbitmq/rpm/rabbitmq-server/v3.7.x/el/7/
+gpgcheck=0
+repo_gpgcheck=0
+enabled=1
+[bintray-erlang]
+name=bintray-erlang-rpm
+baseurl=https://dl.bintray.com/rabbitmq/rpm/erlang/21/el/7/
+gpgcheck=0
+repo_gpgcheck=0
+enabled=1
+
+3、rabbitmq默认会创建一个用户
+   username: guest
+   password: guest
+   而且只能用这个用户通过localhost连接rabbitmq
+
+   为了可以远程连接rabbitmq,修改配置文件
+
+   vi /etc/rabbitmq/rabbitmq.conf
+
+loopback_users = none
+  
+4、开启rabbitmq命令行工具
+   a 开启management插件
+     rabbitmq-plugins enable rabbitmq_management
+   b 下载rabbitmq cli工具
+     cd /usr/sbin/
+     wget http://localhost:15672/cli/rabbitmqadmin
+     chmod 711 rabbitmqadmin
+   参考文档
+   https://www.rabbitmq.com/management.html
+   https://www.rabbitmq.com/management-cli.html

@@ -1,0 +1,165 @@
+1、概念
+
+           partition0
+topic ---> partition1
+           partition2
+
+                 partition0_replicated0
+partition0  ---> partition0_replicated1
+                
+kakfa接到message会按算法配一个partition来保存该message,
+每个partition有许多副本，当某个partition挂了，
+它副本会自动成为leader
+
+2、Kafka Server 最小配置
+   vi $KAFKA_HOME/config/server.properties
+   advertised.listeners=PLAINTEXT://192.168.40.230:9092
+
+   Kafka Server 会向 Zookeeper注册自己的ip地址，如果
+   不写上面的配置，Kafka会把本机的hostname注册到zookeeper,
+   注意默认注册的是 hostname, 不是ip
+   这就导致 Producer 和 Consumer不能跟 Kafka进行通信
+   
+3、Producer 最小配置写法
+
+public class MyProducer{
+    public static void main(String[] args){
+        Properties props = new Properties();
+
+	// Kafka服务器的地址,多个逗号分隔
+	// 好几个Kafka Server（又称broker）组成一个 kafka cluster
+	// 但这里不需要提供所有broker的地址，其余地址会从Zookeeper里去取
+	// 所以一定要配置 $KAFKA_HOME/config/server.properties 的
+	// advertised.listeners, 
+	// 因为不设置该属性，
+	// broker默认会把本机的hostname（而不是ip）注册到zookeeper中去
+        props.setProperty("bootstrap.servers", "192.168.40.230:9092");
+
+	// key序列化类, 把key转化为 byte[]
+        props.setProperty("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+
+	// value序列化类, 把value转化为 byte[]
+        props.setProperty("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+
+	Producer producer = new KafkaProducer<>(props);
+
+        ProducerRecord<String, String> msg = new ProducerRecord<>(topic, value);
+
+	// 异步发送
+	Feature<RecordMetadata> metadataFeature = producer.send(msg);
+	
+	// 阻塞到这里，只到上面消息发送成功，返回的是消息保存到哪个分区(partition)，在该分区的哪个位置(offset)
+        RecordMetadata metadata = metadataFeature.get();
+
+	System.out.printf("p:%d, offset:%d, topic:%s%n", metadata.partition(), metadata.offset(), metadata.topic());
+
+	producer.close();
+    }
+}
+
+
+// Kafka的message(即ProducerRecord类) 结构为
+	{
+	   partition:  // 指定消息要保存到那个分区上，                               可以不写
+	   key:        // 根据hash(key)%partitionCount，来确定消息保存到哪个分区上   可以不写
+	   topic:      // 发送到哪个主题，一个主题可以有许多分区                     必须写
+	   value:      // 消息的内容                                                 必须写    
+	}
+分区规则详见 org.apache.kafka.clients.producer.internals.DefaultPartitioner 的注释
+
+If a partition is specified in the record, use it
+If no partition is specified but a key is present choose a partition based on a hash of the key
+If no partition or key is present choose a partition in a round-robin fashion
+
+4、Conusmer 最小配置的写法
+public class MyConsumer{
+    public static void main(String[] args){
+        Properties props = new Properties();
+	
+	// Kafka服务器的地址,多个逗号分隔
+	// 好几个Kafka Server（又称broker）组成一个 kafka cluster
+	// 但这里不需要提供所有broker的地址，其余地址会从Zookeeper里去取
+	// 所以一定要配置 $KAFKA_HOME/config/server.properties 的
+	// advertised.listeners, 
+	// 因为不设置该属性，
+	// broker默认会把本机的hostname（而不是ip）注册到zookeeper中去
+        props.setProperty("bootstrap.servers", "192.168.40.230:9092");
+	
+	// Consumer Group Id (cgId)
+        props.setProperty("group.id", "cg1");
+	
+	// 自动对收到的消息进行提交
+        props.put("enable.auto.commit", "true");
+	
+	// 自动提交的频率
+        props.put("auto.commit.interval.ms", "1000");
+
+	// key反序列化类, 把byte[]转化为key
+        props.setProperty("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+
+	// value反序列化类, 把byte[]转化为value
+        props.setProperty("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+
+        Consumer<String, String> consumer =  new KafkaConsumer<>(props);
+	
+	// 订阅哪个主题
+	consumer.subscribe(Arrays.asList("mt"));
+
+	while (true){
+	    // 每隔 100ms 拉一组消息
+            ConsumerRecords<String, String> msgs = consumer.poll(Duration.ofMillis(100));
+            for(ConsumerRecord msg : msgs){
+                System.out.println(msg);
+            }
+        }
+    }
+}
+
+Kafka怎实现，producer/consumer模式 和 publish/consumer模式
+
+
+topic有多个partition, 生产者发送的消息，默认会均匀的保存到各个partition.
+
+
+
+下面的例子表示, topic_A 有 2个 partition, producer1共向topic_A发送了三条msg,
+三条消息按照轮询的方式，分别保存在 partiton_0 和 partition_1中，topic_A总共有三条消息
+
+             topic_A
+             
+	     [msg1, msg3]  partition_0
+producer1    
+             [msg2]  partition_1
+
+
+当consumer group(cg_A)仅有 <一个> consumer(c1)时，c1可以完整的收到这三条消息
+
+当consumer group(cg_A)有   <两个> consumer(c1, c2)时，
+   若c1被分到到 partition_0，c2被分到 partition_1 时，c1可以收到 msg1和msg3, c2可以收到 msg2
+  
+   cgA
+    c1(分到partition_0) [msg1, msg3]
+    c2(分到partition_1) [msg2]
+
+
+   反之，若c2被分到到 partition_0，c1被分到 partition_1 时，c2可以收到 msg1和msg3, c1可以收到 msg2
+
+   cgA
+    c1(分到partition_1) [msg2]
+    c2(分到partition_0) [msg1, msg3]
+
+当consumer group(cg_A)有  <三个>  consumer(c1, c2, c3)时， c1、c2和c3中有一个将分不到 partition，也就收不到消息
+   
+   cgA
+    c1(分到partition_0)       [msg1, msg3]
+    c2(分到partition_1)       [msg2]
+    c3(没有分到partiton)      []
+
+在写 Consumer时只要将props.setProperty("group.id", "cg1")，设成一样，这些Consumer就会组成一个Consumer Group
+
+综上所述，
+          把Consumer放到 <不同> 的Consumer组中去，则可以实现 publish/consumer模式
+          而把Consumer放到 <相同> 的Consumer组中去，则可以实现 producer/consumer模式
+且
+          一个Consumer Group的Conusmer的数量一定不要超过 topic的 partiton的数量，否则
+	  多余的Consumer将收不到消息

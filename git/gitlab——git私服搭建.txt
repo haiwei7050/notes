@@ -1,0 +1,15 @@
+--- CentOS7
+官网教程:https://about.gitlab.com/installation/#centos-7
+
+1、依赖安装
+yum install -y curl policycoreutils openssh-server openssh-clients postfix
+
+2、配置设定
+systemctl enable postfix  #这个是邮箱服务
+systemctl enable sshd
+firewall-cmd --permanent --add-service=http #把80端口打开，默认的防火墙是关闭该端口的
+firewall-cmd --reload
+
+3、配置yum的仓库并下载gitlab
+curl -sS https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.rpm.sh | sudo bash
+yum install -y gitlab-ce

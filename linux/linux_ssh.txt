@@ -1,0 +1,34 @@
+假设有两台电脑A,B,
+
+现在要从A免密登录B,
+
+就需要在A上生成公钥和私钥
+
+然后将A的公钥放置到B任何一个用户的.ssh中，并将内容拷贝到authorized_keys文件中
+
+这样你就可以以该用户的身份免密登录到B机子中
+
+
+#用ssh-keygen -t rsa生成公钥和私钥
+scp命令格式 scp 本地文件  目的用户@目的Ip:目的文件夹
+
+
+------------以root身份免密登录192.168.1.206主机-------------------
+ssh-keygen -t rsa
+scp /root/.ssh/id_rsa.pub root@192.168.1.206:/root/.ssh/
+ssh 192.168.1.206 #现在要输入密码
+cat /root/.ssh/id_rsa.pub >> authorized_keys
+exit
+ssh 192.168.1.206 #现在不用输入密码
+
+
+------------以z3身份免密登录192.168.1.206主机-------------------
+ssh-keygen -t rsa
+scp /root/.ssh/id_rsa.pub z3@192.168.1.206:/home/z3/.ssh/
+ssh z3@192.168.1.206 #现在要输入密码
+cat /root/.ssh/id_rsa.pub >> authorized_keys
+exit
+ssh z3@192.168.1.206 #现在不用输入密码
+
+
+

@@ -1,0 +1,37 @@
+--源码包
+wget https://github.com/git/git/archive/master.zip
+
+---依赖包
+yum -y install gcc autoconf curl-devel expat-devel openssl-devel perl-devel zlib-devel asciidoc xmlto
+
+--安装步骤
+  make configure 
+  ./configure --prefix=/usr 
+  make all man
+  make install install-doc
+
+
+make configure;./configure --prefix=/usr;make all man;make install install-doc
+--会介绍git编译需要的各个依赖包的作用，以及make all、make doc、make install的作用
+https://github.com/git/git/blob/master/INSTALL
+
+
+--------------------------------CentOS5
+
+
+---依赖包
+#(CentOS 5本身无法装asciidoc xmlto，只有装了这个源才能装)
+# 而只有装了asciidoc xmlto才能安装git的man帮助文档 即make man
+#yum -y install epel-release;
+
+yum -y install gcc autoconf curl-devel expat-devel openssl-devel perl-devel zlib-devel 
+
+--安装步骤
+  make configure 
+  ./configure --prefix=/usr 
+  make all 
+  make install 
+
+
+make configure;./configure --prefix=/usr;make all ;make install 
+

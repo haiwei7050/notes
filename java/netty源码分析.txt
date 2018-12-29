@@ -1,0 +1,40 @@
+BlockingMonoSubscriber
+
+
+
+
+HeadContext(out)   TailContext(in)
+
+
+
+
+NioServerSocketChannel
+
+        unsafe = newUnsafe(); // new NioMessageUnsafe()
+        pipeline = newChannelPipeline();// new DefaultChannelPipeline(this);
+
+
+new DefaultChannelPipeline(channel);
+        this.channel = ObjectUtil.checkNotNull(channel, "channel");
+        succeededFuture = new SucceededChannelFuture(channel, null);
+        voidPromise =  new VoidChannelPromise(channel, true);
+
+        tail = new TailContext(this); // In  pipeline
+        head = new HeadContext(this); // OUT pipeline unsafe
+
+        head.next = tail;
+        tail.prev = head;
+
+
+
+childHandler ----> ServerContextHandler
+
+DFCH(DefaultChannelHandlerContext)，即将ChannelHandle包装为 ChannelHandlerContext
+
+head  DFCH(ServerBootStrap.initChannel)   tail
+^                                           ^
+h                                           t
+
+
+
+

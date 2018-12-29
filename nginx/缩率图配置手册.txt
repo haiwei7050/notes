@@ -1,0 +1,250 @@
+               版本       备注 
+ubuntu         16
+openresty      1.11.2.5  (nginx + lua)
+graphicsmagick 1.3.26    (增强版 imagemagick)
+
+一、安装 (用root登录，后面)
+---------- nginx + lua ----------
+wget -qO - https://openresty.org/package/pubkey.gpg | sudo apt-key add -
+apt-get -y install software-properties-common
+add-apt-repository -y "deb http://openresty.org/package/ubuntu $(lsb_release -sc) main"
+apt-get update
+apt-get install -y openresty
+
+---------- imagemagick ----------
+apt install -y zlib1g-dev libpng-dev libjpeg-dev libjasper-dev libwebp-dev
+wget https://sourceforge.net/projects/graphicsmagick/files/graphicsmagick/1.3.26/GraphicsMagick-1.3.26.tar.gz/download && mv download "GraphicsMagick-1.3.26.tar.gz"
+tar -zxf GraphicsMagick-1.3.26.tar.gz && cd GraphicsMagick-1.3.26
+./configure
+make && make install
+二、配置(用root登录)
+---------- nginx + lua ----------
+systemctl stop openresty && systemctl disable openresty
+
+--- 新建用户 nginx 
+useradd -rs /usr/sbin/nologin nginx
+
+-- 新建脚本nginx，并放到/usr/bin
+cd /usr/bin
+touch nginx && vi nginx
+
+----- 复制下面内容到脚本 nginx -----
+#!/bin/bash
+   CONTEXT=/work/nginx  
+   NGINX="/usr/local/openresty/nginx/sbin/nginx -p $CONTEXT"
+   if [ $# == 0  ];then
+     $NGINX
+   else
+     $NGINX $1 $2
+   fi;
+
+--- 更改脚本nginx 的所有者 权限
+chown nginx:nginx nginx && chmod 550 nginx
+
+
+----- 新建项目 -----
+#/work/nginx                   项目nginx的根路径，改这个时需要改脚本/usr/bin/nginx 中的变量CONTEXT
+#/work/www/images              原始图像根目录
+#/work/www/images/thumbnail    缩略图根目录
+
+mkdir /work && cd /work
+mkdir -p nginx/conf nginx/logs nginx/lua
+mkdir -p www/images/thumbnail
+
+
+--- 新建项目的nginx配置文件
+cd nginx && vi conf/nginx.conf
+
+----- 复制下面内容到配置文件 nginx.conf -----
+user nginx nginx;
+  error_log logs/errors debug;
+  pid       logs/nginx.pid;
+  worker_processes 1;
+  events{
+    worker_connections 1024;
+  }
+  http{
+    log_format    format      "$expireDay";
+    access_log    logs/access format;
+    include       mime.types;
+    server{
+      listen 80;
+      set $expireDay  2678400;
+      
+      # /upload4/2017-09-01/1/1.jpg
+      # /upload4_thumb/2017-08-07/16/4.webp
+      
+      
+      location /apple {
+         alias /Users/Shared/littleant_files;
+	 if ($arg_inner != "inner") {
+	    return 404;
+	 }
+      }
+
+      location /thumbnail {
+         alias /Users/Shared/littleant_files;
+	  if ($arg_inner != "inner") {
+	    return 404;
+	 }
+      }
+    
+
+      location ~^/upload(4|5)/\d\d\d\d-\d\d-\d\d/[12]?\d/[^.]+\.(gif|png|webp|jpe?g)$ {
+         root  /Users/Shared/littleant_files;
+	 expires $expireDay;
+         if ($arg_size ~* ^\d+x\d+$) {
+           rewrite_by_lua_file lua/thumbnail.lua;
+	   break;
+         }
+
+	 if ($http_user_agent ~* "iP(hone|ad)") {
+	    rewrite_by_lua_file lua/convertWebPtoJPG.lua;
+	 }
+         
+      }
+    }
+  }
+
+ -- 将mime.type已到 /work/nginx/conf下
+ cp /usr/local/openresty/nginx/conf/mime.types conf/
+
+ --- 新建lua脚本 convertWebPtoJPG.lua
+ vi lua/convertWebPtoJPG.lua
+
+----- 复制下面内容到配置文件 convertWebPtoJPG.lua -----
+function findLast(str, pattern)
+    local i = str:match(".*"..pattern.."()")
+    if i==nil then return nil else return i-1 end
+end
+
+function fileExist(name)
+  local command = "/bin/ls " .. name .. " 2> /dev/null 1>&2";
+  print("fileExist command =" .. command);
+  local result = os.execute(command);
+  local exist = true;
+  if result ~= 0 then
+    exist = false;
+  end
+  return exist;
+end
+
+
+local uri = ngx.var.uri;
+local ni = findLast(uri,"/");
+local si = findLast(uri,"%.");
+
+local image_root = "/Users/Shared/littleant_files" .. string.sub(uri, 1, ni);
+local rewriteURL = "/apple/" .. string.sub(uri, 1, ni);
+
+print("image_root = " .. image_root);
+
+local name = string.sub(uri, ni+1 , si-1);
+local suffix = string.sub(uri, si);
+local file = name .. suffix;
+
+print("file = " .. file);
+
+if not fileExist(image_root .. file)  then
+  return ngx.exit(ngx.HTTP_NOT_FOUND);
+end
+
+if suffix == ".webp" then
+   ngx.header["content-type"]="image/jpeg";
+   local old_file = file;
+         file = name .. ".jpg"; 
+	 print("converted_file = " .. file);
+   
+   if not fileExist(image_root .. file) then
+      local command = "/usr/local/bin/gm convert";
+      command = command .. " "  .. image_root .. old_file .. " " .. image_root .. file;
+      print("command = " .. command);
+      os.execute(command);
+   end
+end
+
+rewriteURL = rewriteURL .. file;
+print("rewriteURL =  " .. rewriteURL);
+ngx.req.set_uri_args({inner="inner"})
+ngx.req.set_uri(rewriteURL, true);
+
+ --- 新建lua脚本 thumbnail.lua
+ vi lua/thumbnail.lua
+
+----- 复制下面内容到配置文件 thumbnail.lua -----
+function findLast(str, pattern)
+    local i = str:match(".*"..pattern.."()")
+    if i==nil then return nil else return i-1 end
+end
+
+function fileExist(name)
+  local command = "/bin/ls " .. name .. " 2> /dev/null 1>&2";
+  print("fileExist command =" .. command);
+  local result = os.execute(command);
+  local exist = true;
+  if result ~= 0 then
+    exist = false;
+  end
+  return exist;
+end
+
+local area = string.lower(ngx.var.arg_size);
+local islegalArea = string.find(area,"^100x100$") or string.find(area, "^300x300$") or string.find(area, "^500x500$");
+
+
+local uri = ngx.var.uri;
+local image_root = "/Users/Shared/littleant_files";
+local file = image_root .. uri;
+
+if not islegalArea or not fileExist(file) then 
+  return ngx.exit(ngx.HTTP_NOT_FOUND);
+end
+
+local ni = findLast(uri,"/");
+local si = findLast(uri,"%.");
+
+local name = string.sub(uri, ni+1 , si-1);
+local suffix = string.sub(uri, si);
+if suffix == ".webp" then 
+   ngx.header["content-type"]="image/jpeg";
+   suffix = ".jpg";
+end
+
+local thumbnail_root = string.sub(uri, 1, 8) .. "_thumbnail" .. string.sub(uri, 9, ni);
+local file_thumbnail = name  .. "_" .. area .. suffix;
+os.execute("/bin/mkdir -p " .. image_root .. thumbnail_root);
+
+if not fileExist(image_root .. thumbnail_root .. file_thumbnail) then
+  local command = "/usr/local/bin/gm convert";
+        command = command .. " "  .. file .. " -resize " .. area .. " "  .. image_root .. thumbnail_root .. file_thumbnail;
+  print("command = " .. command);
+  os.execute(command);
+end
+
+local rewriteURL = "/thumbnail" .. thumbnail_root .. file_thumbnail;
+print("rewriteURL =  " .. rewriteURL);
+ngx.req.set_uri_args({inner="inner"})
+ngx.req.set_uri(rewriteURL, true);
+
+
+-- 将项目文件的 权限、所有者 改为 nginx
+chown -R nginx:nginx /work
+
+三、附录
+
+-- 注意 用户nginx无法登录，所以以其他身份上传图片时
+-- 记得改 其 所有者为 nginx
+
+chown nginx:nginx /work/www/images/上传的图片
+或
+chown -R nginx:nginx /work   #(迭代)
+
+
+***用root登录
+1. sudo passwd root 密码
+2. sudo vi /etc/ssh/sshd_config
+3. 查找PermitRootLogin项并将其值改为yes，即
+   
+   PermitRootLogin yes
+
+然后就可以以root身份,ssh登录到服务器

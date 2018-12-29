@@ -1,0 +1,17 @@
+●代表空格
+find●路径●选项●动作
+
+#删掉/tmp下的所有文件（f代表文件,d代表目录）
+find /tmp -type f -delete
+find /tmp -type f -exec rm '{}'●';' (注意必须有空格●，和单引号'')
+find /tmp -type f -exec rm {}●\; (注意必须有空格●，和反斜杠)
+
+
+#在/tmp寻找名为text1的文件
+find /tmp -name "text1"
+find /tmp -name "??"  这里?是shell的通配符
+
+
+
+
+

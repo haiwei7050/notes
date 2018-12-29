@@ -1,0 +1,60 @@
+一、Matcher.find() vs Matcher.lookAt() vs Matcher.matches();
+    
+    1、Matcher.lookAt()  前缀匹配, 部分匹配(当且仅当正则表达式匹配文本的前部分，即返回true)
+    Pattern p = Pattern.compile("\\d+");
+    Matcher m = p.matcher("d123");
+    m.lookAt()                         // false 因为 \d+ 不能前缀匹配，即无法匹配字母d
+    
+    Matcher m = p.matcher("123d");
+    m.lookAt()                         // true 只需匹配前部分即可
+
+
+    2、Matcher.find()  部分匹配，只要匹配到文本中的任意一段即可
+    3、Matcher.matches() 全部匹配，整个文本都必须匹配正则表达式
+
+二、Matcher.hitEnd()怎么用
+    Pattern p = Pattern.compile("\\d");
+    Matcher m = p.matcher("3");
+    m.find(); 
+  //m.lookAt(); 
+  //m.matches();
+  m.hitEnd();//上面三个都会返回false
+
+  因为\\d 匹配了3，当没有匹配 字符串尾这个位置，
+  所以 没有达到 m.hitEnd返回true的条件: "正则表达式匹配到文本的尾部"
+  把 "\\d" 换成 "\\d+" 或 "\\d$"都可以
+  其中 "\\d+" 是贪婪的匹配，所以会匹配到文本尾部
+
+三、 Matcher.useTransparentBounds(boolean)的作用
+     
+
+     \\b单词边界的定义(https://stackoverflow.com/questions/1324676/what-is-a-word-boundary-in-regexes)
+     A word boundary, in most regex dialects, is a position between \w and \W (non-word char), 
+     or at the beginning or end of a string if it begins or ends (respectively) with a word character ([0-9A-Za-z_]).
+     So, in the string "-12", it would match before the 1 or after the 2. The dash is not a word character.
+      
+     ab c
+     △a▲b△c
+     字符串首尾，\w和\W之间的位置
+
+
+     String regex="\\bcar\\b";
+     String text = "scar car";
+     Matcher m = Pattern.compile(regex).matcher(text);
+     m.useTransparentBounds(false);                           
+     m.region(1,text.length());                              //设置匹配范围是：从文本的第二个字符开始到文本结束
+                                                             //         0 1 2 3 4 5 6
+     m.find();                                               //         s c a r c a r
+     System.out.println("m.find():"+m.start());              // m.find():1 
+
+     当将 useTransparentBounds = false (默认值)时, 匹配只会按规定范围进行匹配，即从文本的第二个字符开始匹配,此时
+     \\b 将匹配字符串开头的位置，因为它看不见 scar， c 之前的s，进而会匹配上
+
+     当将 useTransparentBounds = true时，匹配会前看，此时\\b 无法匹配，因为c前面是字符s(scar)，
+     它俩之间的位置是\\B（非单词边界位置），而不是\b（单词边界位置）
+
+
+
+
+     
+     

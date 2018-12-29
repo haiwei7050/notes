@@ -1,0 +1,17 @@
+ls /tmp/bbs
+ f1.txt(空的)
+git add f1.txt; git commit -m '初始化提交'
+git checkout -b dev
+echo 1234 >> f1.txt
+ls /tmp/bbs
+ f1.txt (1234)
+/*此时要是转换到分支master,f1.txt会有内容的，所以要暂存一下*/
+/**
+* git checkout master
+* ls /tmp/bbs
+* f1.txt (1234)
+**/
+git stash
+git checkout master
+ls /tmp/bbs
+ f1.txt (空的)

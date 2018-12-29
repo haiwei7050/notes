@@ -1,0 +1,151 @@
+1.出现"监听程序未启动，或数据库服务未注册到监听程序"问题的解决办法
+
+	▲解决办法
+	  
+	 ① 打开 cmd
+
+	  #下面这步可以省略,因为oracle已经把它写入注册表了
+	  
+	 ② # set ORACLE_SID=当前数据库的SID 
+
+	 ③ sqlplus sys/密码 as sysdba
+
+	 ④ create pfile from spfile;
+	  
+	 ⑤ 打开$ORACLE_HOME\database\initBBS.ora
+
+	 ⑥ 加入下面三个初始化参数
+	    
+	    SERVICE_NAMES=当前数据库SID
+	    
+	    INSTANCE_NAME=当前数据库SID
+	    
+	    #(注意带引号，引号里的值参考$ORACLE_HOME\NETWORK\ADMIN\listener.ora,中Listener开头的部分)
+	    LOCAL_LISTENER="(ADDRESS = (PROTOCOL = TCP)(HOST = localhost)(PORT = 1521))" 
+	  
+	 ⑦ 把$ORACLE_HOME\database\SPFILEBBS.ORA 重命名为 SPFILEBBS_backup.ora
+
+	 ⑧ shutdown;   #这步和下一步可以在windows服务管理界面完成
+
+	 ⑨ startup;
+
+	 ⑩ create spfile from momery;
+
+	  这时候可以把 initBBS.ora和SPFILEBBS_backup.ora删除了
+
+	 ★ 重新配置 em http://www.acehints.com/2011/06/steps-to-configure-oracle-11g-oem.html
+	    也可以
+            emca -deconfig dbcontrol db -repos drop   /* 删除 oracle em 配置 */
+	    emca -config dbcontrol db -repos create    /* 新建oracle em */
+
+	    其中输入的SYS、SYSMAN等密码都是当前数据库的密码
+	    端口是当前数据库监听的端口
+
+
+	▼原理
+	  
+	  要通过网络连接oracle数据库，你要知道它是由三部分组成
+
+	  Listener(监听器) 、service、oracle instance
+
+	  我们一般连接到listener上面，然后listener把我们转交给 oracle instance
+
+	  我们连接listener，需要提供
+	  
+	  ip      
+	  端口
+	  服务名称
+
+	  listener通过 服务名称查找 oracle instance
+
+	  所以需要oracle instance 注册服务到listener去，
+	  一般有两种注册方式：静态和动态
+
+	  静态：在 $ORACLE_HOME\NETWORK\ADMIN\listener.ora 进行注册
+
+	  动态: 在 oracle instance的初始配置文件中进行注册
+
+	  其初始配置文件 一般位于 $ORACLE_HOME\database\下，且默认只有一个不能修改的二进制文件
+	   SPFILEBBS.ORA，我们要利用其导出一个可以修改的配置文件
+
+	   （初始配置文件的位置、加载顺序及名称，请看 https://docs.oracle.com/cd/E11882_01/server.112/e25494/start.htm#ADMIN12825）
+	   
+	    先登录 ----->  sqlplus sys/密码 as sysdba
+	    再导出 ----->  create pfile from spfile;
+
+	    打开导出后的文件 $ORACLE_HOME\database\initBBS.ora，并加入下面三个参数
+
+
+	  我们需要设置三个变量
+	    SERVICE_NAMES  这是要注册到Listener的服务名称
+	    INSTANCE_NAME  这是oracle instance名称 一般为其 SID
+	    LOCAL_LISTENER 这是Listener监听的地址和端口号
+
+	    然后重命名 之前的 二进制文件，并且重启 oracle instance，此时
+	    oracle instance 会读取我们导出的文件
+	    为了防止别人修改配置文件，我么此时可以再讲配置文件
+	    
+	    倒回为原来的二进制文件
+
+	     先登录 ----->  sqlplus sys/密码 as sysdba
+	     再导出 ----->  create spfile from memory;
+
+	     然后删除 第一次导出的文件及原来的二进制文件
+
+
+2. oracle 权限UNLIMITED TABLESPACE 和角色 RESOURCE
+
+	   ① oracle 有三个自带的并且很常用的角色
+	      ▲CONNECT            这个角色拥有 登录数据库 等权限
+
+	      ▲RESOURCE           这个角色拥有 建表 等权限（但没有 CREATE VIEW 权限）
+
+	      ▲DBA                这个角色拥有管理数据库的权限
+
+	   ② 一般建立账号后，会赋予前面两个 角色
+	       
+	       create user 账户名 identified by 密码;
+	       
+	       grant connect, resource to 账号名;
+
+	       但是注意，当赋予账号 resource 角色时，就隐含的赋予账号 权限UNLIMITED TABLESPACE
+
+	   ③ 权限UNLIMITED TABLESPACE 的作用
+	      
+	      一般 建好账号后(比如bbs)
+
+	      create user bbs identified by bbs;
+	      
+	      该账号 bbs 默认的表空间为 USERS,且它在该表空间的配额为0
+
+	      这就意味着，bbs 可以建表（当赋予 create table权限后）
+	      
+	      但无法插入数据(即 bbs无权限 insert into )
+
+	   
+	   ④ 权限UNLIMITED TABLESPACE 只能赋予用户，不能赋予角色
+	      
+	      比如:
+
+	      create role dev;
+
+	      grant resource, connect, create view to dev;
+
+	      grant dev to bbs;         # 账号 bbs 不会获得 权限UNLIMITED TABLESPACE
+	      
+	      -- grant resource to bbs; # 只有直接赋予 账号bbs resource角色才会使其获得 权限UNLIMITED TABLESPACE
+	   
+	   ⑤ 所以要想用自己定义的角色，或者说只想赋予用户 create table 等有限权限，
+	      且想让用户可以 执行 insert 等操作，那必须在建用户时 指定其默认表空间和配额
+
+	      CREATE USER z3 
+		 IDENTIFIED BY z3
+		 DEFAULT TABLESPACE users
+		 QUOTA 11G(或者 unlimited);
+	   
+	   参考资料
+
+	      https://asktom.oracle.com/pls/asktom/f?p=100:11:0::::P11_QUESTION_ID:6573924800346172610
+
+	      https://asktom.oracle.com/pls/asktom/f?p=100:11:0::::P11_QUESTION_ID:1063989617206
+	      

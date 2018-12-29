@@ -1,0 +1,293 @@
+1、下载并安装
+   cd /usr/local/src
+   wget http://nginx.org/download/nginx-1.14.1.tar.gz
+   tar -zxf nginx-1.14.1.tar.gz
+   cd /usr/local/src/nginx-1.14.1
+   ./configure --prefix=/usr/local/nginx \
+             --sbin-path=/usr/sbin       \
+	     --with-debug                \
+	     --with-http_ssl_module    
+   make && make install
+
+2、nginx配置文件的最小配置
+   events {}
+   http {
+      server {
+        location {
+	}
+      }
+   }
+    
+
+worker_processes  1;  
+events {
+    worker_connections  1024;
+}
+
+http {
+    include       mime.types; 
+    default_type  application/octet-stream;
+
+    server {
+        listen       80; 
+        server_name  localhost;
+
+        location /t {       #1
+            root   html; 
+        }   
+    }   
+}
+
+    a 访问 "http://localhost/t" 会进入 #1，返回403
+      因为这相当于 "http://localhost/t/"，即目录访问
+      而nginx默认不允许目录访问
+
+    b 访问 "http://localhost/t/a.txt" 会进入 #1，返回 "${prefix}/html/t/a.txt" 文件
+      root 指令后跟相对路径是相对于--prefix(见上面安装部分，这个是编译时指定的)
+      
+    c 编译时可以指定以下路径(https://nginx.org/en/docs/configure.html) 
+         --prefix=path     默认值: /usr/local/nginx 
+	 --conf-path=path  默认值:  ${prefix}/conf/
+
+    d 指令后面跟相对路径的部分规则(https://serverfault.com/questions/923815/using-relative-paths-in-nginx-conf)
+      include:    相对于--conf-path
+      root:       相对于--prefix
+      access_log: 相对于--prefix
+
+3、index指令的作用
+   用来处理目录访问
+   
+   location /t {       #1
+    root   html;
+    index  index.html
+   }   
+
+   nginx默认不允许进行目录访问，会直接返回403, 例如
+   "http://localhost/t"就是一个目录访问，它匹配#1，会执行#1定义的逻辑
+   当 #1 中配置了index指令后，会将目录访问转换为文件访问，如上面的请求会变为
+   http://localhost/t/index.html, 该请求还是会进入 #1, 此时会返回 html/t/index.html
+   index后可以跟许多文件 如  index a.html b.html 等等，index会将目录请求依次转为
+   http://localhost/t/a.html http://localhost/t/b.html, 挨个尝试，返回第一个成功的结果
+
+   !!!注意！！ index会把 <目录访问> 转换为 <文件访问>，如
+   "http://localhost/t"                      ------> 目录访问
+   " http://localhost/t/index.html"          ------> 文件访问
+   转换后的文件文件访问，会继续参与 location匹配，看下面的例子
+
+   "http://localhost/t" ---> 匹配 #1，#2(下面)，但是执行的是#1，因为#1的优先级高(根据location匹配规则, https://moonbingbing.gitbooks.io/openresty-best-practices/ngx/nginx_local_pcre.html)
+   因为 "http://localhost/t" 是目录访问，而#1中又定义了 index index.html, 所以目录访问被转换为
+   "http://localhost/t/index.html", 而这个只匹配 #2(根据location匹配规则, location = /t，只匹配"http://localhost/t"，除此之外都不匹配)，
+   所以执行#2的逻辑，即返回 "${prefix}/html/index.html"
+
+   location = /t { #1
+     index index.html;
+   }
+
+   location /t {   #2
+     root html;
+   }
+
+
+4、server_name的作用
+   
+   events {}
+   http {
+      server {
+        server_name a; #server_name在server{}块中定义
+        location {
+	}
+      }
+   }
+
+> GET / HTTP/1.1             <请求行>
+> User-Agent: curl/7.29.0    <请求头, 下面都是>
+> Accept: */*
+> HOST:g
+
+当nginx收到一个http请求时
+ a 它会先用 <请求头> 中的host字段去匹配server块,
+ b 再用 <请求行> 去匹配 server块中的 location块
+ c 当http请求中没有host字段，或host字段的值不匹配任何 server_name时，会采用默认
+   server{}块，
+   而<默认server{}块> : 一般为第一个配置的server{}块，或者下面这样的server块
+
+server{
+   listen 80 default; # 这里的default就表明该server{}块为默认server{}块
+   server_name blala;
+}
+
+######################### 例子 #########################
+
+worker_processes  1;  
+error_log  logs/error.log  debug;
+events {
+    worker_connections  1024;
+}
+http {
+    include       mime.types;
+    default_type  test/html;
+    log_format test 'http_host = $http_host, request = $request';
+    access_log logs/access.log test;
+    sendfile        on; 
+    server {                      #1
+        listen       80; 
+        server_name  a;  
+        location / { 
+         return 200 "server a"; 
+        }   
+    }   
+    server {                     #2
+        listen       80; 
+        server_name  b;  
+        location / { 
+         return 200 "server b"; 
+        }   
+    }   
+}
+
+curl -vXGET http://172.20.10.230 -H "HOST:b" 匹配#2
+curl -vXGET http://172.20.10.230 -H "HOST:a" 匹配#1
+curl -vXGET http://172.20.10.230 -H "HOST:sadasda" 匹配#1，默认块的匹配
+
+官方文档:https://nginx.org/en/docs/http/request_processing.html
+
+5、location详解
+   
+   参考文档 http://nginx.org/en/docs/http/ngx_http_core_module.html (搜location)
+
+   语法 location [ = | ~ | ~* | ^~ ] uri { ... }
+   
+   前缀匹配url:
+        location =  uri {}  # <！！！注意！！！非前缀匹配>，必须完全匹配
+	location ^~ uri {}  # 前缀匹配，且暗示nginx停止后续的正则匹配
+        location uri    {}  # 普通前缀匹配
+   
+   正则匹配url:
+        location ~  uri {}  # 区分大小写的正则匹配
+	location ~* uri {}  # 不区分大小写的正则匹配
+
+   匹配过程:
+     a、先从 <前缀匹配的url>中找最长匹配项，找到后保存并继续
+     b、按配置文件中定义的顺序，依次去匹配 <正则匹配url>
+     c、若步骤b找到匹配的location则停止匹配，否则使用步骤a找的location
+     e、特例，当步骤a中找到 以 ^~ 或 = 开头的 匹配成功的 location则不执行 步骤a 后的所有步骤
+
+     每个server块默认都有一个，下面的location配置(可以覆盖)
+     server {
+        location / {
+	   root html;
+	}
+     }
+
+6、nginx配置https服务器
+   a 准备工作 (https://blog.csdn.net/Holmofy/article/details/79261123)
+     生成三个文件:
+        证书(crt文件,    如 my.crt)
+	私钥(key文件,    如 my.key)
+        密码(passwd文件, 如 my.passwd)
+     
+    先生成私钥，这步需要提供密码，
+    而这个密码就是passwd文件的内容
+    而且passwd文件需要手动创建
+    openssl genrsa -out server.key -des3 -passout pass:123456 2048
+
+    再生成证书请求文件
+    openssl req -new -key server.key -out server.csr
+     
+    最后结合私钥和证书请求文件生成证书
+    openssl req -new -x509 -key server.key-out ca.crt -days 3650
+
+    https/SSL/TLS详解：http://www.ruanyifeng.com/blog/2014/02/ssl_tls.html
+   
+   b nginx编译时要加上 --with-http_ssl_module
+
+   c 配置片段
+   server {
+        listen       443 ssl;                    #注意 服务器只会监听443端口
+        server_name  localhost;
+
+        ssl_certificate      ../ssl/ca.crt;      # 证书文件的路径，相对于  --conf-path
+        ssl_certificate_key  ../ssl/server.key;  # 私钥的路径，    相对于  --conf-path
+        ssl_password_file    ../ssl/passwd;      # 生成私钥的密码，相对于  --conf-path
+
+        ssl_session_cache    shared:SSL:1m;
+        ssl_session_timeout  5m; 
+
+        ssl_ciphers  HIGH:!aNULL:!MD5;
+        ssl_prefer_server_ciphers  on; 
+
+        location / { 
+            root   html;
+            index  index.html index.htm;
+        }   
+    }   
+
+7、rewrite 和 try_files
+
+> GET /u HTTP/1.1             <请求行>, uri为 "/u"
+> User-Agent: curl/7.29.0    <请求头, 下面都是>
+> Accept: */*
+> HOST:g
+
+   ngixn收到一个http请求后，
+   先要根据<host>的value来确定 server 块，
+   然后根据<请求行>的uri来确定 server块中的location块
+   
+   server {
+     server_name g;  # 只要这里和 "HOST: g" 一样就匹配了
+     root html;      # 请求 /u/a.jpg, 会被转换为 $prefix/html/u/a.jpg, $prefix 编译时指定的nginx安装目录，见最上面
+     location /u {
+       rewrite regx replacement break/last;
+     }
+   }
+   
+rewrite 利用 regx来匹配 <请求行> 中的 uri，
+如果匹配成功, 则将 <请求行> 中的 uri 换为 replacement;
+若rewrite 后面跟 break, 则会把 replacement 转换为 $prefix/html/replacement
+若rewriete 后面跟 last, 则会 按照 replacement 重新 定位 location块
+
+server {
+    root html;
+    location /y {
+       rewrite ^.+?/([^.]+\.[^.]+)$ /p/$1 break;  
+    }
+}
+访问 http://localhost/y/1.jpg  
+uri            /y/1.jpg
+rewrite 后     /p/1.jpg
+因为是 break，所以直接 将 /p/1.jpg 转换为 $prefix/html/p/1.jpg
+如果是 last, 则 继续用 /p/1.jpg 来寻找 location
+
+参考文档 http://nginx.org/en/docs/http/ngx_http_rewrite_module.html 搜 rewrite
+
+综上所述, rewrite 主要是用来替换 <请求行> 中的 uri， 
+而要想用请求跳转来隐藏内部的location，则应该使用
+rewrite 配合 internal http://nginx.org/en/docs/http/ngx_http_core_module.html 搜 internal
+
+location /images {
+  rewrite ^.+$ /images/android last;
+}
+
+location /images/android {
+    internal;
+    return 200 "/images/android"
+}
+
+直接访问 "http://localhost/images/android" 会报404
+而访问 "http://localhost/images"           则可以
+
+
+8、root和alias
+
+location /a { #1
+   root html;
+}
+
+location /a { #2
+  alias html/;
+}
+
+访问 http://localhost/a/1.png, 
+#1 返回的是 $prefix/html/a/1/png 而
+#2 返回的是 $prefix/html/1.png    =====> 用 $prefix/html/ 替换 /a
+

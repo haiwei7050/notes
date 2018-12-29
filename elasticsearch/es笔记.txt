@@ -1,0 +1,282 @@
+以下只针对 es 6.3
+
+1、怎么运行多个实例
+	ⅰ es执行程序 + 不同的配置文件，即可。关键点如何指定不同的配置文件
+	ⅱ 为了让es在执行时，读取不同的配置文件，
+	  只有一种方法：每次运行前设置环境变量 ES_PATH_CONF
+	  两个注意点: 
+	     ES_PATH_CONF 只能指定配置文件所在的目录，配置文件名改不了，只能是elasticsearch.yml
+	     必须export 该环境变量： export ES_PATH_CONF=/usr/local/es/node-1/config/
+
+2、集群需要配置的项
+    cluster.name                          // 集群名称                    (一个群的必须一样)
+    node.name                             // 节点名称                    (一个群的必须 不 一样)
+    path.data                             // 节点数据保存路径，到文件夹  (一个群的必须 不 一样)
+    path.logs                             // 节点日志保存路径，到文件夹  (一个群的必须 不 一样)
+    network.host                          // 节点的IP                    (可以相同, 不可以指定端口)
+    http.port                             // 节点http请求的端口          (一个群的必须 不 一样)
+    transport.tcp.port                    // 节点和其他节点通信的端口    (一个群的必须 不 一样)
+    discovery.zen.ping.unicast.hosts      // 集群中其他节点的IP          (可以包含自己，可以指定端口)
+    discovery.zen.minimum_master_nodes    // 有几个主节点才可以运行      (一个群的必须一样)
+             
+3、network.host、http.port、transport.tcp.port和discovery.zen.ping.unicast.hosts 配置与不配置对集群的影响
+
+  ok ① 只配 network.host = 192.168.50.230
+            discovery.zen.ping.unicast.hosts = 192.168.50.230  //  没有指定端口
+     
+     则 http.port 在 9200~9300 从低向高尝试，当有一个可以时就绑定到该端口
+        transport.tcp.port 在 9300~9400 从低向高尝试，当有一个可以时就绑定到该端口
+
+	且当前节点根据 discovery.zen.ping.unicast.hosts 的设定，
+	扫描主机 192.168.50.230, 9300~9400等端口，
+	为什么扫描9300~9400端口，是因为
+        discovery.zen.ping.unicast.hosts 没有指定端口，所以扫描端口要参照transport.tcp.port
+	而transport.tcp.port没有设，其默认值为 9300~9400
+
+  ok ② 只配 network.host = 192.168.50.230
+            http.port = 9200
+            discovery.zen.ping.unicast.hosts = 192.168.50.230  //  没有指定端口
+
+        则transport.tcp.port 在 9300~9400 从低向高尝试，当有一个可以时就绑定到该端口
+        
+	且当前节点根据 discovery.zen.ping.unicast.hosts 的设定，
+	扫描主机 192.168.50.230, 9300~9400等端口，
+	为什么扫描9300~9400端口，是因为
+        discovery.zen.ping.unicast.hosts 没有指定端口，所以扫描端口要参照transport.tcp.port
+	而transport.tcp.port没有设，其默认值为 9300~9400
+
+  no ③ 只配 network.host = 192.168.50.230
+            http.port = 9200
+            discovery.zen.ping.unicast.hosts = 192.168.50.230   //  没有指定端口
+	    transport.tcp.port = 9300
+
+	且当前节点根据 discovery.zen.ping.unicast.hosts 的设定，
+	扫描主机 192.168.50.230, 9300等端口，
+	为什么扫描9300端口，是因为
+        discovery.zen.ping.unicast.hosts 没有指定端口，所以扫描端口要参照transport.tcp.port
+	而transport.tcp.port设定为9300，而只有当前节点在9300上监听，所以会
+	！！！失败！！！
+	！！！失败！！！
+	！！！失败！！！
+
+ ok ④ 只配 network.host = 192.168.50.230
+           http.port = 9200
+           discovery.zen.ping.unicast.hosts = 192.168.50.230:9301     
+	   transport.tcp.port = 9300
+
+	且当前节点根据 discovery.zen.ping.unicast.hosts 的设定，
+	扫描主机 192.168.50.230, 9301等端口，因为已经指定端口了
+
+
+4、目录结构及配置文件模板请看外面的文件
+
+5、测试脚本
+vi /usr/bin/es
+#!/bin/bash
+export ES_PATH_CONF="/usr/local/es/$1/config/"
+export JAVA_HOME='/usr/local/src/jdk8'
+export PATH='/usr/local/src/jdk8/bin':${PATH}
+/usr/local/src/elasticsearch-6.3.0/bin/elasticsearch
+
+useradd -r es -s $(which nologin)
+chown es:es /usr/bin/es
+sudo -u es es node-1
+sudo -u es es node-2
+
+HS="192.168.50.230:9200"
+
+curl -xPOST "$HS/prod/_doc?pretty" -H"content-type:application/json" --data-binary @accounts.json
+
+
+curl -XPUT "$HS/prod/_doc?pretty" -H"content-type: application/json" -d'
+{
+  "desc": "张三上山打老虎"
+}
+'
+
+curl -XGET "$HS/prod/_search?pretty" -H"content-type:application/json" -d'
+{
+  "query":{
+     "match":{
+        "desc":"张三"
+     }
+  }
+}
+'
+
+curl -i -X HEAD "$HS/prod/_doc/0"
+
+{  "settings":{
+      "number_of_shards":1
+   },
+   "mappings":{
+        "_doc":{
+	    "properties":{
+	         "content":{}
+	    }
+	}
+   }
+}
+
+
+curl -XPUT "$HS/t1?pretty" -H"content-type:application/json" -d'{
+   "mappings":{
+      "_doc":{
+           "properties":{
+	       "desc":{
+	          "type":"keyword"
+	       }
+	   }
+      }
+   }
+}'
+
+
+
+curl -XPUT "$HS/t2?pretty" -H"content-type:application/json" -d'{
+   "mappings":{
+      "_doc":{
+           "properties":{
+	       "desc":{
+	          "type":"text"
+	       }
+	   }
+      }
+   }
+}'
+
+
+curl -XPOST "$HS/t1/_doc?pretty" -H"content-type:application/json" -d'{
+   "desc": "test is a test"
+}'
+
+curl -XPOST "$HS/t2/_doc?pretty" -H"content-type:application/json" -d'{
+   "desc": "test is a test"
+}'
+
+
+curl -XGET "$HS/t1/_search?pretty" -H"content-type:application/json" -d'{
+   "query":{
+       "match":{"desc":"test"}
+   }
+}'
+curl -XGET "$HS/t1/_search?pretty" -H"content-type:application/json" -d'{
+   "query":{
+       "match":{"desc":"test is a test"}
+   }
+}'
+
+curl -XGET "$HS/t2/_search?pretty" -H"content-type:application/json" -d'{
+   "query":{
+       "match":{"desc":"test"}
+   }
+}'
+
+curl -X PUT "localhost:9200/my_index/_doc/match_value" -H 'Content-Type: application/json' -d'
+{
+    "query" : {
+        "match" : {
+            "field" : "value"
+        }
+    }
+}
+'
+
+curl -XPOST "$HS/prod?pretty" -H"content-type:application/json" --data-binary @application.json
+
+curl -XPUT "$HS/t1?pretty" -H"content-type:application/json" -d'
+{
+  "mappings":{
+     "_doc":{
+         "properties":{
+	    "tag":{
+	       "type":"keyword"
+	    },
+	    "content":{
+	      "type":"text",
+	      "analyzer":"ik_smart",
+	      "search_analyzer":"ik_max_word"
+	    }
+	 }
+     }
+  }
+}
+'
+
+curl -XPOST "$HS/t1/_doc?pretty" -H"content-type:application/json" -d'
+    {
+      "tag":["显卡", "nvidia", "GPU"],
+      "content":"华硕显卡败家之眼，gtx1080ti"
+    }
+'
+
+curl -XPOST "$HS/t1/_doc?pretty" -H"content-type:application/json" -d'
+    {
+      "tag":["显卡", "nvidia", "GPU"],
+      "content" : "技嘉高性能显卡GTX1070"
+    }
+'
+
+curl -XGET "$HS/_analyze?pretty" -H"content-type:application/json" -d'
+   {
+     "text":"华硕显卡败家之眼，gtx1080ti",
+     "analyzer":"ik_max_word"
+   }
+'
+
+curl -XGET "$HS/_search?pretty" -H"content-type:application/json" -d'
+{
+   "query":{
+      "match":{
+         "content":"1080ti"
+      }
+   }
+}
+'
+
+curl -XGET "$HS/_all/_mapping/_doc?pretty"
+
+curl -X GET "$HS/_analyze?pretty" -H 'Content-Type: application/json' -d'
+{
+  "analyzer" : "ik_smart",
+  "text" : "He does a lot of bad things"
+}
+'
+
+curl -X GET "$HS/_analyze?pretty" -H 'Content-Type: application/json' -d'
+{
+  "analyzer" : "english",
+  "text" : "He was doing a lot of bad things"
+}
+'
+curl -X GET "$HS/_analyze?pretty" -H 'Content-Type: application/json' -d'
+{
+  "analyzer" : "english",
+  "text" : "I will be a student"
+}
+'
+
+curl -X GET "$HS/_analyze?pretty" -H 'Content-Type: application/json' -d'
+{
+  "analyzer" : "standard",
+  "text" : ["this is a test", "the second text"]
+}
+'
+
+curl -X GET "$HS/_analyze?pretty" -H 'Content-Type: application/json' -d'
+{
+  "tokenizer" : "keyword",
+  "filter" : ["lowercase"],
+  "char_filter" : ["html_strip"],
+  "text" : "this is a <b>test</b>"
+}
+'
+curl -XGET "$HS/_search?pretty" -H"content-type:application/json" -d'
+ {
+    "query":{
+       "match_all":{}
+    }
+ }
+'
+
+curl -XGET "$HS/t1/_segments"

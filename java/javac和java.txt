@@ -1,0 +1,48 @@
+1、javac编译器的本质
+
+	   javac     A.java
+	  
+	  java的编译器是用java写的故上面的写法等同于
+
+	  java -cp "C:\Program Files\Java\jdk1.6.0_13\lib\tools.jar" com.sun.tools.javac.Main
+
+	  利用java启动一个虚拟机，加载编译器 com.sun.tools.javac.Main，而编译器位于
+	  C:\Program Files\Java\jdk1.6.0_13\lib\tools.jar 内， 所以要指定classpath 即 -cp
+
+  !!!!!<所以， maven可以直接调用java写的编译器，因为编译器也是类>!!!!!!
+
+2、利用java.exe指令启动虚拟机的过程
+	  
+	   A、在java.exe同级目录下寻找  （.dll，例如java.dll）
+	   B、在java.exe的上级目录下找jre目录
+	   C、查看登錄檔（Windows下）中HKEY_LOCAL_MACHINE\Software\JavaSoft\Java Runtime Environment\的版本與目錄資訊
+
+
+3、javac 的 -target和-source的意义
+
+	-target   =======> 指定编译出来的class文件为哪个版本的class,
+			   即哪个版本的JRE可以识别该class文件,
+			   (其中版本是指虚拟机的版本)
+
+	-source   =======> 指定要编译的java源文件使用了jdk几的语法
+
+	-target 必须大于等于(>=) -source, 即 <虚拟机的版本>  要<高于>  你使用的  <语法版本>
+
+4、javac.exe 、java.exe 和 -classpath、-sourcepath
+
+   A、对于javac.exe来说
+   
+       -classpath 指定搜索类文件的路径，这些路径下有编译当前源码文件(.java)，所需的类文件
+
+        例子 javac -classpath c:\test A.java  =====> 编译A.java时，当遇到不知类时请到-classpath指定的路径下搜索
+
+       -sourcepath 指定搜索源文件的路径，这些路径下有编译当前源码文件(.java)，所需的源文件
+
+       例子 javac -sourcepath c:\test A.java  =====> 编译A.java时，当遇到不知类时请到-sourcepath指定的路径下搜索并编译
+
+  B、对于java.exe来说，只有-classpath，它指定去哪去加载后面的类
+   
+      java -classpath c:\d Bootstrap    =====>  去c盘下的d文件下加载类Bootstrap
+
+      java -classpath c:\d com.Boostrap =====>  对于带包名的类会到-classpath指定的路径下，按包名展开去找类
+                                                对于本例子，就是到 c:\d\com下去找类Bootstrap

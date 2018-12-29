@@ -1,0 +1,58 @@
+apt-key add nginx_signing.key
+
+vi /etc/apt/sources.list
+deb http://nginx.org/packages/ubuntu/ yakkety nginx
+deb-src http://nginx.org/packages/ubuntu/ yakkety nginx
+apt-get update
+apt-get install nginx
+
+安装OpenResty
+wget -qO - https://openresty.org/package/pubkey.gpg | sudo apt-key add -
+apt-get -y install software-properties-common
+add-apt-repository -y "deb http://openresty.org/package/ubuntu $(lsb_release -sc) main"
+apt-get update
+apt-get install openresty
+
+
+--------nginx编译需要的依赖
+wget ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.41.tar.gz
+wget http://zlib.net/zlib-1.2.11.tar.gz
+wget http://www.openssl.org/source/openssl-1.0.2k.tar.gz
+
+./configure --with-pcre=../pcre-8.41 --with-zlib=../zlib-1.2.11 
+
+
+
+
+dpkg -L 包名 查看安装包都安装了什么
+
+error_log  /var/log/nginx/error.log warn;
+pid        /var/run/nginx.pid;
+include       /etc/nginx/mime.types;
+access_log  /var/log/nginx/access.log  main;
+include /etc/nginx/conf.d/*.conf;
+
+main context
+	-- events
+	-- http
+		-- server
+		-- location
+
+location /abc/ {
+  root /tmp
+}
+
+则请求 http://ip/abc/t.html
+会到  /tmp/abc下找
+正则表达式要以~开头
+
+
+apt install zlib1g-dev libpng-dev libjpeg-dev libjasper-dev
+
+./configure
+make
+make install
+
+gm convert [输入文件的选项] inputFile [输出文件的选项] outputFile
+
+gm convert -size 32x32 t.jpg -resize 32x32\! b.jpg

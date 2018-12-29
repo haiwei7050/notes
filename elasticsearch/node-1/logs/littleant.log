@@ -1,0 +1,623 @@
+[2018-06-22T14:21:43,620][INFO ][o.e.n.Node               ] [node-1] initializing ...
+[2018-06-22T14:21:43,740][INFO ][o.e.e.NodeEnvironment    ] [node-1] using [1] data paths, mounts [[/ (/dev/sda1)]], net usable_space [23.5gb], net total_space [45.1gb], types [ext4]
+[2018-06-22T14:21:43,741][INFO ][o.e.e.NodeEnvironment    ] [node-1] heap size [1015.6mb], compressed ordinary object pointers [true]
+[2018-06-22T14:21:43,750][INFO ][o.e.n.Node               ] [node-1] node name [node-1], node ID [mKXAG1yMTMCRUKZCfGOqNw]
+[2018-06-22T14:21:43,751][INFO ][o.e.n.Node               ] [node-1] version[6.3.0], pid[91926], build[default/zip/424e937/2018-06-11T23:38:03.357887Z], OS[Linux/4.13.0-45-generic/amd64], JVM[Oracle Corporation/Java HotSpot(TM) 64-Bit Server VM/1.8.0_171/25.171-b11]
+[2018-06-22T14:21:43,752][INFO ][o.e.n.Node               ] [node-1] JVM arguments [-Xms1g, -Xmx1g, -XX:+UseConcMarkSweepGC, -XX:CMSInitiatingOccupancyFraction=75, -XX:+UseCMSInitiatingOccupancyOnly, -XX:+AlwaysPreTouch, -Xss1m, -Djava.awt.headless=true, -Dfile.encoding=UTF-8, -Djna.nosys=true, -XX:-OmitStackTraceInFastThrow, -Dio.netty.noUnsafe=true, -Dio.netty.noKeySetOptimization=true, -Dio.netty.recycler.maxCapacityPerThread=0, -Dlog4j.shutdownHookEnabled=false, -Dlog4j2.disable.jmx=true, -Djava.io.tmpdir=/tmp/elasticsearch.gSjtel6P, -XX:+HeapDumpOnOutOfMemoryError, -XX:HeapDumpPath=data, -XX:ErrorFile=logs/hs_err_pid%p.log, -XX:+PrintGCDetails, -XX:+PrintGCDateStamps, -XX:+PrintTenuringDistribution, -XX:+PrintGCApplicationStoppedTime, -Xloggc:logs/gc.log, -XX:+UseGCLogFileRotation, -XX:NumberOfGCLogFiles=32, -XX:GCLogFileSize=64m, -Des.path.home=/usr/local/src/elasticsearch-6.3.0, -Des.path.conf=/usr/local/es/node-1/config, -Des.distribution.flavor=default, -Des.distribution.type=zip]
+[2018-06-22T14:21:47,787][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [aggs-matrix-stats]
+[2018-06-22T14:21:47,791][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [analysis-common]
+[2018-06-22T14:21:47,791][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [ingest-common]
+[2018-06-22T14:21:47,792][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [lang-expression]
+[2018-06-22T14:21:47,792][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [lang-mustache]
+[2018-06-22T14:21:47,793][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [lang-painless]
+[2018-06-22T14:21:47,794][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [mapper-extras]
+[2018-06-22T14:21:47,796][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [parent-join]
+[2018-06-22T14:21:47,797][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [percolator]
+[2018-06-22T14:21:47,797][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [rank-eval]
+[2018-06-22T14:21:47,797][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [reindex]
+[2018-06-22T14:21:47,797][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [repository-url]
+[2018-06-22T14:21:47,797][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [transport-netty4]
+[2018-06-22T14:21:47,798][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [tribe]
+[2018-06-22T14:21:47,798][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-core]
+[2018-06-22T14:21:47,798][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-deprecation]
+[2018-06-22T14:21:47,801][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-graph]
+[2018-06-22T14:21:47,802][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-logstash]
+[2018-06-22T14:21:47,802][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-ml]
+[2018-06-22T14:21:47,802][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-monitoring]
+[2018-06-22T14:21:47,802][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-rollup]
+[2018-06-22T14:21:47,803][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-security]
+[2018-06-22T14:21:47,803][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-sql]
+[2018-06-22T14:21:47,803][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-upgrade]
+[2018-06-22T14:21:47,804][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-watcher]
+[2018-06-22T14:21:47,805][INFO ][o.e.p.PluginsService     ] [node-1] no plugins loaded
+[2018-06-22T14:21:54,522][INFO ][o.e.x.s.a.s.FileRolesStore] [node-1] parsed [0] roles from file [/usr/local/es/node-1/config/roles.yml]
+[2018-06-22T14:21:55,533][INFO ][o.e.x.m.j.p.l.CppLogMessageHandler] [controller/91976] [Main.cc@109] controller (64 bit): Version 6.3.0 (Build 0f0a34c67965d7) Copyright (c) 2018 Elasticsearch BV
+[2018-06-22T14:21:56,200][DEBUG][o.e.a.ActionModule       ] Using REST wrapper from plugin org.elasticsearch.xpack.security.Security
+[2018-06-22T14:21:56,628][INFO ][o.e.d.DiscoveryModule    ] [node-1] using discovery type [zen]
+[2018-06-22T14:21:58,295][INFO ][o.e.n.Node               ] [node-1] initialized
+[2018-06-22T14:21:58,296][INFO ][o.e.n.Node               ] [node-1] starting ...
+[2018-06-22T14:21:58,479][ERROR][o.e.b.Bootstrap          ] [node-1] Exception
+org.elasticsearch.transport.BindTransportException: Failed to resolve host [192.168.50.230:9200]
+	at org.elasticsearch.transport.TcpTransport.bindServer(TcpTransport.java:760) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.transport.netty4.Netty4Transport.doStart(Netty4Transport.java:135) ~[?:?]
+	at org.elasticsearch.xpack.core.security.transport.netty4.SecurityNetty4Transport.doStart(SecurityNetty4Transport.java:85) ~[?:?]
+	at org.elasticsearch.xpack.security.transport.netty4.SecurityNetty4ServerTransport.doStart(SecurityNetty4ServerTransport.java:41) ~[?:?]
+	at org.elasticsearch.common.component.AbstractLifecycleComponent.start(AbstractLifecycleComponent.java:66) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.transport.TransportService.doStart(TransportService.java:213) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.common.component.AbstractLifecycleComponent.start(AbstractLifecycleComponent.java:66) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.node.Node.start(Node.java:652) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.bootstrap.Bootstrap.start(Bootstrap.java:265) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.bootstrap.Bootstrap.init(Bootstrap.java:335) [elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.bootstrap.Elasticsearch.init(Elasticsearch.java:136) [elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.bootstrap.Elasticsearch.execute(Elasticsearch.java:127) [elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.cli.EnvironmentAwareCommand.execute(EnvironmentAwareCommand.java:86) [elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.cli.Command.mainWithoutErrorHandling(Command.java:124) [elasticsearch-cli-6.3.0.jar:6.3.0]
+	at org.elasticsearch.cli.Command.main(Command.java:90) [elasticsearch-cli-6.3.0.jar:6.3.0]
+	at org.elasticsearch.bootstrap.Elasticsearch.main(Elasticsearch.java:93) [elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.bootstrap.Elasticsearch.main(Elasticsearch.java:86) [elasticsearch-6.3.0.jar:6.3.0]
+Caused by: java.net.UnknownHostException: 192.168.50.230:9200: invalid IPv6 address
+	at java.net.InetAddress.getAllByName(InetAddress.java:1169) ~[?:1.8.0_171]
+	at java.net.InetAddress.getAllByName(InetAddress.java:1126) ~[?:1.8.0_171]
+	at org.elasticsearch.common.network.NetworkService.resolveInternal(NetworkService.java:237) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.common.network.NetworkService.resolveInetAddresses(NetworkService.java:187) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.common.network.NetworkService.resolveBindHostAddresses(NetworkService.java:106) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.transport.TcpTransport.bindServer(TcpTransport.java:758) ~[elasticsearch-6.3.0.jar:6.3.0]
+	... 16 more
+[2018-06-22T14:21:58,495][WARN ][o.e.b.ElasticsearchUncaughtExceptionHandler] [node-1] uncaught exception in thread [main]
+org.elasticsearch.bootstrap.StartupException: BindTransportException[Failed to resolve host [192.168.50.230:9200]]; nested: UnknownHostException[192.168.50.230:9200: invalid IPv6 address];
+	at org.elasticsearch.bootstrap.Elasticsearch.init(Elasticsearch.java:140) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.bootstrap.Elasticsearch.execute(Elasticsearch.java:127) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.cli.EnvironmentAwareCommand.execute(EnvironmentAwareCommand.java:86) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.cli.Command.mainWithoutErrorHandling(Command.java:124) ~[elasticsearch-cli-6.3.0.jar:6.3.0]
+	at org.elasticsearch.cli.Command.main(Command.java:90) ~[elasticsearch-cli-6.3.0.jar:6.3.0]
+	at org.elasticsearch.bootstrap.Elasticsearch.main(Elasticsearch.java:93) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.bootstrap.Elasticsearch.main(Elasticsearch.java:86) ~[elasticsearch-6.3.0.jar:6.3.0]
+Caused by: org.elasticsearch.transport.BindTransportException: Failed to resolve host [192.168.50.230:9200]
+	at org.elasticsearch.transport.TcpTransport.bindServer(TcpTransport.java:760) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.transport.netty4.Netty4Transport.doStart(Netty4Transport.java:135) ~[?:?]
+	at org.elasticsearch.xpack.core.security.transport.netty4.SecurityNetty4Transport.doStart(SecurityNetty4Transport.java:85) ~[?:?]
+	at org.elasticsearch.xpack.security.transport.netty4.SecurityNetty4ServerTransport.doStart(SecurityNetty4ServerTransport.java:41) ~[?:?]
+	at org.elasticsearch.common.component.AbstractLifecycleComponent.start(AbstractLifecycleComponent.java:66) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.transport.TransportService.doStart(TransportService.java:213) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.common.component.AbstractLifecycleComponent.start(AbstractLifecycleComponent.java:66) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.node.Node.start(Node.java:652) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.bootstrap.Bootstrap.start(Bootstrap.java:265) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.bootstrap.Bootstrap.init(Bootstrap.java:335) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.bootstrap.Elasticsearch.init(Elasticsearch.java:136) ~[elasticsearch-6.3.0.jar:6.3.0]
+	... 6 more
+Caused by: java.net.UnknownHostException: 192.168.50.230:9200: invalid IPv6 address
+	at java.net.InetAddress.getAllByName(InetAddress.java:1169) ~[?:1.8.0_171]
+	at java.net.InetAddress.getAllByName(InetAddress.java:1126) ~[?:1.8.0_171]
+	at org.elasticsearch.common.network.NetworkService.resolveInternal(NetworkService.java:237) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.common.network.NetworkService.resolveInetAddresses(NetworkService.java:187) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.common.network.NetworkService.resolveBindHostAddresses(NetworkService.java:106) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.transport.TcpTransport.bindServer(TcpTransport.java:758) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.transport.netty4.Netty4Transport.doStart(Netty4Transport.java:135) ~[?:?]
+	at org.elasticsearch.xpack.core.security.transport.netty4.SecurityNetty4Transport.doStart(SecurityNetty4Transport.java:85) ~[?:?]
+	at org.elasticsearch.xpack.security.transport.netty4.SecurityNetty4ServerTransport.doStart(SecurityNetty4ServerTransport.java:41) ~[?:?]
+	at org.elasticsearch.common.component.AbstractLifecycleComponent.start(AbstractLifecycleComponent.java:66) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.transport.TransportService.doStart(TransportService.java:213) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.common.component.AbstractLifecycleComponent.start(AbstractLifecycleComponent.java:66) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.node.Node.start(Node.java:652) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.bootstrap.Bootstrap.start(Bootstrap.java:265) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.bootstrap.Bootstrap.init(Bootstrap.java:335) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.bootstrap.Elasticsearch.init(Elasticsearch.java:136) ~[elasticsearch-6.3.0.jar:6.3.0]
+	... 6 more
+[2018-06-22T14:21:59,379][INFO ][o.e.n.Node               ] [node-1] stopping ...
+[2018-06-22T14:21:59,391][INFO ][o.e.n.Node               ] [node-1] stopped
+[2018-06-22T14:21:59,392][INFO ][o.e.n.Node               ] [node-1] closing ...
+[2018-06-22T14:21:59,410][INFO ][o.e.n.Node               ] [node-1] closed
+[2018-06-22T14:21:59,415][INFO ][o.e.x.m.j.p.NativeController] Native controller process has stopped - no new native processes can be started
+[2018-06-22T14:23:22,940][INFO ][o.e.n.Node               ] [node-1] initializing ...
+[2018-06-22T14:23:23,056][INFO ][o.e.e.NodeEnvironment    ] [node-1] using [1] data paths, mounts [[/ (/dev/sda1)]], net usable_space [23.5gb], net total_space [45.1gb], types [ext4]
+[2018-06-22T14:23:23,062][INFO ][o.e.e.NodeEnvironment    ] [node-1] heap size [1015.6mb], compressed ordinary object pointers [true]
+[2018-06-22T14:23:23,064][INFO ][o.e.n.Node               ] [node-1] node name [node-1], node ID [mKXAG1yMTMCRUKZCfGOqNw]
+[2018-06-22T14:23:23,065][INFO ][o.e.n.Node               ] [node-1] version[6.3.0], pid[92070], build[default/zip/424e937/2018-06-11T23:38:03.357887Z], OS[Linux/4.13.0-45-generic/amd64], JVM[Oracle Corporation/Java HotSpot(TM) 64-Bit Server VM/1.8.0_171/25.171-b11]
+[2018-06-22T14:23:23,066][INFO ][o.e.n.Node               ] [node-1] JVM arguments [-Xms1g, -Xmx1g, -XX:+UseConcMarkSweepGC, -XX:CMSInitiatingOccupancyFraction=75, -XX:+UseCMSInitiatingOccupancyOnly, -XX:+AlwaysPreTouch, -Xss1m, -Djava.awt.headless=true, -Dfile.encoding=UTF-8, -Djna.nosys=true, -XX:-OmitStackTraceInFastThrow, -Dio.netty.noUnsafe=true, -Dio.netty.noKeySetOptimization=true, -Dio.netty.recycler.maxCapacityPerThread=0, -Dlog4j.shutdownHookEnabled=false, -Dlog4j2.disable.jmx=true, -Djava.io.tmpdir=/tmp/elasticsearch.VniNuiQd, -XX:+HeapDumpOnOutOfMemoryError, -XX:HeapDumpPath=data, -XX:ErrorFile=logs/hs_err_pid%p.log, -XX:+PrintGCDetails, -XX:+PrintGCDateStamps, -XX:+PrintTenuringDistribution, -XX:+PrintGCApplicationStoppedTime, -Xloggc:logs/gc.log, -XX:+UseGCLogFileRotation, -XX:NumberOfGCLogFiles=32, -XX:GCLogFileSize=64m, -Des.path.home=/usr/local/src/elasticsearch-6.3.0, -Des.path.conf=/usr/local/es/node-1/config, -Des.distribution.flavor=default, -Des.distribution.type=zip]
+[2018-06-22T14:23:27,016][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [aggs-matrix-stats]
+[2018-06-22T14:23:27,017][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [analysis-common]
+[2018-06-22T14:23:27,018][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [ingest-common]
+[2018-06-22T14:23:27,019][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [lang-expression]
+[2018-06-22T14:23:27,019][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [lang-mustache]
+[2018-06-22T14:23:27,019][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [lang-painless]
+[2018-06-22T14:23:27,020][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [mapper-extras]
+[2018-06-22T14:23:27,021][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [parent-join]
+[2018-06-22T14:23:27,025][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [percolator]
+[2018-06-22T14:23:27,025][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [rank-eval]
+[2018-06-22T14:23:27,028][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [reindex]
+[2018-06-22T14:23:27,028][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [repository-url]
+[2018-06-22T14:23:27,028][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [transport-netty4]
+[2018-06-22T14:23:27,028][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [tribe]
+[2018-06-22T14:23:27,028][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-core]
+[2018-06-22T14:23:27,029][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-deprecation]
+[2018-06-22T14:23:27,029][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-graph]
+[2018-06-22T14:23:27,030][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-logstash]
+[2018-06-22T14:23:27,030][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-ml]
+[2018-06-22T14:23:27,030][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-monitoring]
+[2018-06-22T14:23:27,031][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-rollup]
+[2018-06-22T14:23:27,031][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-security]
+[2018-06-22T14:23:27,031][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-sql]
+[2018-06-22T14:23:27,031][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-upgrade]
+[2018-06-22T14:23:27,032][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-watcher]
+[2018-06-22T14:23:27,033][INFO ][o.e.p.PluginsService     ] [node-1] no plugins loaded
+[2018-06-22T14:23:33,511][INFO ][o.e.x.s.a.s.FileRolesStore] [node-1] parsed [0] roles from file [/usr/local/es/node-1/config/roles.yml]
+[2018-06-22T14:23:34,378][INFO ][o.e.x.m.j.p.l.CppLogMessageHandler] [controller/92120] [Main.cc@109] controller (64 bit): Version 6.3.0 (Build 0f0a34c67965d7) Copyright (c) 2018 Elasticsearch BV
+[2018-06-22T14:23:35,010][DEBUG][o.e.a.ActionModule       ] Using REST wrapper from plugin org.elasticsearch.xpack.security.Security
+[2018-06-22T14:23:35,402][INFO ][o.e.d.DiscoveryModule    ] [node-1] using discovery type [zen]
+[2018-06-22T14:23:37,297][INFO ][o.e.n.Node               ] [node-1] initialized
+[2018-06-22T14:23:37,299][INFO ][o.e.n.Node               ] [node-1] starting ...
+[2018-06-22T14:23:37,711][ERROR][o.e.b.Bootstrap          ] [node-1] Exception
+org.elasticsearch.transport.BindTransportException: Failed to resolve host [192.168.50.230:9200]
+	at org.elasticsearch.transport.TcpTransport.bindServer(TcpTransport.java:760) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.transport.netty4.Netty4Transport.doStart(Netty4Transport.java:135) ~[?:?]
+	at org.elasticsearch.xpack.core.security.transport.netty4.SecurityNetty4Transport.doStart(SecurityNetty4Transport.java:85) ~[?:?]
+	at org.elasticsearch.xpack.security.transport.netty4.SecurityNetty4ServerTransport.doStart(SecurityNetty4ServerTransport.java:41) ~[?:?]
+	at org.elasticsearch.common.component.AbstractLifecycleComponent.start(AbstractLifecycleComponent.java:66) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.transport.TransportService.doStart(TransportService.java:213) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.common.component.AbstractLifecycleComponent.start(AbstractLifecycleComponent.java:66) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.node.Node.start(Node.java:652) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.bootstrap.Bootstrap.start(Bootstrap.java:265) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.bootstrap.Bootstrap.init(Bootstrap.java:335) [elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.bootstrap.Elasticsearch.init(Elasticsearch.java:136) [elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.bootstrap.Elasticsearch.execute(Elasticsearch.java:127) [elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.cli.EnvironmentAwareCommand.execute(EnvironmentAwareCommand.java:86) [elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.cli.Command.mainWithoutErrorHandling(Command.java:124) [elasticsearch-cli-6.3.0.jar:6.3.0]
+	at org.elasticsearch.cli.Command.main(Command.java:90) [elasticsearch-cli-6.3.0.jar:6.3.0]
+	at org.elasticsearch.bootstrap.Elasticsearch.main(Elasticsearch.java:93) [elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.bootstrap.Elasticsearch.main(Elasticsearch.java:86) [elasticsearch-6.3.0.jar:6.3.0]
+Caused by: java.net.UnknownHostException: 192.168.50.230:9200: invalid IPv6 address
+	at java.net.InetAddress.getAllByName(InetAddress.java:1169) ~[?:1.8.0_171]
+	at java.net.InetAddress.getAllByName(InetAddress.java:1126) ~[?:1.8.0_171]
+	at org.elasticsearch.common.network.NetworkService.resolveInternal(NetworkService.java:237) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.common.network.NetworkService.resolveInetAddresses(NetworkService.java:187) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.common.network.NetworkService.resolveBindHostAddresses(NetworkService.java:106) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.transport.TcpTransport.bindServer(TcpTransport.java:758) ~[elasticsearch-6.3.0.jar:6.3.0]
+	... 16 more
+[2018-06-22T14:23:37,761][WARN ][o.e.b.ElasticsearchUncaughtExceptionHandler] [node-1] uncaught exception in thread [main]
+org.elasticsearch.bootstrap.StartupException: BindTransportException[Failed to resolve host [192.168.50.230:9200]]; nested: UnknownHostException[192.168.50.230:9200: invalid IPv6 address];
+	at org.elasticsearch.bootstrap.Elasticsearch.init(Elasticsearch.java:140) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.bootstrap.Elasticsearch.execute(Elasticsearch.java:127) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.cli.EnvironmentAwareCommand.execute(EnvironmentAwareCommand.java:86) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.cli.Command.mainWithoutErrorHandling(Command.java:124) ~[elasticsearch-cli-6.3.0.jar:6.3.0]
+	at org.elasticsearch.cli.Command.main(Command.java:90) ~[elasticsearch-cli-6.3.0.jar:6.3.0]
+	at org.elasticsearch.bootstrap.Elasticsearch.main(Elasticsearch.java:93) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.bootstrap.Elasticsearch.main(Elasticsearch.java:86) ~[elasticsearch-6.3.0.jar:6.3.0]
+Caused by: org.elasticsearch.transport.BindTransportException: Failed to resolve host [192.168.50.230:9200]
+	at org.elasticsearch.transport.TcpTransport.bindServer(TcpTransport.java:760) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.transport.netty4.Netty4Transport.doStart(Netty4Transport.java:135) ~[?:?]
+	at org.elasticsearch.xpack.core.security.transport.netty4.SecurityNetty4Transport.doStart(SecurityNetty4Transport.java:85) ~[?:?]
+	at org.elasticsearch.xpack.security.transport.netty4.SecurityNetty4ServerTransport.doStart(SecurityNetty4ServerTransport.java:41) ~[?:?]
+	at org.elasticsearch.common.component.AbstractLifecycleComponent.start(AbstractLifecycleComponent.java:66) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.transport.TransportService.doStart(TransportService.java:213) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.common.component.AbstractLifecycleComponent.start(AbstractLifecycleComponent.java:66) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.node.Node.start(Node.java:652) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.bootstrap.Bootstrap.start(Bootstrap.java:265) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.bootstrap.Bootstrap.init(Bootstrap.java:335) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.bootstrap.Elasticsearch.init(Elasticsearch.java:136) ~[elasticsearch-6.3.0.jar:6.3.0]
+	... 6 more
+Caused by: java.net.UnknownHostException: 192.168.50.230:9200: invalid IPv6 address
+	at java.net.InetAddress.getAllByName(InetAddress.java:1169) ~[?:1.8.0_171]
+	at java.net.InetAddress.getAllByName(InetAddress.java:1126) ~[?:1.8.0_171]
+	at org.elasticsearch.common.network.NetworkService.resolveInternal(NetworkService.java:237) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.common.network.NetworkService.resolveInetAddresses(NetworkService.java:187) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.common.network.NetworkService.resolveBindHostAddresses(NetworkService.java:106) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.transport.TcpTransport.bindServer(TcpTransport.java:758) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.transport.netty4.Netty4Transport.doStart(Netty4Transport.java:135) ~[?:?]
+	at org.elasticsearch.xpack.core.security.transport.netty4.SecurityNetty4Transport.doStart(SecurityNetty4Transport.java:85) ~[?:?]
+	at org.elasticsearch.xpack.security.transport.netty4.SecurityNetty4ServerTransport.doStart(SecurityNetty4ServerTransport.java:41) ~[?:?]
+	at org.elasticsearch.common.component.AbstractLifecycleComponent.start(AbstractLifecycleComponent.java:66) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.transport.TransportService.doStart(TransportService.java:213) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.common.component.AbstractLifecycleComponent.start(AbstractLifecycleComponent.java:66) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.node.Node.start(Node.java:652) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.bootstrap.Bootstrap.start(Bootstrap.java:265) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.bootstrap.Bootstrap.init(Bootstrap.java:335) ~[elasticsearch-6.3.0.jar:6.3.0]
+	at org.elasticsearch.bootstrap.Elasticsearch.init(Elasticsearch.java:136) ~[elasticsearch-6.3.0.jar:6.3.0]
+	... 6 more
+[2018-06-22T14:23:38,513][INFO ][o.e.n.Node               ] [node-1] stopping ...
+[2018-06-22T14:23:38,534][INFO ][o.e.n.Node               ] [node-1] stopped
+[2018-06-22T14:23:38,536][INFO ][o.e.n.Node               ] [node-1] closing ...
+[2018-06-22T14:23:38,592][INFO ][o.e.n.Node               ] [node-1] closed
+[2018-06-22T14:23:38,600][INFO ][o.e.x.m.j.p.NativeController] Native controller process has stopped - no new native processes can be started
+[2018-06-22T14:24:52,984][INFO ][o.e.n.Node               ] [node-1] initializing ...
+[2018-06-22T14:24:53,101][INFO ][o.e.e.NodeEnvironment    ] [node-1] using [1] data paths, mounts [[/ (/dev/sda1)]], net usable_space [23.5gb], net total_space [45.1gb], types [ext4]
+[2018-06-22T14:24:53,105][INFO ][o.e.e.NodeEnvironment    ] [node-1] heap size [1015.6mb], compressed ordinary object pointers [true]
+[2018-06-22T14:24:53,108][INFO ][o.e.n.Node               ] [node-1] node name [node-1], node ID [mKXAG1yMTMCRUKZCfGOqNw]
+[2018-06-22T14:24:53,109][INFO ][o.e.n.Node               ] [node-1] version[6.3.0], pid[92232], build[default/zip/424e937/2018-06-11T23:38:03.357887Z], OS[Linux/4.13.0-45-generic/amd64], JVM[Oracle Corporation/Java HotSpot(TM) 64-Bit Server VM/1.8.0_171/25.171-b11]
+[2018-06-22T14:24:53,113][INFO ][o.e.n.Node               ] [node-1] JVM arguments [-Xms1g, -Xmx1g, -XX:+UseConcMarkSweepGC, -XX:CMSInitiatingOccupancyFraction=75, -XX:+UseCMSInitiatingOccupancyOnly, -XX:+AlwaysPreTouch, -Xss1m, -Djava.awt.headless=true, -Dfile.encoding=UTF-8, -Djna.nosys=true, -XX:-OmitStackTraceInFastThrow, -Dio.netty.noUnsafe=true, -Dio.netty.noKeySetOptimization=true, -Dio.netty.recycler.maxCapacityPerThread=0, -Dlog4j.shutdownHookEnabled=false, -Dlog4j2.disable.jmx=true, -Djava.io.tmpdir=/tmp/elasticsearch.kVlb4Ocl, -XX:+HeapDumpOnOutOfMemoryError, -XX:HeapDumpPath=data, -XX:ErrorFile=logs/hs_err_pid%p.log, -XX:+PrintGCDetails, -XX:+PrintGCDateStamps, -XX:+PrintTenuringDistribution, -XX:+PrintGCApplicationStoppedTime, -Xloggc:logs/gc.log, -XX:+UseGCLogFileRotation, -XX:NumberOfGCLogFiles=32, -XX:GCLogFileSize=64m, -Des.path.home=/usr/local/src/elasticsearch-6.3.0, -Des.path.conf=/usr/local/es/node-1/config, -Des.distribution.flavor=default, -Des.distribution.type=zip]
+[2018-06-22T14:24:57,259][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [aggs-matrix-stats]
+[2018-06-22T14:24:57,261][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [analysis-common]
+[2018-06-22T14:24:57,261][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [ingest-common]
+[2018-06-22T14:24:57,262][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [lang-expression]
+[2018-06-22T14:24:57,262][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [lang-mustache]
+[2018-06-22T14:24:57,262][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [lang-painless]
+[2018-06-22T14:24:57,263][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [mapper-extras]
+[2018-06-22T14:24:57,264][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [parent-join]
+[2018-06-22T14:24:57,267][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [percolator]
+[2018-06-22T14:24:57,268][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [rank-eval]
+[2018-06-22T14:24:57,268][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [reindex]
+[2018-06-22T14:24:57,268][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [repository-url]
+[2018-06-22T14:24:57,272][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [transport-netty4]
+[2018-06-22T14:24:57,273][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [tribe]
+[2018-06-22T14:24:57,274][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-core]
+[2018-06-22T14:24:57,275][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-deprecation]
+[2018-06-22T14:24:57,275][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-graph]
+[2018-06-22T14:24:57,275][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-logstash]
+[2018-06-22T14:24:57,276][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-ml]
+[2018-06-22T14:24:57,276][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-monitoring]
+[2018-06-22T14:24:57,277][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-rollup]
+[2018-06-22T14:24:57,277][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-security]
+[2018-06-22T14:24:57,278][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-sql]
+[2018-06-22T14:24:57,278][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-upgrade]
+[2018-06-22T14:24:57,279][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-watcher]
+[2018-06-22T14:24:57,279][INFO ][o.e.p.PluginsService     ] [node-1] no plugins loaded
+[2018-06-22T14:25:04,098][INFO ][o.e.x.s.a.s.FileRolesStore] [node-1] parsed [0] roles from file [/usr/local/es/node-1/config/roles.yml]
+[2018-06-22T14:25:05,169][INFO ][o.e.x.m.j.p.l.CppLogMessageHandler] [controller/92282] [Main.cc@109] controller (64 bit): Version 6.3.0 (Build 0f0a34c67965d7) Copyright (c) 2018 Elasticsearch BV
+[2018-06-22T14:25:05,817][DEBUG][o.e.a.ActionModule       ] Using REST wrapper from plugin org.elasticsearch.xpack.security.Security
+[2018-06-22T14:25:06,262][INFO ][o.e.d.DiscoveryModule    ] [node-1] using discovery type [zen]
+[2018-06-22T14:25:07,853][INFO ][o.e.n.Node               ] [node-1] initialized
+[2018-06-22T14:25:07,860][INFO ][o.e.n.Node               ] [node-1] starting ...
+[2018-06-22T14:25:08,139][INFO ][o.e.t.TransportService   ] [node-1] publish_address {192.168.50.230:9300}, bound_addresses {192.168.50.230:9300}
+[2018-06-22T14:25:08,177][INFO ][o.e.b.BootstrapChecks    ] [node-1] bound or publishing to a non-loopback address, enforcing bootstrap checks
+[2018-06-22T14:25:11,258][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{H9AY--SGQ2me3n-_mA45gQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T14:25:14,281][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{H9AY--SGQ2me3n-_mA45gQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T14:25:17,288][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{H9AY--SGQ2me3n-_mA45gQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T14:25:20,299][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{H9AY--SGQ2me3n-_mA45gQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T14:25:23,325][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{H9AY--SGQ2me3n-_mA45gQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T14:25:26,362][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{H9AY--SGQ2me3n-_mA45gQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T14:25:29,395][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{H9AY--SGQ2me3n-_mA45gQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T14:25:32,403][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{H9AY--SGQ2me3n-_mA45gQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T14:25:35,420][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{H9AY--SGQ2me3n-_mA45gQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T14:25:38,255][WARN ][o.e.n.Node               ] [node-1] timed out while waiting for initial discovery state - timeout: 30s
+[2018-06-22T14:25:38,305][INFO ][o.e.x.s.t.n.SecurityNetty4HttpServerTransport] [node-1] publish_address {192.168.50.230:9200}, bound_addresses {192.168.50.230:9200}
+[2018-06-22T14:25:38,310][INFO ][o.e.n.Node               ] [node-1] started
+[2018-06-22T14:25:38,434][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{H9AY--SGQ2me3n-_mA45gQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T14:25:41,437][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{H9AY--SGQ2me3n-_mA45gQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T14:25:44,461][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{H9AY--SGQ2me3n-_mA45gQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T14:25:47,476][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{H9AY--SGQ2me3n-_mA45gQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T14:25:50,485][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{H9AY--SGQ2me3n-_mA45gQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T14:25:53,499][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{H9AY--SGQ2me3n-_mA45gQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T14:25:56,509][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{H9AY--SGQ2me3n-_mA45gQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T14:25:59,529][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{H9AY--SGQ2me3n-_mA45gQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T14:26:02,538][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{H9AY--SGQ2me3n-_mA45gQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T14:26:05,559][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{H9AY--SGQ2me3n-_mA45gQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T14:26:08,576][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{H9AY--SGQ2me3n-_mA45gQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T14:26:11,597][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{H9AY--SGQ2me3n-_mA45gQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T14:26:14,633][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{H9AY--SGQ2me3n-_mA45gQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T14:26:17,643][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{H9AY--SGQ2me3n-_mA45gQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T14:26:20,652][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{H9AY--SGQ2me3n-_mA45gQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T14:26:23,665][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{H9AY--SGQ2me3n-_mA45gQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T14:26:26,681][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{H9AY--SGQ2me3n-_mA45gQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T14:26:29,703][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{H9AY--SGQ2me3n-_mA45gQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T14:26:32,713][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{H9AY--SGQ2me3n-_mA45gQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T14:26:35,724][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{H9AY--SGQ2me3n-_mA45gQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T14:26:38,735][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{H9AY--SGQ2me3n-_mA45gQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T14:26:41,737][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{H9AY--SGQ2me3n-_mA45gQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T14:26:44,740][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{H9AY--SGQ2me3n-_mA45gQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T14:26:47,742][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{H9AY--SGQ2me3n-_mA45gQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T14:26:50,744][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{H9AY--SGQ2me3n-_mA45gQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T14:26:53,746][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{H9AY--SGQ2me3n-_mA45gQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T14:26:56,748][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{H9AY--SGQ2me3n-_mA45gQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T14:26:59,752][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{H9AY--SGQ2me3n-_mA45gQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T14:27:03,067][INFO ][o.e.c.s.ClusterApplierService] [node-1] detected_master {node-2}{coqd7BTnSmennRVmkhdvjQ}{erURTEL6QJOIpHUJj4gk1w}{192.168.50.230}{192.168.50.230:9301}{ml.machine_memory=6226718720, ml.max_open_jobs=20, xpack.installed=true, ml.enabled=true}, added {{node-2}{coqd7BTnSmennRVmkhdvjQ}{erURTEL6QJOIpHUJj4gk1w}{192.168.50.230}{192.168.50.230:9301}{ml.machine_memory=6226718720, ml.max_open_jobs=20, xpack.installed=true, ml.enabled=true},}, reason: apply cluster state (from master [master {node-2}{coqd7BTnSmennRVmkhdvjQ}{erURTEL6QJOIpHUJj4gk1w}{192.168.50.230}{192.168.50.230:9301}{ml.machine_memory=6226718720, ml.max_open_jobs=20, xpack.installed=true, ml.enabled=true} committed version [1]])
+[2018-06-22T14:27:03,378][WARN ][o.e.x.s.a.s.m.NativeRoleMappingStore] [node-1] Failed to clear cache for realms [[]]
+[2018-06-22T14:27:03,669][INFO ][o.e.x.s.a.TokenService   ] [node-1] refresh keys
+[2018-06-22T14:27:04,423][INFO ][o.e.x.s.a.TokenService   ] [node-1] refreshed keys
+[2018-06-22T14:27:04,461][INFO ][o.e.x.m.e.l.LocalExporter] waiting for elected master node [{node-2}{coqd7BTnSmennRVmkhdvjQ}{erURTEL6QJOIpHUJj4gk1w}{192.168.50.230}{192.168.50.230:9301}{ml.machine_memory=6226718720, ml.max_open_jobs=20, xpack.installed=true, ml.enabled=true}] to setup local exporter [default_local] (does it have x-pack installed?)
+[2018-06-22T14:27:04,948][INFO ][o.e.x.m.e.l.LocalExporter] waiting for elected master node [{node-2}{coqd7BTnSmennRVmkhdvjQ}{erURTEL6QJOIpHUJj4gk1w}{192.168.50.230}{192.168.50.230:9301}{ml.machine_memory=6226718720, ml.max_open_jobs=20, xpack.installed=true, ml.enabled=true}] to setup local exporter [default_local] (does it have x-pack installed?)
+[2018-06-22T14:27:05,084][INFO ][o.e.x.m.e.l.LocalExporter] waiting for elected master node [{node-2}{coqd7BTnSmennRVmkhdvjQ}{erURTEL6QJOIpHUJj4gk1w}{192.168.50.230}{192.168.50.230:9301}{ml.machine_memory=6226718720, ml.max_open_jobs=20, xpack.installed=true, ml.enabled=true}] to setup local exporter [default_local] (does it have x-pack installed?)
+[2018-06-22T14:27:05,285][INFO ][o.e.x.m.e.l.LocalExporter] waiting for elected master node [{node-2}{coqd7BTnSmennRVmkhdvjQ}{erURTEL6QJOIpHUJj4gk1w}{192.168.50.230}{192.168.50.230:9301}{ml.machine_memory=6226718720, ml.max_open_jobs=20, xpack.installed=true, ml.enabled=true}] to setup local exporter [default_local] (does it have x-pack installed?)
+[2018-06-22T14:27:05,451][INFO ][o.e.x.m.e.l.LocalExporter] waiting for elected master node [{node-2}{coqd7BTnSmennRVmkhdvjQ}{erURTEL6QJOIpHUJj4gk1w}{192.168.50.230}{192.168.50.230:9301}{ml.machine_memory=6226718720, ml.max_open_jobs=20, xpack.installed=true, ml.enabled=true}] to setup local exporter [default_local] (does it have x-pack installed?)
+[2018-06-22T14:27:05,683][INFO ][o.e.x.m.e.l.LocalExporter] waiting for elected master node [{node-2}{coqd7BTnSmennRVmkhdvjQ}{erURTEL6QJOIpHUJj4gk1w}{192.168.50.230}{192.168.50.230:9301}{ml.machine_memory=6226718720, ml.max_open_jobs=20, xpack.installed=true, ml.enabled=true}] to setup local exporter [default_local] (does it have x-pack installed?)
+[2018-06-22T14:27:05,881][INFO ][o.e.x.m.e.l.LocalExporter] waiting for elected master node [{node-2}{coqd7BTnSmennRVmkhdvjQ}{erURTEL6QJOIpHUJj4gk1w}{192.168.50.230}{192.168.50.230:9301}{ml.machine_memory=6226718720, ml.max_open_jobs=20, xpack.installed=true, ml.enabled=true}] to setup local exporter [default_local] (does it have x-pack installed?)
+[2018-06-22T14:27:06,025][INFO ][o.e.x.m.e.l.LocalExporter] waiting for elected master node [{node-2}{coqd7BTnSmennRVmkhdvjQ}{erURTEL6QJOIpHUJj4gk1w}{192.168.50.230}{192.168.50.230:9301}{ml.machine_memory=6226718720, ml.max_open_jobs=20, xpack.installed=true, ml.enabled=true}] to setup local exporter [default_local] (does it have x-pack installed?)
+[2018-06-22T14:27:06,178][INFO ][o.e.x.m.e.l.LocalExporter] waiting for elected master node [{node-2}{coqd7BTnSmennRVmkhdvjQ}{erURTEL6QJOIpHUJj4gk1w}{192.168.50.230}{192.168.50.230:9301}{ml.machine_memory=6226718720, ml.max_open_jobs=20, xpack.installed=true, ml.enabled=true}] to setup local exporter [default_local] (does it have x-pack installed?)
+[2018-06-22T14:27:06,335][INFO ][o.e.l.LicenseService     ] [node-1] license [f088304f-16d3-40a1-b652-b9b3efd14d98] mode [basic] - valid
+[2018-06-22T14:27:06,357][INFO ][o.e.x.m.e.l.LocalExporter] waiting for elected master node [{node-2}{coqd7BTnSmennRVmkhdvjQ}{erURTEL6QJOIpHUJj4gk1w}{192.168.50.230}{192.168.50.230:9301}{ml.machine_memory=6226718720, ml.max_open_jobs=20, xpack.installed=true, ml.enabled=true}] to setup local exporter [default_local] (does it have x-pack installed?)
+[2018-06-22T14:27:06,523][INFO ][o.e.x.m.e.l.LocalExporter] waiting for elected master node [{node-2}{coqd7BTnSmennRVmkhdvjQ}{erURTEL6QJOIpHUJj4gk1w}{192.168.50.230}{192.168.50.230:9301}{ml.machine_memory=6226718720, ml.max_open_jobs=20, xpack.installed=true, ml.enabled=true}] to setup local exporter [default_local] (does it have x-pack installed?)
+[2018-06-22T14:29:22,686][INFO ][o.e.x.m.j.p.NativeController] Native controller process has stopped - no new native processes can be started
+[2018-06-22T14:29:22,698][INFO ][o.e.n.Node               ] [node-1] stopping ...
+[2018-06-22T14:29:22,724][INFO ][o.e.x.w.WatcherService   ] [node-1] stopping watch service, reason [shutdown initiated]
+[2018-06-22T14:29:23,139][INFO ][o.e.n.Node               ] [node-1] stopped
+[2018-06-22T14:29:23,140][INFO ][o.e.n.Node               ] [node-1] closing ...
+[2018-06-22T14:29:23,150][INFO ][o.e.n.Node               ] [node-1] closed
+[2018-06-22T14:38:44,733][INFO ][o.e.n.Node               ] [node-1] initializing ...
+[2018-06-22T14:38:44,833][INFO ][o.e.e.NodeEnvironment    ] [node-1] using [1] data paths, mounts [[/ (/dev/sda1)]], net usable_space [23.5gb], net total_space [45.1gb], types [ext4]
+[2018-06-22T14:38:44,835][INFO ][o.e.e.NodeEnvironment    ] [node-1] heap size [1015.6mb], compressed ordinary object pointers [true]
+[2018-06-22T14:38:44,867][INFO ][o.e.n.Node               ] [node-1] node name [node-1], node ID [mKXAG1yMTMCRUKZCfGOqNw]
+[2018-06-22T14:38:44,870][INFO ][o.e.n.Node               ] [node-1] version[6.3.0], pid[93589], build[default/zip/424e937/2018-06-11T23:38:03.357887Z], OS[Linux/4.13.0-45-generic/amd64], JVM[Oracle Corporation/Java HotSpot(TM) 64-Bit Server VM/1.8.0_171/25.171-b11]
+[2018-06-22T14:38:44,876][INFO ][o.e.n.Node               ] [node-1] JVM arguments [-Xms1g, -Xmx1g, -XX:+UseConcMarkSweepGC, -XX:CMSInitiatingOccupancyFraction=75, -XX:+UseCMSInitiatingOccupancyOnly, -XX:+AlwaysPreTouch, -Xss1m, -Djava.awt.headless=true, -Dfile.encoding=UTF-8, -Djna.nosys=true, -XX:-OmitStackTraceInFastThrow, -Dio.netty.noUnsafe=true, -Dio.netty.noKeySetOptimization=true, -Dio.netty.recycler.maxCapacityPerThread=0, -Dlog4j.shutdownHookEnabled=false, -Dlog4j2.disable.jmx=true, -Djava.io.tmpdir=/tmp/elasticsearch.e7leolBi, -XX:+HeapDumpOnOutOfMemoryError, -XX:HeapDumpPath=data, -XX:ErrorFile=logs/hs_err_pid%p.log, -XX:+PrintGCDetails, -XX:+PrintGCDateStamps, -XX:+PrintTenuringDistribution, -XX:+PrintGCApplicationStoppedTime, -Xloggc:logs/gc.log, -XX:+UseGCLogFileRotation, -XX:NumberOfGCLogFiles=32, -XX:GCLogFileSize=64m, -Des.path.home=/usr/local/src/elasticsearch-6.3.0, -Des.path.conf=/usr/local/es/node-1/config, -Des.distribution.flavor=default, -Des.distribution.type=zip]
+[2018-06-22T14:38:49,576][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [aggs-matrix-stats]
+[2018-06-22T14:38:49,581][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [analysis-common]
+[2018-06-22T14:38:49,581][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [ingest-common]
+[2018-06-22T14:38:49,582][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [lang-expression]
+[2018-06-22T14:38:49,582][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [lang-mustache]
+[2018-06-22T14:38:49,583][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [lang-painless]
+[2018-06-22T14:38:49,584][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [mapper-extras]
+[2018-06-22T14:38:49,585][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [parent-join]
+[2018-06-22T14:38:49,585][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [percolator]
+[2018-06-22T14:38:49,586][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [rank-eval]
+[2018-06-22T14:38:49,586][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [reindex]
+[2018-06-22T14:38:49,587][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [repository-url]
+[2018-06-22T14:38:49,587][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [transport-netty4]
+[2018-06-22T14:38:49,588][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [tribe]
+[2018-06-22T14:38:49,591][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-core]
+[2018-06-22T14:38:49,593][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-deprecation]
+[2018-06-22T14:38:49,596][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-graph]
+[2018-06-22T14:38:49,596][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-logstash]
+[2018-06-22T14:38:49,596][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-ml]
+[2018-06-22T14:38:49,597][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-monitoring]
+[2018-06-22T14:38:49,597][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-rollup]
+[2018-06-22T14:38:49,598][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-security]
+[2018-06-22T14:38:49,598][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-sql]
+[2018-06-22T14:38:49,598][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-upgrade]
+[2018-06-22T14:38:49,599][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-watcher]
+[2018-06-22T14:38:49,600][INFO ][o.e.p.PluginsService     ] [node-1] no plugins loaded
+[2018-06-22T14:38:57,108][INFO ][o.e.x.s.a.s.FileRolesStore] [node-1] parsed [0] roles from file [/usr/local/es/node-1/config/roles.yml]
+[2018-06-22T14:38:58,365][INFO ][o.e.x.m.j.p.l.CppLogMessageHandler] [controller/93641] [Main.cc@109] controller (64 bit): Version 6.3.0 (Build 0f0a34c67965d7) Copyright (c) 2018 Elasticsearch BV
+[2018-06-22T14:38:59,205][DEBUG][o.e.a.ActionModule       ] Using REST wrapper from plugin org.elasticsearch.xpack.security.Security
+[2018-06-22T14:39:00,213][INFO ][o.e.d.DiscoveryModule    ] [node-1] using discovery type [zen]
+[2018-06-22T14:39:03,741][INFO ][o.e.n.Node               ] [node-1] initialized
+[2018-06-22T14:39:03,743][INFO ][o.e.n.Node               ] [node-1] starting ...
+[2018-06-22T14:39:04,351][INFO ][o.e.t.TransportService   ] [node-1] publish_address {192.168.50.230:9300}, bound_addresses {192.168.50.230:9300}
+[2018-06-22T14:39:04,448][INFO ][o.e.b.BootstrapChecks    ] [node-1] bound or publishing to a non-loopback address, enforcing bootstrap checks
+[2018-06-22T14:39:07,595][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{pCI6un1nSf6JjQRXrAovbQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T14:39:10,605][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{pCI6un1nSf6JjQRXrAovbQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T14:39:13,608][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{pCI6un1nSf6JjQRXrAovbQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T14:39:16,613][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{pCI6un1nSf6JjQRXrAovbQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T14:39:19,615][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{pCI6un1nSf6JjQRXrAovbQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T14:39:22,617][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{pCI6un1nSf6JjQRXrAovbQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T14:39:25,877][INFO ][o.e.c.s.ClusterApplierService] [node-1] detected_master {node-2}{coqd7BTnSmennRVmkhdvjQ}{yQADpPgXTSOdvBGPNINqpg}{192.168.50.230}{192.168.50.230:9301}{ml.machine_memory=6226718720, ml.max_open_jobs=20, xpack.installed=true, ml.enabled=true}, added {{node-2}{coqd7BTnSmennRVmkhdvjQ}{yQADpPgXTSOdvBGPNINqpg}{192.168.50.230}{192.168.50.230:9301}{ml.machine_memory=6226718720, ml.max_open_jobs=20, xpack.installed=true, ml.enabled=true},}, reason: apply cluster state (from master [master {node-2}{coqd7BTnSmennRVmkhdvjQ}{yQADpPgXTSOdvBGPNINqpg}{192.168.50.230}{192.168.50.230:9301}{ml.machine_memory=6226718720, ml.max_open_jobs=20, xpack.installed=true, ml.enabled=true} committed version [1]])
+[2018-06-22T14:39:25,939][INFO ][o.e.x.s.t.n.SecurityNetty4HttpServerTransport] [node-1] publish_address {192.168.50.230:9200}, bound_addresses {192.168.50.230:9200}
+[2018-06-22T14:39:25,942][INFO ][o.e.n.Node               ] [node-1] started
+[2018-06-22T14:39:27,099][WARN ][o.e.x.s.a.s.m.NativeRoleMappingStore] [node-1] Failed to clear cache for realms [[]]
+[2018-06-22T14:39:27,121][INFO ][o.e.l.LicenseService     ] [node-1] license [f088304f-16d3-40a1-b652-b9b3efd14d98] mode [basic] - valid
+[2018-06-22T14:39:28,149][INFO ][o.e.x.s.a.TokenService   ] [node-1] refresh keys
+[2018-06-22T14:39:28,821][INFO ][o.e.x.s.a.TokenService   ] [node-1] refreshed keys
+[2018-06-22T15:05:17,040][INFO ][o.e.x.m.j.p.NativeController] Native controller process has stopped - no new native processes can be started
+[2018-06-22T15:05:17,048][INFO ][o.e.n.Node               ] [node-1] stopping ...
+[2018-06-22T15:05:17,077][INFO ][o.e.x.w.WatcherService   ] [node-1] stopping watch service, reason [shutdown initiated]
+[2018-06-22T15:05:17,697][INFO ][o.e.n.Node               ] [node-1] stopped
+[2018-06-22T15:05:17,697][INFO ][o.e.n.Node               ] [node-1] closing ...
+[2018-06-22T15:05:17,709][INFO ][o.e.n.Node               ] [node-1] closed
+[2018-06-22T15:05:39,577][INFO ][o.e.n.Node               ] [node-1] initializing ...
+[2018-06-22T15:05:39,685][INFO ][o.e.e.NodeEnvironment    ] [node-1] using [1] data paths, mounts [[/ (/dev/sda1)]], net usable_space [23.5gb], net total_space [45.1gb], types [ext4]
+[2018-06-22T15:05:39,687][INFO ][o.e.e.NodeEnvironment    ] [node-1] heap size [1015.6mb], compressed ordinary object pointers [true]
+[2018-06-22T15:05:39,746][INFO ][o.e.n.Node               ] [node-1] node name [node-1], node ID [mKXAG1yMTMCRUKZCfGOqNw]
+[2018-06-22T15:05:39,748][INFO ][o.e.n.Node               ] [node-1] version[6.3.0], pid[95227], build[default/zip/424e937/2018-06-11T23:38:03.357887Z], OS[Linux/4.13.0-45-generic/amd64], JVM[Oracle Corporation/Java HotSpot(TM) 64-Bit Server VM/1.8.0_171/25.171-b11]
+[2018-06-22T15:05:39,749][INFO ][o.e.n.Node               ] [node-1] JVM arguments [-Xms1g, -Xmx1g, -XX:+UseConcMarkSweepGC, -XX:CMSInitiatingOccupancyFraction=75, -XX:+UseCMSInitiatingOccupancyOnly, -XX:+AlwaysPreTouch, -Xss1m, -Djava.awt.headless=true, -Dfile.encoding=UTF-8, -Djna.nosys=true, -XX:-OmitStackTraceInFastThrow, -Dio.netty.noUnsafe=true, -Dio.netty.noKeySetOptimization=true, -Dio.netty.recycler.maxCapacityPerThread=0, -Dlog4j.shutdownHookEnabled=false, -Dlog4j2.disable.jmx=true, -Djava.io.tmpdir=/tmp/elasticsearch.fFC6Spm8, -XX:+HeapDumpOnOutOfMemoryError, -XX:HeapDumpPath=data, -XX:ErrorFile=logs/hs_err_pid%p.log, -XX:+PrintGCDetails, -XX:+PrintGCDateStamps, -XX:+PrintTenuringDistribution, -XX:+PrintGCApplicationStoppedTime, -Xloggc:logs/gc.log, -XX:+UseGCLogFileRotation, -XX:NumberOfGCLogFiles=32, -XX:GCLogFileSize=64m, -Des.path.home=/usr/local/src/elasticsearch-6.3.0, -Des.path.conf=/usr/local/es/node-1/config, -Des.distribution.flavor=default, -Des.distribution.type=zip]
+[2018-06-22T15:05:46,547][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [aggs-matrix-stats]
+[2018-06-22T15:05:46,548][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [analysis-common]
+[2018-06-22T15:05:46,563][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [ingest-common]
+[2018-06-22T15:05:46,563][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [lang-expression]
+[2018-06-22T15:05:46,564][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [lang-mustache]
+[2018-06-22T15:05:46,564][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [lang-painless]
+[2018-06-22T15:05:46,565][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [mapper-extras]
+[2018-06-22T15:05:46,571][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [parent-join]
+[2018-06-22T15:05:46,571][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [percolator]
+[2018-06-22T15:05:46,572][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [rank-eval]
+[2018-06-22T15:05:46,576][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [reindex]
+[2018-06-22T15:05:46,579][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [repository-url]
+[2018-06-22T15:05:46,579][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [transport-netty4]
+[2018-06-22T15:05:46,580][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [tribe]
+[2018-06-22T15:05:46,580][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-core]
+[2018-06-22T15:05:46,584][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-deprecation]
+[2018-06-22T15:05:46,584][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-graph]
+[2018-06-22T15:05:46,586][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-logstash]
+[2018-06-22T15:05:46,589][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-ml]
+[2018-06-22T15:05:46,590][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-monitoring]
+[2018-06-22T15:05:46,590][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-rollup]
+[2018-06-22T15:05:46,591][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-security]
+[2018-06-22T15:05:46,591][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-sql]
+[2018-06-22T15:05:46,591][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-upgrade]
+[2018-06-22T15:05:46,599][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-watcher]
+[2018-06-22T15:05:46,599][INFO ][o.e.p.PluginsService     ] [node-1] no plugins loaded
+[2018-06-22T15:06:01,366][INFO ][o.e.x.s.a.s.FileRolesStore] [node-1] parsed [0] roles from file [/usr/local/es/node-1/config/roles.yml]
+[2018-06-22T15:06:04,273][INFO ][o.e.x.m.j.p.l.CppLogMessageHandler] [controller/95277] [Main.cc@109] controller (64 bit): Version 6.3.0 (Build 0f0a34c67965d7) Copyright (c) 2018 Elasticsearch BV
+[2018-06-22T15:06:05,671][DEBUG][o.e.a.ActionModule       ] Using REST wrapper from plugin org.elasticsearch.xpack.security.Security
+[2018-06-22T15:06:06,749][INFO ][o.e.d.DiscoveryModule    ] [node-1] using discovery type [zen]
+[2018-06-22T15:06:10,332][INFO ][o.e.n.Node               ] [node-1] initialized
+[2018-06-22T15:06:10,343][INFO ][o.e.n.Node               ] [node-1] starting ...
+[2018-06-22T15:06:10,981][INFO ][o.e.t.TransportService   ] [node-1] publish_address {192.168.50.230:9300}, bound_addresses {192.168.50.230:9300}
+[2018-06-22T15:06:11,092][INFO ][o.e.b.BootstrapChecks    ] [node-1] bound or publishing to a non-loopback address, enforcing bootstrap checks
+[2018-06-22T15:06:14,258][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{EBFd7p7TRayHrFdlPL3_CQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:06:17,273][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{EBFd7p7TRayHrFdlPL3_CQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:06:20,276][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{EBFd7p7TRayHrFdlPL3_CQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:06:23,297][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{EBFd7p7TRayHrFdlPL3_CQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:06:26,334][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{EBFd7p7TRayHrFdlPL3_CQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:06:29,354][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{EBFd7p7TRayHrFdlPL3_CQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:06:32,383][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{EBFd7p7TRayHrFdlPL3_CQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:06:35,391][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{EBFd7p7TRayHrFdlPL3_CQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:06:38,404][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{EBFd7p7TRayHrFdlPL3_CQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:06:41,253][WARN ][o.e.n.Node               ] [node-1] timed out while waiting for initial discovery state - timeout: 30s
+[2018-06-22T15:06:41,348][INFO ][o.e.x.s.t.n.SecurityNetty4HttpServerTransport] [node-1] publish_address {192.168.50.230:9200}, bound_addresses {192.168.50.230:9200}
+[2018-06-22T15:06:41,349][INFO ][o.e.n.Node               ] [node-1] started
+[2018-06-22T15:06:41,419][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{EBFd7p7TRayHrFdlPL3_CQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:06:44,424][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{EBFd7p7TRayHrFdlPL3_CQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:06:47,442][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{EBFd7p7TRayHrFdlPL3_CQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:06:50,452][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{EBFd7p7TRayHrFdlPL3_CQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:06:50,940][INFO ][o.e.x.m.j.p.NativeController] Native controller process has stopped - no new native processes can be started
+[2018-06-22T15:06:50,947][INFO ][o.e.n.Node               ] [node-1] stopping ...
+[2018-06-22T15:06:50,965][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{EBFd7p7TRayHrFdlPL3_CQ}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:06:50,994][INFO ][o.e.n.Node               ] [node-1] stopped
+[2018-06-22T15:06:50,995][INFO ][o.e.n.Node               ] [node-1] closing ...
+[2018-06-22T15:06:51,020][INFO ][o.e.n.Node               ] [node-1] closed
+[2018-06-22T15:07:59,136][INFO ][o.e.n.Node               ] [node-1] initializing ...
+[2018-06-22T15:07:59,380][INFO ][o.e.e.NodeEnvironment    ] [node-1] using [1] data paths, mounts [[/ (/dev/sda1)]], net usable_space [23.5gb], net total_space [45.1gb], types [ext4]
+[2018-06-22T15:07:59,399][INFO ][o.e.e.NodeEnvironment    ] [node-1] heap size [1015.6mb], compressed ordinary object pointers [true]
+[2018-06-22T15:07:59,476][INFO ][o.e.n.Node               ] [node-1] node name [node-1], node ID [mKXAG1yMTMCRUKZCfGOqNw]
+[2018-06-22T15:07:59,483][INFO ][o.e.n.Node               ] [node-1] version[6.3.0], pid[95497], build[default/zip/424e937/2018-06-11T23:38:03.357887Z], OS[Linux/4.13.0-45-generic/amd64], JVM[Oracle Corporation/Java HotSpot(TM) 64-Bit Server VM/1.8.0_171/25.171-b11]
+[2018-06-22T15:07:59,484][INFO ][o.e.n.Node               ] [node-1] JVM arguments [-Xms1g, -Xmx1g, -XX:+UseConcMarkSweepGC, -XX:CMSInitiatingOccupancyFraction=75, -XX:+UseCMSInitiatingOccupancyOnly, -XX:+AlwaysPreTouch, -Xss1m, -Djava.awt.headless=true, -Dfile.encoding=UTF-8, -Djna.nosys=true, -XX:-OmitStackTraceInFastThrow, -Dio.netty.noUnsafe=true, -Dio.netty.noKeySetOptimization=true, -Dio.netty.recycler.maxCapacityPerThread=0, -Dlog4j.shutdownHookEnabled=false, -Dlog4j2.disable.jmx=true, -Djava.io.tmpdir=/tmp/elasticsearch.7W2bCiU0, -XX:+HeapDumpOnOutOfMemoryError, -XX:HeapDumpPath=data, -XX:ErrorFile=logs/hs_err_pid%p.log, -XX:+PrintGCDetails, -XX:+PrintGCDateStamps, -XX:+PrintTenuringDistribution, -XX:+PrintGCApplicationStoppedTime, -Xloggc:logs/gc.log, -XX:+UseGCLogFileRotation, -XX:NumberOfGCLogFiles=32, -XX:GCLogFileSize=64m, -Des.path.home=/usr/local/src/elasticsearch-6.3.0, -Des.path.conf=/usr/local/es/node-1/config, -Des.distribution.flavor=default, -Des.distribution.type=zip]
+[2018-06-22T15:08:08,906][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [aggs-matrix-stats]
+[2018-06-22T15:08:08,907][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [analysis-common]
+[2018-06-22T15:08:08,907][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [ingest-common]
+[2018-06-22T15:08:08,907][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [lang-expression]
+[2018-06-22T15:08:08,908][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [lang-mustache]
+[2018-06-22T15:08:08,910][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [lang-painless]
+[2018-06-22T15:08:08,911][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [mapper-extras]
+[2018-06-22T15:08:08,914][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [parent-join]
+[2018-06-22T15:08:08,915][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [percolator]
+[2018-06-22T15:08:08,916][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [rank-eval]
+[2018-06-22T15:08:08,916][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [reindex]
+[2018-06-22T15:08:08,926][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [repository-url]
+[2018-06-22T15:08:08,926][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [transport-netty4]
+[2018-06-22T15:08:08,930][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [tribe]
+[2018-06-22T15:08:08,931][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-core]
+[2018-06-22T15:08:08,932][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-deprecation]
+[2018-06-22T15:08:08,935][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-graph]
+[2018-06-22T15:08:08,936][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-logstash]
+[2018-06-22T15:08:08,938][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-ml]
+[2018-06-22T15:08:08,938][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-monitoring]
+[2018-06-22T15:08:08,946][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-rollup]
+[2018-06-22T15:08:08,946][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-security]
+[2018-06-22T15:08:08,946][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-sql]
+[2018-06-22T15:08:08,946][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-upgrade]
+[2018-06-22T15:08:08,947][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-watcher]
+[2018-06-22T15:08:08,947][INFO ][o.e.p.PluginsService     ] [node-1] no plugins loaded
+[2018-06-22T15:08:24,080][INFO ][o.e.x.s.a.s.FileRolesStore] [node-1] parsed [0] roles from file [/usr/local/es/node-1/config/roles.yml]
+[2018-06-22T15:08:26,082][INFO ][o.e.x.m.j.p.l.CppLogMessageHandler] [controller/95545] [Main.cc@109] controller (64 bit): Version 6.3.0 (Build 0f0a34c67965d7) Copyright (c) 2018 Elasticsearch BV
+[2018-06-22T15:08:27,499][DEBUG][o.e.a.ActionModule       ] Using REST wrapper from plugin org.elasticsearch.xpack.security.Security
+[2018-06-22T15:08:28,518][INFO ][o.e.d.DiscoveryModule    ] [node-1] using discovery type [zen]
+[2018-06-22T15:08:32,174][INFO ][o.e.n.Node               ] [node-1] initialized
+[2018-06-22T15:08:32,187][INFO ][o.e.n.Node               ] [node-1] starting ...
+[2018-06-22T15:08:32,873][INFO ][o.e.t.TransportService   ] [node-1] publish_address {192.168.50.230:9100}, bound_addresses {192.168.50.230:9100}
+[2018-06-22T15:08:32,964][INFO ][o.e.b.BootstrapChecks    ] [node-1] bound or publishing to a non-loopback address, enforcing bootstrap checks
+[2018-06-22T15:08:38,668][INFO ][o.e.c.s.ClusterApplierService] [node-1] detected_master {node-2}{coqd7BTnSmennRVmkhdvjQ}{-VhJ7By_Rpue-KG31T46bg}{192.168.50.230}{192.168.50.230:9101}{ml.machine_memory=6226718720, ml.max_open_jobs=20, xpack.installed=true, ml.enabled=true}, added {{node-2}{coqd7BTnSmennRVmkhdvjQ}{-VhJ7By_Rpue-KG31T46bg}{192.168.50.230}{192.168.50.230:9101}{ml.machine_memory=6226718720, ml.max_open_jobs=20, xpack.installed=true, ml.enabled=true},}, reason: apply cluster state (from master [master {node-2}{coqd7BTnSmennRVmkhdvjQ}{-VhJ7By_Rpue-KG31T46bg}{192.168.50.230}{192.168.50.230:9101}{ml.machine_memory=6226718720, ml.max_open_jobs=20, xpack.installed=true, ml.enabled=true} committed version [1]])
+[2018-06-22T15:08:38,730][INFO ][o.e.x.s.t.n.SecurityNetty4HttpServerTransport] [node-1] publish_address {192.168.50.230:9200}, bound_addresses {192.168.50.230:9200}
+[2018-06-22T15:08:38,736][INFO ][o.e.n.Node               ] [node-1] started
+[2018-06-22T15:08:39,931][WARN ][o.e.x.s.a.s.m.NativeRoleMappingStore] [node-1] Failed to clear cache for realms [[]]
+[2018-06-22T15:08:39,962][INFO ][o.e.l.LicenseService     ] [node-1] license [f088304f-16d3-40a1-b652-b9b3efd14d98] mode [basic] - valid
+[2018-06-22T15:08:40,780][INFO ][o.e.x.s.a.TokenService   ] [node-1] refresh keys
+[2018-06-22T15:08:41,479][INFO ][o.e.x.s.a.TokenService   ] [node-1] refreshed keys
+[2018-06-22T15:09:16,616][INFO ][o.e.x.m.j.p.NativeController] Native controller process has stopped - no new native processes can be started
+[2018-06-22T15:09:16,625][INFO ][o.e.n.Node               ] [node-1] stopping ...
+[2018-06-22T15:09:16,682][INFO ][o.e.x.w.WatcherService   ] [node-1] stopping watch service, reason [shutdown initiated]
+[2018-06-22T15:09:17,182][INFO ][o.e.n.Node               ] [node-1] stopped
+[2018-06-22T15:09:17,184][INFO ][o.e.n.Node               ] [node-1] closing ...
+[2018-06-22T15:09:17,205][INFO ][o.e.n.Node               ] [node-1] closed
+[2018-06-22T15:11:28,178][INFO ][o.e.n.Node               ] [node-1] initializing ...
+[2018-06-22T15:11:28,300][INFO ][o.e.e.NodeEnvironment    ] [node-1] using [1] data paths, mounts [[/ (/dev/sda1)]], net usable_space [23.5gb], net total_space [45.1gb], types [ext4]
+[2018-06-22T15:11:28,302][INFO ][o.e.e.NodeEnvironment    ] [node-1] heap size [1015.6mb], compressed ordinary object pointers [true]
+[2018-06-22T15:11:28,338][INFO ][o.e.n.Node               ] [node-1] node name [node-1], node ID [mKXAG1yMTMCRUKZCfGOqNw]
+[2018-06-22T15:11:28,342][INFO ][o.e.n.Node               ] [node-1] version[6.3.0], pid[95872], build[default/zip/424e937/2018-06-11T23:38:03.357887Z], OS[Linux/4.13.0-45-generic/amd64], JVM[Oracle Corporation/Java HotSpot(TM) 64-Bit Server VM/1.8.0_171/25.171-b11]
+[2018-06-22T15:11:28,343][INFO ][o.e.n.Node               ] [node-1] JVM arguments [-Xms1g, -Xmx1g, -XX:+UseConcMarkSweepGC, -XX:CMSInitiatingOccupancyFraction=75, -XX:+UseCMSInitiatingOccupancyOnly, -XX:+AlwaysPreTouch, -Xss1m, -Djava.awt.headless=true, -Dfile.encoding=UTF-8, -Djna.nosys=true, -XX:-OmitStackTraceInFastThrow, -Dio.netty.noUnsafe=true, -Dio.netty.noKeySetOptimization=true, -Dio.netty.recycler.maxCapacityPerThread=0, -Dlog4j.shutdownHookEnabled=false, -Dlog4j2.disable.jmx=true, -Djava.io.tmpdir=/tmp/elasticsearch.5ybCrABu, -XX:+HeapDumpOnOutOfMemoryError, -XX:HeapDumpPath=data, -XX:ErrorFile=logs/hs_err_pid%p.log, -XX:+PrintGCDetails, -XX:+PrintGCDateStamps, -XX:+PrintTenuringDistribution, -XX:+PrintGCApplicationStoppedTime, -Xloggc:logs/gc.log, -XX:+UseGCLogFileRotation, -XX:NumberOfGCLogFiles=32, -XX:GCLogFileSize=64m, -Des.path.home=/usr/local/src/elasticsearch-6.3.0, -Des.path.conf=/usr/local/es/node-1/config, -Des.distribution.flavor=default, -Des.distribution.type=zip]
+[2018-06-22T15:11:37,123][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [aggs-matrix-stats]
+[2018-06-22T15:11:37,124][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [analysis-common]
+[2018-06-22T15:11:37,130][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [ingest-common]
+[2018-06-22T15:11:37,131][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [lang-expression]
+[2018-06-22T15:11:37,132][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [lang-mustache]
+[2018-06-22T15:11:37,132][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [lang-painless]
+[2018-06-22T15:11:37,133][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [mapper-extras]
+[2018-06-22T15:11:37,133][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [parent-join]
+[2018-06-22T15:11:37,136][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [percolator]
+[2018-06-22T15:11:37,142][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [rank-eval]
+[2018-06-22T15:11:37,144][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [reindex]
+[2018-06-22T15:11:37,145][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [repository-url]
+[2018-06-22T15:11:37,145][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [transport-netty4]
+[2018-06-22T15:11:37,145][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [tribe]
+[2018-06-22T15:11:37,148][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-core]
+[2018-06-22T15:11:37,148][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-deprecation]
+[2018-06-22T15:11:37,148][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-graph]
+[2018-06-22T15:11:37,149][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-logstash]
+[2018-06-22T15:11:37,151][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-ml]
+[2018-06-22T15:11:37,157][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-monitoring]
+[2018-06-22T15:11:37,158][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-rollup]
+[2018-06-22T15:11:37,158][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-security]
+[2018-06-22T15:11:37,160][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-sql]
+[2018-06-22T15:11:37,160][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-upgrade]
+[2018-06-22T15:11:37,161][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-watcher]
+[2018-06-22T15:11:37,163][INFO ][o.e.p.PluginsService     ] [node-1] no plugins loaded
+[2018-06-22T15:11:51,796][INFO ][o.e.x.s.a.s.FileRolesStore] [node-1] parsed [0] roles from file [/usr/local/es/node-1/config/roles.yml]
+[2018-06-22T15:11:54,289][INFO ][o.e.x.m.j.p.l.CppLogMessageHandler] [controller/95922] [Main.cc@109] controller (64 bit): Version 6.3.0 (Build 0f0a34c67965d7) Copyright (c) 2018 Elasticsearch BV
+[2018-06-22T15:11:55,818][DEBUG][o.e.a.ActionModule       ] Using REST wrapper from plugin org.elasticsearch.xpack.security.Security
+[2018-06-22T15:11:56,983][INFO ][o.e.d.DiscoveryModule    ] [node-1] using discovery type [zen]
+[2018-06-22T15:12:00,685][INFO ][o.e.n.Node               ] [node-1] initialized
+[2018-06-22T15:12:00,699][INFO ][o.e.n.Node               ] [node-1] starting ...
+[2018-06-22T15:12:01,315][INFO ][o.e.t.TransportService   ] [node-1] publish_address {192.168.50.230:9100}, bound_addresses {192.168.50.230:9100}
+[2018-06-22T15:12:01,410][INFO ][o.e.b.BootstrapChecks    ] [node-1] bound or publishing to a non-loopback address, enforcing bootstrap checks
+[2018-06-22T15:12:04,585][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{i9aj9GWMQ4WOogPRu1FzxA}{192.168.50.230}{192.168.50.230:9100}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:12:07,593][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{i9aj9GWMQ4WOogPRu1FzxA}{192.168.50.230}{192.168.50.230:9100}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:12:10,596][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{i9aj9GWMQ4WOogPRu1FzxA}{192.168.50.230}{192.168.50.230:9100}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:12:13,609][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{i9aj9GWMQ4WOogPRu1FzxA}{192.168.50.230}{192.168.50.230:9100}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:12:16,615][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{i9aj9GWMQ4WOogPRu1FzxA}{192.168.50.230}{192.168.50.230:9100}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:12:19,622][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{i9aj9GWMQ4WOogPRu1FzxA}{192.168.50.230}{192.168.50.230:9100}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:12:22,624][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{i9aj9GWMQ4WOogPRu1FzxA}{192.168.50.230}{192.168.50.230:9100}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:12:25,632][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{i9aj9GWMQ4WOogPRu1FzxA}{192.168.50.230}{192.168.50.230:9100}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:12:28,637][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{i9aj9GWMQ4WOogPRu1FzxA}{192.168.50.230}{192.168.50.230:9100}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:12:31,591][WARN ][o.e.n.Node               ] [node-1] timed out while waiting for initial discovery state - timeout: 30s
+[2018-06-22T15:12:31,625][INFO ][o.e.x.s.t.n.SecurityNetty4HttpServerTransport] [node-1] publish_address {192.168.50.230:9200}, bound_addresses {192.168.50.230:9200}
+[2018-06-22T15:12:31,628][INFO ][o.e.n.Node               ] [node-1] started
+[2018-06-22T15:12:31,663][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{i9aj9GWMQ4WOogPRu1FzxA}{192.168.50.230}{192.168.50.230:9100}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:12:34,667][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{i9aj9GWMQ4WOogPRu1FzxA}{192.168.50.230}{192.168.50.230:9100}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:12:37,670][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{i9aj9GWMQ4WOogPRu1FzxA}{192.168.50.230}{192.168.50.230:9100}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:12:40,677][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{i9aj9GWMQ4WOogPRu1FzxA}{192.168.50.230}{192.168.50.230:9100}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:12:43,680][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{i9aj9GWMQ4WOogPRu1FzxA}{192.168.50.230}{192.168.50.230:9100}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:12:46,683][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{i9aj9GWMQ4WOogPRu1FzxA}{192.168.50.230}{192.168.50.230:9100}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:12:49,687][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{i9aj9GWMQ4WOogPRu1FzxA}{192.168.50.230}{192.168.50.230:9100}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:12:52,690][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{i9aj9GWMQ4WOogPRu1FzxA}{192.168.50.230}{192.168.50.230:9100}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:12:55,693][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{i9aj9GWMQ4WOogPRu1FzxA}{192.168.50.230}{192.168.50.230:9100}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:12:58,698][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{i9aj9GWMQ4WOogPRu1FzxA}{192.168.50.230}{192.168.50.230:9100}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:13:01,703][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{i9aj9GWMQ4WOogPRu1FzxA}{192.168.50.230}{192.168.50.230:9100}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:13:04,708][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{i9aj9GWMQ4WOogPRu1FzxA}{192.168.50.230}{192.168.50.230:9100}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:13:07,723][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{i9aj9GWMQ4WOogPRu1FzxA}{192.168.50.230}{192.168.50.230:9100}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:13:10,725][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{i9aj9GWMQ4WOogPRu1FzxA}{192.168.50.230}{192.168.50.230:9100}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:13:13,730][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{i9aj9GWMQ4WOogPRu1FzxA}{192.168.50.230}{192.168.50.230:9100}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:13:16,737][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{i9aj9GWMQ4WOogPRu1FzxA}{192.168.50.230}{192.168.50.230:9100}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:13:19,747][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{i9aj9GWMQ4WOogPRu1FzxA}{192.168.50.230}{192.168.50.230:9100}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:13:22,754][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{i9aj9GWMQ4WOogPRu1FzxA}{192.168.50.230}{192.168.50.230:9100}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:13:25,767][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{i9aj9GWMQ4WOogPRu1FzxA}{192.168.50.230}{192.168.50.230:9100}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:13:28,772][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{i9aj9GWMQ4WOogPRu1FzxA}{192.168.50.230}{192.168.50.230:9100}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:13:31,778][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{i9aj9GWMQ4WOogPRu1FzxA}{192.168.50.230}{192.168.50.230:9100}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:13:33,849][INFO ][o.e.x.m.j.p.NativeController] Native controller process has stopped - no new native processes can be started
+[2018-06-22T15:13:33,856][INFO ][o.e.n.Node               ] [node-1] stopping ...
+[2018-06-22T15:13:33,894][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{i9aj9GWMQ4WOogPRu1FzxA}{192.168.50.230}{192.168.50.230:9100}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:13:33,924][INFO ][o.e.n.Node               ] [node-1] stopped
+[2018-06-22T15:13:33,925][INFO ][o.e.n.Node               ] [node-1] closing ...
+[2018-06-22T15:13:33,958][INFO ][o.e.n.Node               ] [node-1] closed
+[2018-06-22T15:18:46,442][INFO ][o.e.n.Node               ] [node-1] initializing ...
+[2018-06-22T15:18:46,557][INFO ][o.e.e.NodeEnvironment    ] [node-1] using [1] data paths, mounts [[/ (/dev/sda1)]], net usable_space [23.5gb], net total_space [45.1gb], types [ext4]
+[2018-06-22T15:18:46,561][INFO ][o.e.e.NodeEnvironment    ] [node-1] heap size [1015.6mb], compressed ordinary object pointers [true]
+[2018-06-22T15:18:46,592][INFO ][o.e.n.Node               ] [node-1] node name [node-1], node ID [mKXAG1yMTMCRUKZCfGOqNw]
+[2018-06-22T15:18:46,599][INFO ][o.e.n.Node               ] [node-1] version[6.3.0], pid[96396], build[default/zip/424e937/2018-06-11T23:38:03.357887Z], OS[Linux/4.13.0-45-generic/amd64], JVM[Oracle Corporation/Java HotSpot(TM) 64-Bit Server VM/1.8.0_171/25.171-b11]
+[2018-06-22T15:18:46,600][INFO ][o.e.n.Node               ] [node-1] JVM arguments [-Xms1g, -Xmx1g, -XX:+UseConcMarkSweepGC, -XX:CMSInitiatingOccupancyFraction=75, -XX:+UseCMSInitiatingOccupancyOnly, -XX:+AlwaysPreTouch, -Xss1m, -Djava.awt.headless=true, -Dfile.encoding=UTF-8, -Djna.nosys=true, -XX:-OmitStackTraceInFastThrow, -Dio.netty.noUnsafe=true, -Dio.netty.noKeySetOptimization=true, -Dio.netty.recycler.maxCapacityPerThread=0, -Dlog4j.shutdownHookEnabled=false, -Dlog4j2.disable.jmx=true, -Djava.io.tmpdir=/tmp/elasticsearch.R8H7xEpf, -XX:+HeapDumpOnOutOfMemoryError, -XX:HeapDumpPath=data, -XX:ErrorFile=logs/hs_err_pid%p.log, -XX:+PrintGCDetails, -XX:+PrintGCDateStamps, -XX:+PrintTenuringDistribution, -XX:+PrintGCApplicationStoppedTime, -Xloggc:logs/gc.log, -XX:+UseGCLogFileRotation, -XX:NumberOfGCLogFiles=32, -XX:GCLogFileSize=64m, -Des.path.home=/usr/local/src/elasticsearch-6.3.0, -Des.path.conf=/usr/local/es/node-1/config, -Des.distribution.flavor=default, -Des.distribution.type=zip]
+[2018-06-22T15:18:55,392][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [aggs-matrix-stats]
+[2018-06-22T15:18:55,394][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [analysis-common]
+[2018-06-22T15:18:55,403][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [ingest-common]
+[2018-06-22T15:18:55,408][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [lang-expression]
+[2018-06-22T15:18:55,408][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [lang-mustache]
+[2018-06-22T15:18:55,410][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [lang-painless]
+[2018-06-22T15:18:55,411][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [mapper-extras]
+[2018-06-22T15:18:55,411][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [parent-join]
+[2018-06-22T15:18:55,413][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [percolator]
+[2018-06-22T15:18:55,414][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [rank-eval]
+[2018-06-22T15:18:55,414][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [reindex]
+[2018-06-22T15:18:55,415][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [repository-url]
+[2018-06-22T15:18:55,417][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [transport-netty4]
+[2018-06-22T15:18:55,418][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [tribe]
+[2018-06-22T15:18:55,419][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-core]
+[2018-06-22T15:18:55,419][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-deprecation]
+[2018-06-22T15:18:55,420][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-graph]
+[2018-06-22T15:18:55,426][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-logstash]
+[2018-06-22T15:18:55,426][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-ml]
+[2018-06-22T15:18:55,426][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-monitoring]
+[2018-06-22T15:18:55,427][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-rollup]
+[2018-06-22T15:18:55,427][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-security]
+[2018-06-22T15:18:55,427][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-sql]
+[2018-06-22T15:18:55,427][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-upgrade]
+[2018-06-22T15:18:55,429][INFO ][o.e.p.PluginsService     ] [node-1] loaded module [x-pack-watcher]
+[2018-06-22T15:18:55,429][INFO ][o.e.p.PluginsService     ] [node-1] no plugins loaded
+[2018-06-22T15:19:11,548][INFO ][o.e.x.s.a.s.FileRolesStore] [node-1] parsed [0] roles from file [/usr/local/es/node-1/config/roles.yml]
+[2018-06-22T15:19:13,315][INFO ][o.e.x.m.j.p.l.CppLogMessageHandler] [controller/96444] [Main.cc@109] controller (64 bit): Version 6.3.0 (Build 0f0a34c67965d7) Copyright (c) 2018 Elasticsearch BV
+[2018-06-22T15:19:14,740][DEBUG][o.e.a.ActionModule       ] Using REST wrapper from plugin org.elasticsearch.xpack.security.Security
+[2018-06-22T15:19:15,737][INFO ][o.e.d.DiscoveryModule    ] [node-1] using discovery type [zen]
+[2018-06-22T15:19:19,270][INFO ][o.e.n.Node               ] [node-1] initialized
+[2018-06-22T15:19:19,271][INFO ][o.e.n.Node               ] [node-1] starting ...
+[2018-06-22T15:19:19,882][INFO ][o.e.t.TransportService   ] [node-1] publish_address {192.168.50.230:9300}, bound_addresses {192.168.50.230:9300}
+[2018-06-22T15:19:19,974][INFO ][o.e.b.BootstrapChecks    ] [node-1] bound or publishing to a non-loopback address, enforcing bootstrap checks
+[2018-06-22T15:19:23,095][WARN ][o.e.d.z.ZenDiscovery     ] [node-1] not enough master nodes discovered during pinging (found [[Candidate{node={node-1}{mKXAG1yMTMCRUKZCfGOqNw}{OY_7Z2X6QOqWB8X4I34nBA}{192.168.50.230}{192.168.50.230:9300}{ml.machine_memory=6226718720, xpack.installed=true, ml.max_open_jobs=20, ml.enabled=true}, clusterStateVersion=-1}]], but needed [2]), pinging again
+[2018-06-22T15:19:27,512][INFO ][o.e.c.s.ClusterApplierService] [node-1] detected_master {node-2}{coqd7BTnSmennRVmkhdvjQ}{cP5KRJscQAi9mtuNODgbUQ}{192.168.50.230}{192.168.50.230:9301}{ml.machine_memory=6226718720, ml.max_open_jobs=20, xpack.installed=true, ml.enabled=true}, added {{node-2}{coqd7BTnSmennRVmkhdvjQ}{cP5KRJscQAi9mtuNODgbUQ}{192.168.50.230}{192.168.50.230:9301}{ml.machine_memory=6226718720, ml.max_open_jobs=20, xpack.installed=true, ml.enabled=true},}, reason: apply cluster state (from master [master {node-2}{coqd7BTnSmennRVmkhdvjQ}{cP5KRJscQAi9mtuNODgbUQ}{192.168.50.230}{192.168.50.230:9301}{ml.machine_memory=6226718720, ml.max_open_jobs=20, xpack.installed=true, ml.enabled=true} committed version [1]])
+[2018-06-22T15:19:27,591][INFO ][o.e.x.s.t.n.SecurityNetty4HttpServerTransport] [node-1] publish_address {192.168.50.230:9200}, bound_addresses {192.168.50.230:9200}
+[2018-06-22T15:19:27,594][INFO ][o.e.n.Node               ] [node-1] started
+[2018-06-22T15:19:28,755][WARN ][o.e.x.s.a.s.m.NativeRoleMappingStore] [node-1] Failed to clear cache for realms [[]]
+[2018-06-22T15:19:28,777][INFO ][o.e.l.LicenseService     ] [node-1] license [f088304f-16d3-40a1-b652-b9b3efd14d98] mode [basic] - valid
+[2018-06-22T15:19:29,506][INFO ][o.e.x.s.a.TokenService   ] [node-1] refresh keys
+[2018-06-22T15:19:30,209][INFO ][o.e.x.s.a.TokenService   ] [node-1] refreshed keys
