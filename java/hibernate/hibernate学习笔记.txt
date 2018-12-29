@@ -1,0 +1,251 @@
+1、hibernate的主键生成策略
+
+public class User{
+   @Id
+   @GeneratedValue(strategy =, generator= ) // strategy用来指定JPA默认的<主键生成策略>，<主键生成策略>最终会确定<主键生成器>(IdentifierGenerator)
+                                            // generator 用来直接指定<主键生成器>，是<主键生成器>(IdentifierGenerator)
+   private Long userId;                     // generator 一般和 @GenericGenerator 联合使用
+}                                           
+                                             #########################################
+                                            #
+                                            # @GeneratedValue(generator = "#1")
+                                            # @GenericGenerator(name = "#1", strategy="#2")
+                                            # 两处 #1 可以随便写，但必须一样,
+					    # #2 写 实现了 IdentifierGenerator 接口的类的全称 或者 匿名
+
+@Id              ----> 表明 userId 是一个主键
+@GeneratedValue  ----> 表明 userId 这个主键需要Hibernate生成
+
+Hibernate的<主键生成策略>主要有: AUTO(默认，GenerationType.AUTO)、IDENTITY、TABLE、SEQUENCE
+                                 
+				 通过 @GeneratedValue(strategy = GenerationType.AUTO) 指定<主键生成策略>
+
+                                 确定了 <主键生成策略>，就知道使用哪种 主键生成器(IdentifierGenerator)来生成主键
+                      
+                                 IdentifierGenerator.generate()可以生成主键，
+				 
+				 至于这些策略默认使用的IdentifierGenerator，
+				 请看文档 http://docs.jboss.org/hibernate/orm/5.3/userguide/html_single/Hibernate_User_Guide.html#identifiers-generators
+
+                                 如果你不想用
+                                              AUTO、IDENTITY、TABLE、SEQUENCE 
+                                 默认的IdentifierGenerator，
+
+                                 你可以通过
+                                             @GeneratedValue(generator = "abc")
+                                             @GenericGenerator(name = "abc", strategy ="在这里写 IdentifierGenerator 的类名或昵称")
+                                             //昵称在这个类里 DefaultIdentifierGeneratorFactory
+
+				 直接指定IdentifierGenerator
+                                 
+# 例子1 表明主键是程序自己赋值
+   User u = new User();
+        u.setId(1L); 自己赋值
+public class User{
+   @Id
+   private String userId;
+}
+
+# 例子2 表明主键是生成的，而且采用默认的主键生成策略 GenerationType.AUTO，
+                          这个<主键生成策略>的默认<主键生成器>(IdentifierGenerator),
+			  请看http://docs.jboss.org/hibernate/orm/5.3/userguide/html_single/Hibernate_User_Guide.html#identifiers-generators
+public class User{
+   @Id
+   @GeneratedValue
+   private String userId;
+}
+
+# 例子3 表明主键是生成的，采用的是数据库 自增长主键(MySQL)
+public class User{
+   @Id
+   @GeneratedValue(strategy = GenerationType.IDENTITY)
+   private String userId;
+}
+
+# 例子4 表明主键是生成的，采用的是数据库 序列生成器(Oracle)
+public class User{
+   @Id
+   @GeneratedValue(strategy = GenerationType.SEQUENCE)
+   private String userId;
+}
+
+# 例子5 表明主键是生成的，没有采用<主键生成策略>，而是直接指定 <主键生成器>(IdentifierGenerator)
+public class User{
+    @Id
+    @GeneratedValue(generator = "abc")
+    @GenericGenerator(name = "abc", strategy ="uuid2") // uuid2是昵称，你也可以写类名 org.hibernate.id.UUIDGenerator
+   private String userId;
+}
+
+
+
+2、Hibernate的Flush
+
+   User user = new User(1, "这是A", 18);
+   session.save(user);             #1
+   System.out.println("1之后");
+   user.setName("这是B")           #2
+   System.out.println("2之后");  
+
+   预期输出:
+     INSERT INTO user(id, name, age)VALUES(1, "这是A", 18); #1产生的SQL
+     1之后
+     UPDATE user SET name = "这是B" WHERE id = 1;           #2产生的SQL
+     2之后
+
+   但实际输出:   
+     1之后
+     2之后
+     INSERT INTO user(id, name, age)VALUES(1, "这是A", 18); #1产生的SQL
+     UPDATE user SET name = "这是B" WHERE id = 1;           #2产生的SQL
+ 
+
+   这是因为，Hibernate的session维护了一个一级缓存，通过session来对对象进行  
+   增、删、改时，
+   一般不会立马对数据库进行操作，
+   而Flush就是，将session的数据同步到数据库(session.flush())
+   
+  
+
+   ！！！！注意：只是 <增、删、改> 不会立即操作数据库 ！！！！
+                 <查> 是会立即访问数据库的
+   ######################################################
+  #
+  #  增  session.save(o);
+  #  删  session.delete(o);
+  #  改  session.update(o);
+  #
+  #  查  session.createQuery().getResultList(), 
+         session.get()
+	 等等
+
+   ！！！！注意 下面的代码和上面类似，但是会立即操作数据库 ！！！！
+   ################################################
+  #
+  #   User u = new User("采用自增长主键", 19); 
+  #   session.save(u);                             #1
+  #   //session.persist(u);
+  #   System.out.println("1之后");
+  #   user.setName("真的会立即对数据库进行操作")   #2
+  #   System.out.println("2之后"); 
+  #
+  #   输出:
+  #         INSERT INTO user(id, name, age)VALUES(1, "这是A", 18); #1产生的SQL
+  #         1之后
+  #         2之后
+  #         UPDATE user SET name = "这是B" WHERE id = 1;           #2产生的SQL
+  #         
+  #   
+  #   这是因为： session.save()和 session.persist()都是存数据，一个立即返回主键，而一个不会，
+  #              但是二者都要先确定主键，如果采用的是 自增主键策略，
+  #
+  #      public class User{
+  #	   @Id
+  #	   @GeneratedValue(strategy = GenerationType.IDENTITY) // 这样就是采用 自增主键策略
+  #	   private Long id;
+  #	}
+  #
+  #
+  #     则必须先插入数据(生成第一条SQL语句)，才能获得主键
+  #     而后的 user.setName() 会导致第二条update语句的生成
+  #
+  #   Serializable save(Object o); 会立即返回主键
+  # 
+  #   void persist(Object o);  不会立即返回主键，但跟上面一样，必须先确定主键
+
+
+3、Hibernate的 Flush Mode
+   Flush Mode : 当使用 Hibernate 先进行增、删、改，而后
+                    a 进行 JPQL/HQL 查询(查询之前增删改的结果)
+		    b 进行 JPQL/HQL 查询(查询和增删改无关的结果)
+		    c 进行 native sql查询(无论是否查询，增删改结果)
+		    d 进行 commit
+		 时，Hibernate 是否将之前增删改的结果同步到数据库的策略
+ 
+  JPA只定义了两种:     AUTO(默认) 、COMMIT
+  Hibernate定义了4种:  AUTO(默认) 、COMMIT、MANUAL、ALWAYS  
+
+  看文档  http://docs.jboss.org/hibernate/orm/5.3/userguide/html_single/Hibernate_User_Guide.html#flushing-auto
+
+                      AUTO    COMMIT   MANUAL   ALWAYS  
+ JPA API       a      同步    不同步   不同步   同步  
+ HibernateAPI  a      同步    不同步   不同步   同步  
+ 
+ JPA API       b      不同步  不同步   不同步   同步  
+ HibernateAPI  b      不同步  不同步   不同步   同步  
+ 
+ JPA API       c      同步     同步    不同步   同步  
+ HibernateAPI  c      同步     不同步  不同步   同步  
+
+ JPA API       d      同步     同步    不同步   同步  
+ HibernateAPI  d      同步     同步    不同步   同步  
+
+
+!!!! 注意， User 的 <主键> 是 直接赋值的， 要是 <mysql自增主键>，下面的结果就不对了，
+     看上面 "2、Hibernate的Flush"，就明白了
+
+---------------------------------- AUTO 
+
+#1
+ // em.setFlushMode(FlushModeType.AUTO); 这是默认值
+ User u = new User(1L, "AUTO", 18);       
+ em.persist(u);
+ em.createQuery("from User").getResultList();    # JPA API 进行 JPQL/HQL 查询(查询之前增删改的结果)
+
+输出:                                                     <先同步(即先插数据)，后查寻> 
+    INSERT INTO user(id, name, age)VALUES(1, "AUTO", 18);
+    SELECT * FROM users;
+ 
+#2
+ // session.setFlushMode(FlushModeType.AUTO); 这是默认值
+ User u = new User(1L, "AUTO", 18);       
+ session.persist(u);
+ //session.save(u)
+ session.createQuery("from User").getResultList();    # Hibernate API 进行 JPQL/HQL 查询(查询之前增删改的结果)
+
+输出:                                                    <先同步，后查寻>
+    INSERT INTO user(id, name, age)VALUES(1, "AUTO", 18);
+    SELECT * FROM users;
+
+
+#3
+ // em.setFlushMode(FlushModeType.AUTO); 这是默认值
+ User u = new User(1L, "AUTO", 18);       
+ em.persist(u);
+ em.createQuery("from Production").getResultList();    # JPA API 进行 JPQL/HQL 查询(查询和增删改 <无关> 的结果)
+
+输出:                                                    <不同步>
+    SELECT * FROM productions;
+    INSERT INTO user(id, name, age)VALUES(1, "AUTO", 18);
+ 
+#4
+ // session.setFlushMode(FlushModeType.AUTO); 这是默认值
+ User u = new User(1L, "AUTO", 18);       
+ session.persist(u);
+ //session.save(u);
+ session.createQuery("from Production").getResultList();    # Hibernate API 进行 JPQL/HQL 查询(查询和增删改 <无关> 的结果)
+
+输出:                                                     <不同步>
+    SELECT * FROM productions;
+    INSERT INTO user(id, name, age)VALUES(1, "AUTO", 18);
+
+#5
+ // em.setFlushMode(FlushModeType.AUTO); 这是默认值
+ User u = new User(1L, "AUTO", 18);       
+ em.persist(u);
+ em.createNativeQuery("SELECT COUNT(*) FROM users").getResultList();    # JPA API 进行 native sql查询(无论是否查询，增删改结果)
+
+输出:                                                      <先同步，后查寻>
+    INSERT INTO user(id, name, age)VALUES(1, "AUTO", 18);  
+    SELECT COUNT(*) FROM users
+ 
+#6
+ // session.setFlushMode(FlushModeType.AUTO); 这是默认值
+ User u = new User(1L, "AUTO", 18);                        
+ session.persist(u);
+ //session.save(u);
+ session.createQuery("from Production").getResultList();    # Hibernate API 进行 native sql查询(无论是否查询，增删改结果)
+
+输出: 
+    SELECT COUNT(*) FROM users                             <不同步>
+    INSERT INTO user(id, name, age)VALUES(1, "AUTO", 18);
