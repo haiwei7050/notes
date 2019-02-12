@@ -159,12 +159,12 @@ curl -vXGET http://172.20.10.230 -H "HOST:sadasda" 匹配#1，默认块的匹配
    
    前缀匹配url:
         location =  uri {}  # <！！！注意！！！非前缀匹配>，必须完全匹配
-	location ^~ uri {}  # 前缀匹配，且暗示nginx停止后续的正则匹配
+	      location ^~ uri {}  # 前缀匹配，且暗示nginx停止后续的正则匹配
         location uri    {}  # 普通前缀匹配
    
    正则匹配url:
         location ~  uri {}  # 区分大小写的正则匹配
-	location ~* uri {}  # 不区分大小写的正则匹配
+	      location ~* uri {}  # 不区分大小写的正则匹配
 
    匹配过程:
      a、先从 <前缀匹配的url>中找最长匹配项，找到后保存并继续
@@ -183,19 +183,19 @@ curl -vXGET http://172.20.10.230 -H "HOST:sadasda" 匹配#1，默认块的匹配
    a 准备工作 (https://blog.csdn.net/Holmofy/article/details/79261123)
      生成三个文件:
         证书(crt文件,    如 my.crt)
-	私钥(key文件,    如 my.key)
+	      私钥(key文件,    如 my.key)
         密码(passwd文件, 如 my.passwd)
      
     先生成私钥，这步需要提供密码，
     而这个密码就是passwd文件的内容
     而且passwd文件需要手动创建
-    openssl genrsa -out server.key -des3 -passout pass:123456 2048
+    openssl genrsa -out my.key -des3 -passout pass:123456 2048
 
     再生成证书请求文件
-    openssl req -new -key server.key -out server.csr
+    openssl req -new -key my.key -out my.csr
      
     最后结合私钥和证书请求文件生成证书
-    openssl req -new -x509 -key server.key-out ca.crt -days 3650
+    openssl req -new -x509 -key my.key -out my.crt -days 3650
 
     https/SSL/TLS详解：http://www.ruanyifeng.com/blog/2014/02/ssl_tls.html
    
@@ -206,9 +206,9 @@ curl -vXGET http://172.20.10.230 -H "HOST:sadasda" 匹配#1，默认块的匹配
         listen       443 ssl;                    #注意 服务器只会监听443端口
         server_name  localhost;
 
-        ssl_certificate      ../ssl/ca.crt;      # 证书文件的路径，相对于  --conf-path
-        ssl_certificate_key  ../ssl/server.key;  # 私钥的路径，    相对于  --conf-path
-        ssl_password_file    ../ssl/passwd;      # 生成私钥的密码，相对于  --conf-path
+        ssl_certificate      ../ssl/my.crt;      # 证书文件的路径，相对于  --conf-path
+        ssl_certificate_key  ../ssl/my.key;      # 私钥的路径，    相对于  --conf-path
+        ssl_password_file    ../ssl/my.passwd;   # 生成私钥的密码，相对于  --conf-path
 
         ssl_session_cache    shared:SSL:1m;
         ssl_session_timeout  5m; 
