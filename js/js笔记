@@ -63,6 +63,10 @@
      等价于
      Object.getPrototypeOf(p1) === P.prototype
      而Object.getPrototypeOf(p1) 最初等于 P.prototype
-     而我们中途令P.prototype指向了一个新对象
+     而我们中途令P.prototype指向了一个新对象,
+     所以会出现false
+
+    参考链接
+    https://javascriptrefined.io/function-and-object-instances-of-each-other-1e1095d5faac
 
 
