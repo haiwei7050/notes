@@ -493,7 +493,7 @@ wsrep_node_address="192.168.1.231"
     https://stackoverflow.com/questions/7360520/connectiontimeout-versus-sockettimeout
 
 vrrp_instance VI_1 {
-    state MASTER
+    state MASTER    # 从机把这个改为BACKUP
     interface ens33
     virtual_router_id 51
     priority 100   # 从机把这个改小

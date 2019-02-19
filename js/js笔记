@@ -26,7 +26,7 @@
 
      var car1 = new Car();       // 当使用 <new 构造函数()>创建对象时
                                  // car1会有一个属性 [[prototype]]
-                                 // 这个属性的指向的就是 构造函数的 prototype
+                                 // 这个属性的指向的就是 构造函数的 prototype 所指向的那个对象
 
      Object.getPrototypeOf(car1) === Car.prototype   // true
 
@@ -53,20 +53,52 @@
    console.log(Object.getPrototypeOf(p1) === P.prototype);     // true
    console.log(p1 instanceof P);                               // true
 
-   P.prototype = {}                            
+   P.prototype = {}                                            // 令P.prototype指向一个新对象，
+                                                               // 而该对象不在p1的prototype chain中
+                                                               // 所以 下面两个都为false; 
 
    console.log(Object.getPrototypeOf(p1) === P.prototype);     // false
    console.log(p1 instanceof P);                               // false
 
-   // 下面两个为false是因为，
-     obj instanceof Object
-     等价于
-     Object.getPrototypeOf(p1) === P.prototype
-     而Object.getPrototypeOf(p1) 最初等于 P.prototype
-     而我们中途令P.prototype指向了一个新对象,
-     所以会出现false
+     
+     p1 instanceof P, 是看P.prototype所指向的对象是否在p1的prototype chain中, 
+
+     p1的prototype chain如下图所示
+    
+      p1.[[prototype]] ---> P.prototype ---> Object.prototype ---> null
+       
+
+     1) p1由P构造而来，所以p1.[[prototype]] 指向 P.prototype所指向的对象
+     
+     2) 因为P.prototype所指向的对象是个普通的对象，
+        所以p1.[[prototype]].[[prototype]]
+        指向的是 Object.prototype所指向的对象
+
+     3) 而Object.prototype所指向的对象的就到头了，
+        所以p1.[[prototype]].[[prototype]].[[prototype]]等于null
+
+     
+     p1是普通对象，有属性[[prototype]]，没有属性prototype
+     
+     P是函数对象，有属性prototype (仅函数对象才有该属性，函数对象指的是Function的实例，
+                                即咱们定义的函数如function A(){}; var A = function (){})
+
+     p1 是否是 P的实例，就是看P的属性prototype，是否在p1的prototype chain中，算法就是下面的这个函数
+     
+     function test(instance, Clazz){
+       var temp = Object.getPrototypeOf(instance);
+       while(temp && temp != Clazz.prototype){
+          temp = Object.getPrototypeOf(temp);
+      }
+       return !!temp;
+     }
+
+     test(p1, P);
+     
 
     参考链接
     https://javascriptrefined.io/function-and-object-instances-of-each-other-1e1095d5faac
+    https://stackoverflow.com/questions/24453301/how-does-instanceof-work-in-javascript
+
 
 
