@@ -1,0 +1,70 @@
+1、安装VMTools
+   sudo apt -y install open-vm-tools-desktop
+
+2、安装必要的软件
+   sudo apt -y install tree vim openssh-server net-tools
+
+3、开启root账号
+   1) sudo passwd root
+   2) sudo vi /etc/ssh/sshd_config
+      把
+        PermitRootLogin prohibit-password
+      改为
+        PermitRootLogin yes
+   3) sudo vi /usr/share/lightdm/lightdm.conf.d/50-ubuntu.conf
+      新增
+          greeter-show-manual-login=true 
+          all-guest=false
+   4) sudo vi /etc/pam.d/gdm-autologin
+      sudo vi /etc/pam.d/gdm-password
+      注掉
+       auth required pam_succeed_if.so user != root quiet_success
+   5) sudo vi /root/.profile
+      把
+        mesg n || true
+      改为
+         tty -s&&mesg n || true
+
+4、配置常用别名
+   vim /etc/bash.bashrc
+   PS1='[\u@\h \w]\$ '
+   alias rm='/usr/bin/rm -rf'
+   alias la='/usr/bin/ls -la --color=auto'
+   alias grep='/usr/bin/grep --color=auto -P'
+   alias vi='/usr/bin/vim'
+   alias mr='/usr/bin/mysql -uroot -p'
+
+   export IDEA_HOME='/usr/local/idea'
+   export M2_HOME='/usr/local/maven_3_5'
+   export JAVA_HOME='/usr/local/jdk8'
+   export PATH=${IDEA_HOME}/bin:${M2_HOME}/bin:${JAVA_HOME}/bin:$PATH
+
+   . /etc/bash.bashrc
+
+5、安装搜狗输入法
+   1) 删掉ibus
+      apt-get remove ibus
+      apt-get purge ibus
+   2) 安装 fcitx
+      apt install fcitx-table-wbpy fcitx-config-gtk
+   3) 启动 fcitx
+      im-config -n fcitx
+   4) 安装中文语言包
+      settings -> region&language
+   5) 下载搜狗安装包
+   6) 安装搜狗
+      dpkg -i sogoupinyin_2.2.0.0108_amd64.deb
+      apt-get install -f
+   7) 配置搜狗
+      fcitx-config-gtk3
+   参考链接:
+    https://www.jianshu.com/p/c936a8a2180e
+    https://blog.csdn.net/lupengCSDN/article/details/80279177
+
+
+
+
+附录1、如何知道全局的bash配置文件
+       1)man bash
+       2)搜索FILES
+         
