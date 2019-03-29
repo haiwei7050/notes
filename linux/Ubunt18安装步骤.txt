@@ -43,7 +43,6 @@
 
 5、安装搜狗输入法
    1) 删掉ibus
-      apt-get remove ibus
       apt-get purge ibus
    2) 安装 fcitx
       apt install fcitx-table-wbpy fcitx-config-gtk
@@ -67,4 +66,6 @@
 附录1、如何知道全局的bash配置文件
        1)man bash
        2)搜索FILES
-         
+
+附录2、apt和apt-get的对比
+      https://itsfoss.com/apt-vs-apt-get-difference/         
