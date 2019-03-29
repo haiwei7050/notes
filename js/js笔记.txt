@@ -101,4 +101,32 @@
     https://stackoverflow.com/questions/24453301/how-does-instanceof-work-in-javascript
 
 
+3、setTimeout和setInterval的原理
+   a、语法
+      setTimeout(code|fun, delay, [arg1, arg2,....,argn])  
+      setInterval(code|fun, delay, [arg1, arg2,....,argn])  
+      
+      "code|fun"                是要执行的代码或函数
+      "delay"                   指定推后多少秒执行
+      "[arg1, arg2,....,argn]"  这些参数会传给前面的函数
 
+  b、原理
+     1) 将 “code|fun”变为下面对象，塞进队列中
+        var task = {
+         "work": code| func,
+         "executeTime":当前时间+delay //当前时间就是调用setTimeout or setInterval的时间点
+        }
+        queue.push(task);
+     2) 在下次事件循环中，轮询队列，执行到达执行时间的函数
+        var now = Date.now();
+        queue.forEach(function(task){
+          if(now - task.executeTime >= 0){
+              task.work();
+          }
+        });
+
+4、实现类似java中的sleep函数
+   function sleep(ms){
+     var start = Date.now();
+     while(Date.now()- start < ms);
+   }
