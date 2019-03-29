@@ -2,7 +2,7 @@
    sudo apt -y install open-vm-tools-desktop
 
 2、安装必要的软件
-   sudo apt -y install tree vim openssh-server net-tools
+   sudo apt -y install tree vim openssh-server net-tools git
 
 3、开启root账号
    1) sudo passwd root
@@ -15,8 +15,7 @@
       新增
           greeter-show-manual-login=true 
           all-guest=false
-   4) sudo vi /etc/pam.d/gdm-autologin
-      sudo vi /etc/pam.d/gdm-password
+   4) sudo vi -O /etc/pam.d/gdm-autologin /etc/pam.d/gdm-password
       注掉
        auth required pam_succeed_if.so user != root quiet_success
    5) sudo vi /root/.profile
@@ -32,7 +31,6 @@
    alias la='/usr/bin/ls -la --color=auto'
    alias grep='/usr/bin/grep --color=auto -P'
    alias vi='/usr/bin/vim'
-   alias mr='/usr/bin/mysql -uroot -p'
 
    export IDEA_HOME='/usr/local/idea'
    export M2_HOME='/usr/local/maven_3_5'
