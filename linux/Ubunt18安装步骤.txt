@@ -1,49 +1,54 @@
-1、安装VMTools
-   sudo apt -y install open-vm-tools-desktop
-
-2、安装必要的软件
-   sudo apt -y install tree vim openssh-server net-tools git
-
-3、开启root账号
+1、开启root账号
    1) sudo passwd root
-   2) sudo vi /etc/ssh/sshd_config
+   2) sudo vi /etc/ssh/sshd_config(这个在装了ssh之后再做)
       把
         PermitRootLogin prohibit-password
       改为
         PermitRootLogin yes
-   3) sudo vi /usr/share/lightdm/lightdm.conf.d/50-ubuntu.conf
-      新增
-          greeter-show-manual-login=true 
-          all-guest=false
-   4) sudo vi -O /etc/pam.d/gdm-autologin /etc/pam.d/gdm-password
+   3) sudo vi -O /etc/pam.d/gdm-autologin /etc/pam.d/gdm-password
       注掉
        auth required pam_succeed_if.so user != root quiet_success
-   5) sudo vi /root/.profile
+   4) sudo vi /root/.profile
       把
         mesg n || true
       改为
          tty -s&&mesg n || true
 
-4、配置常用别名
+2、安装VMTools
+   sudo apt -y install open-vm-tools-desktop
+
+3、安装必要的软件
+   sudo apt -y install tree vim openssh-server net-tools git
+
+4、修改/etc/skel/.bashrc
+    vi /etc/skel/.bashrc
+    PS1='[\u@\h \w]\$ '                     
+    alias ll='/bin/ls -lF'
+    alias la='/bin/ls -lA'
+    alias grep='/bin/grep --color=auto -P'
+    
+    rm ~/.bashrc && cp /etc/skel/.bashrc ~
+
+5、配置常用别名
    vim /etc/bash.bashrc
+   
    PS1='[\u@\h \w]\$ '
-   alias rm='/usr/bin/rm -rf'
-   alias la='/usr/bin/ls -la --color=auto'
-   alias grep='/usr/bin/grep --color=auto -P'
+
+   alias rm='/bin/rm -rf'
    alias vi='/usr/bin/vim'
 
    export IDEA_HOME='/usr/local/idea'
-   export M2_HOME='/usr/local/maven_3_5'
+   export M2_HOME='/usr/local/maven_3_6'
    export JAVA_HOME='/usr/local/jdk8'
    export PATH=${IDEA_HOME}/bin:${M2_HOME}/bin:${JAVA_HOME}/bin:$PATH
 
    . /etc/bash.bashrc
 
-5、安装搜狗输入法
+6、安装搜狗输入法
    1) 删掉ibus
-      apt-get purge ibus
+      apt -y purge ibus
    2) 安装 fcitx
-      apt install fcitx-table-wbpy fcitx-config-gtk
+      apt -y install fcitx-table-wbpy fcitx-config-gtk
    3) 启动 fcitx
       im-config -n fcitx
    4) 安装中文语言包
@@ -51,7 +56,7 @@
    5) 下载搜狗安装包
    6) 安装搜狗
       dpkg -i sogoupinyin_2.2.0.0108_amd64.deb
-      apt-get install -f
+      apt-get -y install -f
    7) 配置搜狗
       fcitx-config-gtk3
    参考链接:
@@ -65,5 +70,42 @@
        1)man bash
        2)搜索FILES
 
-附录2、apt和apt-get的对比
-      https://itsfoss.com/apt-vs-apt-get-difference/         
+附录2、ubuntu配置文件加载顺序
+       1)man bash
+       2)搜索INVOCATION 
+       https://askubuntu.com/questions/463462/sequence-of-scripts-sourced-upon-login
+       https://askubuntu.com/questions/438150/scripts-in-etc-profile-d-being-ignored/438170#438170 
+
+       shell 分为
+
+       类型                            例子                       验证方法
+       interactive login shell         ssh登录                    请参考附录3的链接(下同)
+       interactive nologin shell       在桌面打开terimal
+       nointeractive nologin shell     bash -c 'echo $PATH'
+       nointeractive login shell       很少见，例子参考附录3
+
+       shell读取配置文件的顺序，只由 login or nologin决定，参考上面的链接
+       login shell
+                       /etc/profile --> (~/.bash_profile, ~/.bash_login, ~/.profile, 按从左到右的顺序加载第一个存在且可读的)
+       nologin shell
+                      /etc/bash.bashrc --> ~/.bashrc
+       注意两点:
+       1) ubuntu 默认会在 /etc/profile 中去加载 /etc/bash.bashrc (上面第一个链接，后面有讲)
+       2) ubuntu 默认会在 ~/.profile 中去加载   ~/.bashrc        (上面第二个链接，NOTE部分有讲)
+
+附录3、ubuntu各种shell
+       https://askubuntu.com/questions/879364/differentiate-interactive-login-and-non-interactive-non-login-shell
+ 
+附录4、apt和apt-get的对比
+      https://itsfoss.com/apt-vs-apt-get-difference/
+      介绍apt-get
+      https://itsfoss.com/apt-command-guide/
+      介绍apt
+      https://itsfoss.com/apt-get-linux-guide/
+      
+附录5、vim分屏和粘贴带注释的解决方法
+     a、解决粘贴带有注释时会多注释的问题 http://www.chenglin.name/linux/blog-linux/595.html
+        vi /etc/vim/.vimrc
+        set pastetoggle=<F9>
+     b、分屏参考链接
+        https://coolshell.cn/articles/1679.html
