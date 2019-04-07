@@ -1,35 +1,35 @@
-1.<import resource="Î»ÖÃ">£¬
-    Õâ¸öÎ»ÖÃÒ»¶¨ÊÇÏà¶ÔÓë  µ±Ç°ÅäÖÃÎÄ¼ş   µÄ£¬/dao.xmlºÍdao.xmlÊÇÒ»ÑùµÄ¶¼ÊÇÏà¶ÔÎ»ÖÃ
+1.<import resource="ä½ç½®">ï¼Œ
+    è¿™ä¸ªä½ç½®ä¸€å®šæ˜¯ç›¸å¯¹ä¸  å½“å‰é…ç½®æ–‡ä»¶   çš„ï¼Œ/dao.xmlå’Œdao.xmlæ˜¯ä¸€æ ·çš„éƒ½æ˜¯ç›¸å¯¹ä½ç½®
 
 
 
-2.Spring ×Ô¶¯Éú³ÉbeanÃû×ÖµÄ·½·¨
+2.Spring è‡ªåŠ¨ç”Ÿæˆbeanåå­—çš„æ–¹æ³•
 
-  a.ÅäÖÃÔÚXMLÎÄ¼şÖĞ£¬Ãû×ÖÎª  °üÃû+ÀàÃû+#+n (n >= 1),    ÀıÈç com.tdr.bbs.test.A#1
-  b.ÓÃ×¢½âÅäÖÃµÄ£¬   Ãû×ÖÎª  ÀàÃû(Ê××ÖÄ¸Ğ¡Ğ´»òÕß¶¼²»±ä) ÀıÈç A->a AA->AA(²»°üÀ¨°üÃû)
+  a.é…ç½®åœ¨XMLæ–‡ä»¶ä¸­ï¼Œåå­—ä¸º  åŒ…å+ç±»å+#+n (n >= 1),    ä¾‹å¦‚ com.tdr.bbs.test.A#1
+  b.ç”¨æ³¨è§£é…ç½®çš„ï¼Œ   åå­—ä¸º  ç±»å(é¦–å­—æ¯å°å†™æˆ–è€…éƒ½ä¸å˜) ä¾‹å¦‚ A->a AA->AA(ä¸åŒ…æ‹¬åŒ…å)
 
-  a.ÓÃµÄÊÇDefaultBeanNameGenerator£¬b.ÓÃµÄÊÇAnnotationBeanNameGenerator
-
-
-
-3.ÓÃ¹¹Ôì·½·¨×¢ÈëÊ±µÄË³Ğò
-
-  a.Ò»°ãXML¶¨ÒåµÄË³ĞòÒªºÍ¹¹Ôì·½·¨ÖĞµÄË³ĞòÒ»ÖÂ
-  b.µ±²»Ò»ÖÂÊ±£¬Èç¹ûÊÇ
-      <constructor-arg value="»ù±¾ÀàĞÍ"  />±ØĞëÍ¨¹ıindex¸ø³öË³Ğò»òÕßtypeÖ¸³öÀàĞÍ
-      ¶ø
-      <constructor-arg ref="ÒıÓÃÆäËûbean"  />ÔòÈÔ¿ÉÒÔÊ¹ÓÃ
+  a.ç”¨çš„æ˜¯DefaultBeanNameGeneratorï¼Œb.ç”¨çš„æ˜¯AnnotationBeanNameGenerator
 
 
-4. XMLÅäÖÃ×Ô¶¯×°Åä£¬Ö»»áÓ¦ÓÃÓÚsetter·½·¨»òÊÇ¹¹Ôì·½·¨
+
+3.ç”¨æ„é€ æ–¹æ³•æ³¨å…¥æ—¶çš„é¡ºåº
+
+  a.ä¸€èˆ¬XMLå®šä¹‰çš„é¡ºåºè¦å’Œæ„é€ æ–¹æ³•ä¸­çš„é¡ºåºä¸€è‡´
+  b.å½“ä¸ä¸€è‡´æ—¶ï¼Œå¦‚æœæ˜¯
+      <constructor-arg value="åŸºæœ¬ç±»å‹"  />å¿…é¡»é€šè¿‡indexç»™å‡ºé¡ºåºæˆ–è€…typeæŒ‡å‡ºç±»å‹
+      è€Œ
+      <constructor-arg ref="å¼•ç”¨å…¶ä»–bean"  />åˆ™ä»å¯ä»¥ä½¿ç”¨
+
+
+4. XMLé…ç½®è‡ªåŠ¨è£…é…ï¼Œåªä¼šåº”ç”¨äºsetteræ–¹æ³•æˆ–æ˜¯æ„é€ æ–¹æ³•
 	
-	 <bean id="u" class="com.tdr.bbs.test.User" autowire="ÓĞÈı¸ö¿ÉÌîµÄÖµ,¼ûÏÂÃæ" />
+	 <bean id="u" class="com.tdr.bbs.test.User" autowire="æœ‰ä¸‰ä¸ªå¯å¡«çš„å€¼,è§ä¸‹é¢" />
 	                                                    byName, byType, constructor
 
 
 	public class User {
 	    private A a;
-	    private B b;//²»»á±»×°Åä£¬ÒòÎªËü¼ÈÃ»ÓĞ setter·½·¨£¬ Ò²²»ÔÚ¹¹Ôì·½·¨ÖĞ
+	    private B b;//ä¸ä¼šè¢«è£…é…ï¼Œå› ä¸ºå®ƒæ—¢æ²¡æœ‰ setteræ–¹æ³•ï¼Œ ä¹Ÿä¸åœ¨æ„é€ æ–¹æ³•ä¸­
 	    private C c;
 
 	    public User(C c) {
@@ -44,8 +44,8 @@
 
 5. @Autowired 
 
-	a. Ä¬ÈÏÊÇ   °´ÀàĞÍ    ½øĞĞ×Ô¶¯×°Åä
-	b. @AutowiredÔÚ¹¹Ôìº¯ÊıÉÏ  ¿ÉÓĞ¿ÉÎŞ , ËùÒÔÏÂÃæÁ½ÖÖĞ´·¨Ò»Ñù
+	a. é»˜è®¤æ˜¯   æŒ‰ç±»å‹    è¿›è¡Œè‡ªåŠ¨è£…é…
+	b. @Autowiredåœ¨æ„é€ å‡½æ•°ä¸Š  å¯æœ‰å¯æ—  , æ‰€ä»¥ä¸‹é¢ä¸¤ç§å†™æ³•ä¸€æ ·
 
 	public class U{
 	    public U(C c){}
@@ -57,27 +57,27 @@
 	}
 
 
-6. @Autowired ºÍ @Resource 
+6. @Autowired å’Œ @Resource 
 
-	a.¶şÕßÄ¬ÈÏ¶¼ÒªÇó ÒÀÀµ±ØĞë´æÔÚ  ·ñÔò Å×Òì³£
+	a.äºŒè€…é»˜è®¤éƒ½è¦æ±‚ ä¾èµ–å¿…é¡»å­˜åœ¨  å¦åˆ™ æŠ›å¼‚å¸¸
 
-	b. @Autowired¿ÉÒÔ @Autowired(required=false)Ê¹ÉÏÌõÊ§Ğ§
+	b. @Autowiredå¯ä»¥ @Autowired(required=false)ä½¿ä¸Šæ¡å¤±æ•ˆ
 
 	c. 
-	  @Autowired  °´ ÀàĞÍ Æ¥Åä  ¿ÉÒÔ·ÅÔÚ Field¡¢Method¡¢Constructor
-	  @Resource   °´ Ãû×Ö Æ¥Åä  ¿ÉÒÔ·ÅÔÚ Field¡¢Method
-	  ×¢Òâ @Resource ÔÚ°´ Ãû×Ö Æ¥ÅäÊ§°Üºó£¬»á°´ ÀàĞÍ½øĞĞÆ¥Åä 
+	  @Autowired  æŒ‰ ç±»å‹ åŒ¹é…  å¯ä»¥æ”¾åœ¨ Fieldã€Methodã€Constructor
+	  @Resource   æŒ‰ åå­— åŒ¹é…  å¯ä»¥æ”¾åœ¨ Fieldã€Method
+	  æ³¨æ„ @Resource åœ¨æŒ‰ åå­— åŒ¹é…å¤±è´¥åï¼Œä¼šæŒ‰ ç±»å‹è¿›è¡ŒåŒ¹é… 
 
          
 
 
-7. @RequiredµÄÓÃ·¨
+7. @Requiredçš„ç”¨æ³•
 
-	a.Ëü²»ÊÇÓÃÓÚ×Ô¶¯×°ÅäµÄ
+	a.å®ƒä¸æ˜¯ç”¨äºè‡ªåŠ¨è£…é…çš„
 
-	b.Ëü±ê×¢setter·½·¨ºó£¬»á¼ì²é¸ÃÊôĞÔÊÇ·ñ±»×¢ÈëÁË£¬ÈôÃ»Ôò»áÅ×Òì³££¬ËùÒÔ±ØĞëºÍ @Autowired ºÍ @Resource Ò»ÆğÊ¹ÓÃ
+	b.å®ƒæ ‡æ³¨setteræ–¹æ³•åï¼Œä¼šæ£€æŸ¥è¯¥å±æ€§æ˜¯å¦è¢«æ³¨å…¥äº†ï¼Œè‹¥æ²¡åˆ™ä¼šæŠ›å¼‚å¸¸ï¼Œæ‰€ä»¥å¿…é¡»å’Œ @Autowired å’Œ @Resource ä¸€èµ·ä½¿ç”¨
 
-	c.ÊôĞÔ×¢ÈëµÄ·½Ê½ÓĞ
+	c.å±æ€§æ³¨å…¥çš„æ–¹å¼æœ‰
 	   
 	   <bean><property name="" value=""/></bean>
 	   
@@ -85,44 +85,44 @@
 
 	   @Resource
 
-	d.Ëü·ÅÔÚsetter·½·¨²ÅÓĞÓÃ
+	d.å®ƒæ”¾åœ¨setteræ–¹æ³•æ‰æœ‰ç”¨
 	  
-	  setA(A a); //ÕâÊÇsetter·½·¨
+	  setA(A a); //è¿™æ˜¯setteræ–¹æ³•
 	  
-	  prepare(A a, B b) //Õâ²»ÊÇ,ÒòÎª¶àÓÚÁ½¸ö²ÎÊı
+	  prepare(A a, B b) //è¿™ä¸æ˜¯,å› ä¸ºå¤šäºä¸¤ä¸ªå‚æ•°
 
 
-8.javaÖĞµÄbridge method
+8.javaä¸­çš„bridge method
 
-      Çë¿´https://stackoverflow.com/questions/5007357/java-generics-bridge-method£¬Ëü´ğ°¸ºóÃæµÄÁíÍâÁ½¸öÁ´½Ó
+      è¯·çœ‹https://stackoverflow.com/questions/5007357/java-generics-bridge-methodï¼Œå®ƒç­”æ¡ˆåé¢çš„å¦å¤–ä¸¤ä¸ªé“¾æ¥
            
       http://www.angelikalanger.com/GenericsFAQ/FAQSections/TechnicalDetails.html#FAQ102
 
 
-9. BeanFactory  µÄ  dependencyComparator ÊÇÓÃÀ´
+9. BeanFactory  çš„  dependencyComparator æ˜¯ç”¨æ¥
    
-   a.ÔÚ×¢²áBeanFactoryPostProcessor¡¢BeanPostProcessorÊ±£¬¶ÔËüÃÇ½øĞĞÅÅĞòµÄÓÃµÄ
+   a.åœ¨æ³¨å†ŒBeanFactoryPostProcessorã€BeanPostProcessoræ—¶ï¼Œå¯¹å®ƒä»¬è¿›è¡Œæ’åºçš„ç”¨çš„
    
-   b.Ä¬ÈÏ dependencyComparator = null£¬´ËÊ±ÔòÊ¹ÓÃ  OrderComparator.INSTANCE£¬
+   b.é»˜è®¤ dependencyComparator = nullï¼Œæ­¤æ—¶åˆ™ä½¿ç”¨  OrderComparator.INSTANCEï¼Œ
    
-     Ëü»á¶ÔÄÇĞ©Ã»ÓĞÊµÏÖOrdered½Ó¿ÚµÄÖ±½Ó¸³  ×îµÍorder
+     å®ƒä¼šå¯¹é‚£äº›æ²¡æœ‰å®ç°Orderedæ¥å£çš„ç›´æ¥èµ‹  æœ€ä½order
    
-   c.ÈôÊ¹ÓÃ <context:component-scan/> »ò <context:auto-config/> Ê±
+   c.è‹¥ä½¿ç”¨ <context:component-scan/> æˆ– <context:auto-config/> æ—¶
 
-     BeanFactory  µÄ  dependencyComparator »á±»×¢²áÎª 
+     BeanFactory  çš„  dependencyComparator ä¼šè¢«æ³¨å†Œä¸º 
      
-     AnnotationAwareOrderComparator.INSTANCE£¬Ëü¸²¸ÇÁË findOrder ·½·¨
+     AnnotationAwareOrderComparator.INSTANCEï¼Œå®ƒè¦†ç›–äº† findOrder æ–¹æ³•
 
 
-10. <context:component-scan /> Ä¬ÈÏ»á×¢²á±»ÕâĞ©×¢ÊÍ±ê×¢µÄÀà
-    @Component, @Repository, @Service, @Controller£¬@ControllerAdvice
+10. <context:component-scan /> é»˜è®¤ä¼šæ³¨å†Œè¢«è¿™äº›æ³¨é‡Šæ ‡æ³¨çš„ç±»
+    @Component, @Repository, @Service, @Controllerï¼Œ@ControllerAdvice
 
-    É¨ÃèÁ½±é
-    a.ÕÒ³ö±ê×¢ @Component, @Repository, @Service, @Controller£¬@ControllerAdvice µÄ.classÎÄ¼ş,È»ºó
+    æ‰«æä¸¤é
+    a.æ‰¾å‡ºæ ‡æ³¨ @Component, @Repository, @Service, @Controllerï¼Œ@ControllerAdvice çš„.classæ–‡ä»¶,ç„¶å
 
       ScannedGenericBeanDefinition sbd = new ScannedGenericBeanDefinition(metadataReader);
 
-    b.ÔÙÅĞ¶Ï sbdÊÇ  ¾ßÌåÀà »ò ÓĞ @Lookup×¢ÊÍµÄ³éÏóÀà
+    b.å†åˆ¤æ–­ sbdæ˜¯  å…·ä½“ç±» æˆ– æœ‰ @Lookupæ³¨é‡Šçš„æŠ½è±¡ç±»
     
     AnnotationMetadata metadata = beanDefinition.getMetadata();
 		return (metadata.isIndependent() && (metadata.isConcrete() ||
@@ -131,65 +131,65 @@
 
 11. <context:component-scan base-package="com.tdr.bbs.test"  />
     
-    »áÉ¨Ãè com.tdr.bbs.test ºÍ Æä×Ó°ü ÏÂµÄËùÓĞÀà
+    ä¼šæ‰«æ com.tdr.bbs.test å’Œ å…¶å­åŒ… ä¸‹çš„æ‰€æœ‰ç±»
 
 
-12. @Bean²»¸ønameÊôĞÔ¸³ÖµÊ±£¬²ÉÓÃµÄÊÇ·½·¨µÄÃû×Ö
+12. @Beanä¸ç»™nameå±æ€§èµ‹å€¼æ—¶ï¼Œé‡‡ç”¨çš„æ˜¯æ–¹æ³•çš„åå­—
 
 	@Configuration
 	public class Config {
 	    @Bean
 	    public Person getU(){
-		return new PersonImplA(); //PersonImplA Õâ¸öBean ÔÚÈİÆ÷ÀïµÄÃû×Ö Îª getU
+		return new PersonImplA(); //PersonImplA è¿™ä¸ªBean åœ¨å®¹å™¨é‡Œçš„åå­— ä¸º getU
 	    }
 	}
 
 
 
-13.Spring °ó¶¨¡¢Ğ£Ñé¼°´íÎóĞÅÏ¢×ª»»
+13.Spring ç»‘å®šã€æ ¡éªŒåŠé”™è¯¯ä¿¡æ¯è½¬æ¢
    
-	  °ó¶¨ Ïà¹ØµÄÀà¼°½Ó¿Ú
+	  ç»‘å®š ç›¸å…³çš„ç±»åŠæ¥å£
 		   
-		    Databinder    ------> °ó¶¨Æ÷£¬ÆäJavadocÌá¹©ÁËºÃ¶àĞÅÏ¢
-		    BindingResult ------> °ó¶¨½á¹û, °üº¬
-					       a °ó¶¨ºóµÄ¶ÔÏó		              ===== getTarget    ·µ»Ø°ó¶¨ºóµÄ¶ÔÏó
-					       b °ó¶¨¹ı³ÌÖĞ²úÉúµÄ´íÎó£¬               ===== getAllErrors ·µ»ØÆä°üº¬µÄËùÓĞ´íÎó
-					       c ºóÃæĞ£Ñé£¬Èç¹û³ö´í¿ÉÒÔÓÃËüÀ´×¢²á´íÎó ===== addError¡¢rejectµÈ·½·¨ À´×¢²á´íÎó
+		    Databinder    ------> ç»‘å®šå™¨ï¼Œå…¶Javadocæä¾›äº†å¥½å¤šä¿¡æ¯
+		    BindingResult ------> ç»‘å®šç»“æœ, åŒ…å«
+					       a ç»‘å®šåçš„å¯¹è±¡		              ===== getTarget    è¿”å›ç»‘å®šåçš„å¯¹è±¡
+					       b ç»‘å®šè¿‡ç¨‹ä¸­äº§ç”Ÿçš„é”™è¯¯ï¼Œ               ===== getAllErrors è¿”å›å…¶åŒ…å«çš„æ‰€æœ‰é”™è¯¯
+					       c åé¢æ ¡éªŒï¼Œå¦‚æœå‡ºé”™å¯ä»¥ç”¨å®ƒæ¥æ³¨å†Œé”™è¯¯ ===== addErrorã€rejectç­‰æ–¹æ³• æ¥æ³¨å†Œé”™è¯¯
 
-		    PropertyValue ------>  new PropertyValue(ÊôĞÔÃû£¬ÊôĞÔÖµ) 
+		    PropertyValue ------>  new PropertyValue(å±æ€§åï¼Œå±æ€§å€¼) 
 
-						¡¬ µÈ¼Û
+						â€– ç­‰ä»·
 
-					   bean.setÊôĞÔÃû(ÊôĞÔÖµ)
+					   bean.setå±æ€§å(å±æ€§å€¼)
 
-		    ObjectError  ------>  FieldError ÊÇ ObjectError µÄ×ÓÀà£¬ËüÃÇ¶¼´ú±í °ó¶¨´íÎó ºÍ Ğ£Ñé´íÎó
+		    ObjectError  ------>  FieldError æ˜¯ ObjectError çš„å­ç±»ï¼Œå®ƒä»¬éƒ½ä»£è¡¨ ç»‘å®šé”™è¯¯ å’Œ æ ¡éªŒé”™è¯¯
 		    FieldError
-					  ÇÒÖ÷ÒªÓÉ errorCode¡¢args¡¢defaultMessage ×é³É
+					  ä¸”ä¸»è¦ç”± errorCodeã€argsã€defaultMessage ç»„æˆ
 
-					  ¼ÙÉèÓĞÒ»¸öÅäÖÃÎÄ¼ş vaild.properties
+					  å‡è®¾æœ‰ä¸€ä¸ªé…ç½®æ–‡ä»¶ vaild.properties
 
-					   //////////////////  vaild.propertiesÅäÖÃÎÄ¼ş  //////////////////
+					   //////////////////  vaild.propertiesé…ç½®æ–‡ä»¶  //////////////////
 					  //                                                            //
-					 //           empty.user.name=ÓÃ»§Ãû²»¿ÉÎª¿Õ                   //
-					//            empty.user=ÓÃ»§µÄ£¬${property}²»¿ÉÎª¿Õ          //
+					 //           empty.user.name=ç”¨æˆ·åä¸å¯ä¸ºç©º                   //
+					//            empty.user=ç”¨æˆ·çš„ï¼Œ${property}ä¸å¯ä¸ºç©º          //
 				       //                                                            //
-				      ///////////////////  vaild.propertiesÅäÖÃÎÄ¼ş  /////////////////
+				      ///////////////////  vaild.propertiesé…ç½®æ–‡ä»¶  /////////////////
 
-				      ÆäÖĞ empty.user.name ÊÇ errorCode£¬
-				      ¶ø   ${property}     ÊÇ args
+				      å…¶ä¸­ empty.user.name æ˜¯ errorCodeï¼Œ
+				      è€Œ   ${property}     æ˜¯ args
 
 	  
-	  Ğ£Ñé Ïà¹ØµÄÀà¼°½Ó¿Ú
+	  æ ¡éªŒ ç›¸å…³çš„ç±»åŠæ¥å£
 		    
-		    Validator    -----> Ğ£ÑéÆ÷Ò»°ãÊµÏÖÕâ¸ö½Ó¿Ú£¬ÇÒÒ»°ãÔÚ °ó¶¨Íê³Éºó£¨¼´ Databinder.bind()£©ÔÙ½øĞĞĞ£Ñé£¨ÕâÊÇÓĞÔ­ÒòµÄ£¬¿´ÏÂÃæ£©
+		    Validator    -----> æ ¡éªŒå™¨ä¸€èˆ¬å®ç°è¿™ä¸ªæ¥å£ï¼Œä¸”ä¸€èˆ¬åœ¨ ç»‘å®šå®Œæˆåï¼ˆå³ Databinder.bind()ï¼‰å†è¿›è¡Œæ ¡éªŒï¼ˆè¿™æ˜¯æœ‰åŸå› çš„ï¼Œçœ‹ä¸‹é¢ï¼‰
 
-	  ´íÎóĞÅÏ¢×ª»» Ïà¹ØµÄÀà¼°½Ó¿Ú
+	  é”™è¯¯ä¿¡æ¯è½¬æ¢ ç›¸å…³çš„ç±»åŠæ¥å£
 		   
-		   MessageSource -----> Ëü½« ObjectError ¼° FieldError ×ª»»Îª String
+		   MessageSource -----> å®ƒå°† ObjectError åŠ FieldError è½¬æ¢ä¸º String
 					
-					¸ù¾İµÄÊÇerrorCode¡¢args¡¢defaultMessage
+					æ ¹æ®çš„æ˜¯errorCodeã€argsã€defaultMessage
 	  
-	------------------------------------------------------------ ÏÂÃæÊÇ A 13.Spring °ó¶¨¡¢Ğ£Ñé¼°´íÎóĞÅÏ¢×ª»»  ¾ßÌåµÄÀı×Ó -----------------------------------------------------------------------------
+	------------------------------------------------------------ ä¸‹é¢æ˜¯ A 13.Spring ç»‘å®šã€æ ¡éªŒåŠé”™è¯¯ä¿¡æ¯è½¬æ¢  å…·ä½“çš„ä¾‹å­ -----------------------------------------------------------------------------
 
 
 		User user = new User();
@@ -230,7 +230,7 @@
 			messages.add(messageSource.getMessage(e, Locale.getDefault()));
 		    }
 		}else{
-		    messages.add("bean User ³É¹¦ °ó¶¨ ÇÒ Í¨¹ı myValidatorµÄ Ğ£Ñé");
+		    messages.add("bean User æˆåŠŸ ç»‘å®š ä¸” é€šè¿‡ myValidatorçš„ æ ¡éªŒ");
 		}
 
 		for (String message : messages) {
@@ -238,15 +238,15 @@
 		}
 
 
-	------------------------------------------------------------ ÏÂÃæÊÇ B 13.Spring °ó¶¨¡¢Ğ£Ñé¼°´íÎóĞÅÏ¢×ª»»  ¾ßÌåµÄÀı×Ó -----------------------------------------------------------------------------
+	------------------------------------------------------------ ä¸‹é¢æ˜¯ B 13.Spring ç»‘å®šã€æ ¡éªŒåŠé”™è¯¯ä¿¡æ¯è½¬æ¢  å…·ä½“çš„ä¾‹å­ -----------------------------------------------------------------------------
 
 
-		//  ´ı°ó¶¨µÄbean
+		//  å¾…ç»‘å®šçš„bean
 		User user = new User();
 
-		//  Ã¿Ò»Ò»¸ö PropertyValue ¶¼ÊÇÒª°ó¶¨µ½ userÊôĞÔÉÏµÄÖµ
-		//  PropertyValue ±¾ÖÊÊÇ  ÊôĞÔÃû ----  ÊôĞÔÖµ
-		//  new PropertyValue("name", "zh3")  ¾ÍÊÇ½« user.setName("zh3")
+		//  æ¯ä¸€ä¸€ä¸ª PropertyValue éƒ½æ˜¯è¦ç»‘å®šåˆ° userå±æ€§ä¸Šçš„å€¼
+		//  PropertyValue æœ¬è´¨æ˜¯  å±æ€§å ----  å±æ€§å€¼
+		//  new PropertyValue("name", "zh3")  å°±æ˜¯å°† user.setName("zh3")
 		PropertyValue[] userProperties = {
 			new PropertyValue("name", "zh3"),
 			new PropertyValue("age", 10)
@@ -254,57 +254,57 @@
 		PropertyValues userPropertyValues = new MutablePropertyValues(Arrays.asList(userProperties));
 
 
-		//  ´´½¨°ó¶¨Æ÷
+		//  åˆ›å»ºç»‘å®šå™¨
 		DataBinder binder = new DataBinder(user, "user");
-		//  ¿ªÊ¼°ó¶¨
+		//  å¼€å§‹ç»‘å®š
 		binder.bind(userPropertyValues);
 
 
-		//  DataBinder --´´Ôì--> BindingResult --´´Ôì--> BeanWrapper£¬
-		// ¶ø DataBinder±¾ÖÊÊÇ
-		//              1. ¿¿ BeanWrapper À´¶Ô±»°üº¬¶ÔÏó½øĞĞ°ó¶¨£¬
+		//  DataBinder --åˆ›é€ --> BindingResult --åˆ›é€ --> BeanWrapperï¼Œ
+		// è€Œ DataBinderæœ¬è´¨æ˜¯
+		//              1. é  BeanWrapper æ¥å¯¹è¢«åŒ…å«å¯¹è±¡è¿›è¡Œç»‘å®šï¼Œ
 		//                     BeanWrapper.setPropertyValue(PropertyValue);
 
-		//              2. ²¢ÔÚÄÚ²¿Í¨¹ı BindingResult.addError(ObjectError) À´×¢²á°ó¶¨¹ı³ÌÖĞ²úÉúµÄ´íÎó
+		//              2. å¹¶åœ¨å†…éƒ¨é€šè¿‡ BindingResult.addError(ObjectError) æ¥æ³¨å†Œç»‘å®šè¿‡ç¨‹ä¸­äº§ç”Ÿçš„é”™è¯¯
 
-		//  BindingResult ÕâÊÇ°ó¶¨½á¹û
-		//  Ëü°üº¬
-		//        1 Íê³É°ó¶¨µÄ bean
-		//        2 °ó¶¨¹ı³ÌÖĞµÄËùÓĞ´íÎó £¨ÓÃObjectError ÒÔ¼° FieldErrorÀ´±íÊ¾£©
-		//        3 BeanWrapper, Ëü¿ÉÒÔÍ¨¹ı¸ø³öÊôĞÔÃû£¬À´¶Ô±»Ëü°üº¬ÊôĞÔ½øĞĞÉèÖÃ£¬ºÍÈ¡Öµ
+		//  BindingResult è¿™æ˜¯ç»‘å®šç»“æœ
+		//  å®ƒåŒ…å«
+		//        1 å®Œæˆç»‘å®šçš„ bean
+		//        2 ç»‘å®šè¿‡ç¨‹ä¸­çš„æ‰€æœ‰é”™è¯¯ ï¼ˆç”¨ObjectError ä»¥åŠ FieldErroræ¥è¡¨ç¤ºï¼‰
+		//        3 BeanWrapper, å®ƒå¯ä»¥é€šè¿‡ç»™å‡ºå±æ€§åï¼Œæ¥å¯¹è¢«å®ƒåŒ…å«å±æ€§è¿›è¡Œè®¾ç½®ï¼Œå’Œå–å€¼
 		//
-		//  Ëü¿ÉÒÔÍ¨¹ıÏÂÃæ·½·¨×¢²áĞÂµÄ´íÎó
+		//  å®ƒå¯ä»¥é€šè¿‡ä¸‹é¢æ–¹æ³•æ³¨å†Œæ–°çš„é”™è¯¯
 		//            1  BindingResult.addError(ObjectError);
-		//                  a  ObjectError ºÍ FieldError Ö÷ÒªÓÉ errorCodes arguments defaultMessage ×é³É
-		//                           ObjectError ¶à objectName,
-		//                            FieldError ¶à  objectName, fileName
-		//                  b FieldError ÊÇObjectErrorµÄ×ÓÀà
+		//                  a  ObjectError å’Œ FieldError ä¸»è¦ç”± errorCodes arguments defaultMessage ç»„æˆ
+		//                           ObjectError å¤š objectName,
+		//                            FieldError å¤š  objectName, fileName
+		//                  b FieldError æ˜¯ObjectErrorçš„å­ç±»
 		//
 		//            2   BindingResult.rejectValue(field, errorCode);
 		//
 
 
-		//  BindingResult ÕâÊÇ°ó¶¨½á¹û£¬
-		// BindingResult.getTarget »ñµÃ°ó¶¨ºóµÄbean
-		// BindingResult.getAllError »ñµÃËùÓĞ´íÎó
+		//  BindingResult è¿™æ˜¯ç»‘å®šç»“æœï¼Œ
+		// BindingResult.getTarget è·å¾—ç»‘å®šåçš„bean
+		// BindingResult.getAllError è·å¾—æ‰€æœ‰é”™è¯¯
 		BindingResult result = binder.getBindingResult();
 
 
 
-		//  ×Ô¼ºµÄĞ£ÑéÆ÷
-		//    1. Ò»°ã¶¼ÒªÊµÏÖ org.springframework.validation.Validator
-		//    2. Ò»°ã ÔÚ °ó¶¨Æ÷DataBinder Íê³É°ó¶¨ ºó ÑéÖ¤
-		//    2. Ò»°ã ÔÚ °ó¶¨Æ÷DataBinder Íê³É°ó¶¨ ºó ÑéÖ¤
-		//    2. Ò»°ã ÔÚ °ó¶¨Æ÷DataBinder Íê³É°ó¶¨ ºó ÑéÖ¤  ÖØÒªµÄÊÂÇéËµÈı±é£¡£¡£¡
+		//  è‡ªå·±çš„æ ¡éªŒå™¨
+		//    1. ä¸€èˆ¬éƒ½è¦å®ç° org.springframework.validation.Validator
+		//    2. ä¸€èˆ¬ åœ¨ ç»‘å®šå™¨DataBinder å®Œæˆç»‘å®š å éªŒè¯
+		//    2. ä¸€èˆ¬ åœ¨ ç»‘å®šå™¨DataBinder å®Œæˆç»‘å®š å éªŒè¯
+		//    2. ä¸€èˆ¬ åœ¨ ç»‘å®šå™¨DataBinder å®Œæˆç»‘å®š å éªŒè¯  é‡è¦çš„äº‹æƒ…è¯´ä¸‰éï¼ï¼ï¼
 
-		//    3¡£ ÒòÎª Ö»ÓĞÕâÑù ÏÂÃæÕâ¸ö¹¤¾ßÀà²ÅÄÜÕı³£Ê¹ÓÃ
+		//    3ã€‚ å› ä¸º åªæœ‰è¿™æ · ä¸‹é¢è¿™ä¸ªå·¥å…·ç±»æ‰èƒ½æ­£å¸¸ä½¿ç”¨
 		//
-		//                ValidationUtils.rejectIfEmpty(errors,"name", "empty"); errorÊÇ ErrorsÀàĞÍ
+		//                ValidationUtils.rejectIfEmpty(errors,"name", "empty"); erroræ˜¯ Errorsç±»å‹
 		//
-		//                ÉÏÃæÊÇ¼ì²é errors Àï°üº¬µÄ¶ÔÏó£¬ÕâÀïÊÇ user µÄ name ÊôĞÔ ÊÇ·ñÎª¿Õ£¬ ÈôÊÇÔò ×¢²áÒ»¸ö´íÎó
-		//                ´«ÈëµÄ errors Ò»°ãÊÇ  binder.getBindingResult()
-		//                BindingResult ÊµÏÖÁË Errors ½Ó¿Ú£¬ ÇÒËü°üº¬ BeanWrapper £¬ ¶ø BeanWrapper °üº¬ÁË Òª±»°ó¶¨µÄ bean ÕâÀïÊÇ user
-		//                ¶ø
+		//                ä¸Šé¢æ˜¯æ£€æŸ¥ errors é‡ŒåŒ…å«çš„å¯¹è±¡ï¼Œè¿™é‡Œæ˜¯ user çš„ name å±æ€§ æ˜¯å¦ä¸ºç©ºï¼Œ è‹¥æ˜¯åˆ™ æ³¨å†Œä¸€ä¸ªé”™è¯¯
+		//                ä¼ å…¥çš„ errors ä¸€èˆ¬æ˜¯  binder.getBindingResult()
+		//                BindingResult å®ç°äº† Errors æ¥å£ï¼Œ ä¸”å®ƒåŒ…å« BeanWrapper ï¼Œ è€Œ BeanWrapper åŒ…å«äº† è¦è¢«ç»‘å®šçš„ bean è¿™é‡Œæ˜¯ user
+		//                è€Œ
 		Validator myValidator = new Validator() {
 		    @Override
 		    public boolean supports(Class<?> clazz) {
@@ -319,24 +319,24 @@
 
 		myValidator.validate(result.getTarget(), result);
 
-		// ÎŞÂÛÊÇ°ó¶¨Ê±²úÉúµÄ´íÎó£¬»¹ÊÇ×Ô¼ºÊµÏÖµÄĞ£ÑéÆ÷½øĞĞĞ£ÑéµÄ´íÎó£¬
-		// Spring °Ñ ÕâĞ©´íÎó¶¼³éÏóÎª  ObjectError ºÍ FieldError£¨ObjectError µÄ×ÓÀà£©
-		//  Ëü ¶şÕß×îÖØÒªµÄ²¿·ÖÎª
+		// æ— è®ºæ˜¯ç»‘å®šæ—¶äº§ç”Ÿçš„é”™è¯¯ï¼Œè¿˜æ˜¯è‡ªå·±å®ç°çš„æ ¡éªŒå™¨è¿›è¡Œæ ¡éªŒçš„é”™è¯¯ï¼Œ
+		// Spring æŠŠ è¿™äº›é”™è¯¯éƒ½æŠ½è±¡ä¸º  ObjectError å’Œ FieldErrorï¼ˆObjectError çš„å­ç±»ï¼‰
+		//  å®ƒ äºŒè€…æœ€é‡è¦çš„éƒ¨åˆ†ä¸º
 		//     1 errorCodes
-		//           ÔÚvalid.propertiesÎÄ¼şÖĞ
-		//                 empty.user.name=ÓÃ»§Ãû²»¿ÉÒÔÎª¿Õ
-		//           ´Ë´¦µÄ empty.user.name ¾ÍÊÇ errorCodes
+		//           åœ¨valid.propertiesæ–‡ä»¶ä¸­
+		//                 empty.user.name=ç”¨æˆ·åä¸å¯ä»¥ä¸ºç©º
+		//           æ­¤å¤„çš„ empty.user.name å°±æ˜¯ errorCodes
 		//     2 arguments
-		//           ÔÚvalid.propertiesÎÄ¼şÖĞ
-		//                 empty.user=ÓÃ»§µÄ£¬${property}²»¿ÉÒÔÎª¿Õ
-		//           ´Ë´¦µÄ ${property} ¾ÍÊÇ arguments
+		//           åœ¨valid.propertiesæ–‡ä»¶ä¸­
+		//                 empty.user=ç”¨æˆ·çš„ï¼Œ${property}ä¸å¯ä»¥ä¸ºç©º
+		//           æ­¤å¤„çš„ ${property} å°±æ˜¯ arguments
 		//     3 defaultMessage
 
-		// ÎªÁË½« ObjectError ºÍ FieldError ±ä³É×îÖÕµÄÏûÏ¢ĞÅÏ¢£¬ÎÒÃÇĞèÒª
-		//  MessageSource, ³£ÓÃµÄÎª ResourceBundleMessageSource£¬Ëü¿ÉÒÔÊµÏÖ errorCodes µÄÌæ»»
-		// ÏÂÃæÕâ¸ö²¢²»ÄÜÓÃ£¬ÒòÎª  ResourceBundleMessageSource Ò»°ãĞèÒªÅäÖÃ baseNameÊôĞÔ
-		//  Ïñ baseName = valid£¬´Ó¶ø¿ÉÒÔ¸ù¾İ Locale °Ñ
-		// valid_zh_CN.properties   valid_en_US.properties ¶¼¿ÉÒÔÕÒµ½
+		// ä¸ºäº†å°† ObjectError å’Œ FieldError å˜æˆæœ€ç»ˆçš„æ¶ˆæ¯ä¿¡æ¯ï¼Œæˆ‘ä»¬éœ€è¦
+		//  MessageSource, å¸¸ç”¨çš„ä¸º ResourceBundleMessageSourceï¼Œå®ƒå¯ä»¥å®ç° errorCodes çš„æ›¿æ¢
+		// ä¸‹é¢è¿™ä¸ªå¹¶ä¸èƒ½ç”¨ï¼Œå› ä¸º  ResourceBundleMessageSource ä¸€èˆ¬éœ€è¦é…ç½® baseNameå±æ€§
+		//  åƒ baseName = validï¼Œä»è€Œå¯ä»¥æ ¹æ® Locale æŠŠ
+		// valid_zh_CN.properties   valid_en_US.properties éƒ½å¯ä»¥æ‰¾åˆ°
 
 		List<String> messages = new ArrayList<>(1);
 		if(result.hasErrors()){
@@ -345,7 +345,7 @@
 			messages.add(messageSource.getMessage(e, Locale.getDefault()));
 		    }
 		}else{
-		    messages.add("bean User ³É¹¦ °ó¶¨ ÇÒ Í¨¹ı myValidatorµÄ Ğ£Ñé");
+		    messages.add("bean User æˆåŠŸ ç»‘å®š ä¸” é€šè¿‡ myValidatorçš„ æ ¡éªŒ");
 		}
 
 		for (String message : messages) {
@@ -354,45 +354,45 @@
 
 
 
-14. java·´ÉäÖĞµÄType½Ó¿Ú  ¾ßÌå¿´ http://loveshisong.cn/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/2016-02-16-Type%E8%AF%A6%E8%A7%A3.html
+14. javaåå°„ä¸­çš„Typeæ¥å£  å…·ä½“çœ‹ http://loveshisong.cn/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/2016-02-16-Type%E8%AF%A6%E8%A7%A3.html
 
-	a.Type ×Ó½Ó¿Ú ¼°ÊµÏÖÀà
+	a.Type å­æ¥å£ åŠå®ç°ç±»
 	   
-	   ParameterizedType (×Ó½Ó¿Ú)   ¾ÙÀı List<String> a  --> a¾ÍÊÇ ParameterizedType ÀàĞÍ
+	   ParameterizedType (å­æ¥å£)   ä¸¾ä¾‹ List<String> a  --> aå°±æ˜¯ ParameterizedType ç±»å‹
 	   
-	   TypeVariable      (×Ó½Ó¿Ú)   ¾ÙÀı  T entity       --> entity¾ÍÊÇ TypeVariable ÀàĞÍ
+	   TypeVariable      (å­æ¥å£)   ä¸¾ä¾‹  T entity       --> entityå°±æ˜¯ TypeVariable ç±»å‹
 	   
-	   GenericArrayType   (×Ó½Ó¿Ú)  ¾ÙÀı  T[] b          --> b¾ÍÊÇ GenericArrayType ÀàĞÍ
+	   GenericArrayType   (å­æ¥å£)  ä¸¾ä¾‹  T[] b          --> bå°±æ˜¯ GenericArrayType ç±»å‹
 	   
-	   WildcardType       (×Ó½Ó¿Ú)
+	   WildcardType       (å­æ¥å£)
 	   
-	   Class              (ÊµÏÖType½Ó¿ÚµÄÀà)
+	   Class              (å®ç°Typeæ¥å£çš„ç±»)
 
 
-	b.Ò»°ãÍ¨¹ı 
+	b.ä¸€èˆ¬é€šè¿‡ 
 	    
-	    Field.getGenericType()(·µ»ØType)  
+	    Field.getGenericType()(è¿”å›Type)  
 	    
-	    »òÕß 
+	    æˆ–è€… 
 	    
-	    Method.getGenericParameterTypes() (·µ»Ø Type[])
+	    Method.getGenericParameterTypes() (è¿”å› Type[])
 
-	    È»ºó Type c = Field.getGenericType() 
+	    ç„¶å Type c = Field.getGenericType() 
 		 
-		 c instanceof ParameterizedType¡¢TypeVariable¡¢GenericArrayType
+		 c instanceof ParameterizedTypeã€TypeVariableã€GenericArrayType
 
-	c.-------------------------- ¾ÙÀı ----------------------------------
+	c.-------------------------- ä¸¾ä¾‹ ----------------------------------
 	    
-	    ¢Ù ParameterizedType(ÏÂÃæÊÇ½Ó¿ÚÄÚµÄ·½·¨)         List<String> a
+	    â‘  ParameterizedType(ä¸‹é¢æ˜¯æ¥å£å†…çš„æ–¹æ³•)         List<String> a
 	       
 	       Type[] getActualTypeArguments();              String
 
 	       Type getRawType();                            List
 
-	       Type getOwnerType();                          ²»³£ÓÃ
+	       Type getOwnerType();                          ä¸å¸¸ç”¨
 
 
-	    ¢Ú TypeVariable(ÏÂÃæÊÇ½Ó¿ÚÄÚµÄ·½·¨)             public class A<T extend String>{ 
+	    â‘¡ TypeVariable(ä¸‹é¢æ˜¯æ¥å£å†…çš„æ–¹æ³•)             public class A<T extend String>{ 
 								  T entity
 							     }
 							    
@@ -401,73 +401,73 @@
 							    entityType.getBounds()
 	       
 	       
-	       Type[] getBounds()                           ¶ÔÓÚ T entity  ====   String                      
+	       Type[] getBounds()                           å¯¹äº T entity  ====   String                      
 
-	       getGenericDeclaration()                      ¶ÔÓÚ T entity  ====   A(ÉùÃ÷ T entity µÄ Àà)
+	       getGenericDeclaration()                      å¯¹äº T entity  ====   A(å£°æ˜ T entity çš„ ç±»)
 
-	       String getName()                             ¶ÔÓÚ T entity  ====   T
+	       String getName()                             å¯¹äº T entity  ====   T
  
 
- 15.dispatcherServletÁ÷³Ì
+ 15.dispatcherServletæµç¨‹
 	
-    ¢ÙÖ®Ç° ÔÚrequestÀïÉèÖÃÁË
+    â‘ ä¹‹å‰ åœ¨requesté‡Œè®¾ç½®äº†
             WEB_APPLICATION_CONTEXT_ATTRIBUTE  ----->  getWebApplicationContext()
 	    LOCALE_RESOLVER_ATTRIBUTE          ----->  this.localeResolver
 	    THEME_RESOLVER_ATTRIBUTE           ----->  this.themeResolver
 	    THEME_SOURCE_ATTRIBUTE             ----->  getThemeSource()
-  (ÓĞÌõ¼şµÄ)INPUT_FLASH_MAP_ATTRIBUTE          ----->  inputFlashMap
+  (æœ‰æ¡ä»¶çš„)INPUT_FLASH_MAP_ATTRIBUTE          ----->  inputFlashMap
 	    OUTPUT_FLASH_MAP_ATTRIBUTE         ----->  new FlashMap()
 	    FLASH_MAP_MANAGER_ATTRIBUTE        ----->  this.flashMapManager
 
      
 
 
-	¢Ù HandlerInterceptor.preHandle()
+	â‘  HandlerInterceptor.preHandle()
 
-	¢Ú ModelAndView mv = HandlerAdapter.handle() // ×Ô¼º¶¨ÒåµÄControllerÔËĞĞ
+	â‘¡ ModelAndView mv = HandlerAdapter.handle() // è‡ªå·±å®šä¹‰çš„Controllerè¿è¡Œ
 
-	¢Û HandlerInterceptor.postHandle()
+	â‘¢ HandlerInterceptor.postHandle()
 
-	¢Ü DipatcherServlet.processDispatchResult()
-	   ÓĞÒì³£ 
-	     ÏÈÕÒ HandleMethod ÀïµÄ @ExceptionHandler ·½·¨
-	     ÔÙÕÒ ControllerAdviceÀïµÄ @ExceptionHandler ·½·¨
-	   Ã»ÓĞÒì³£
+	â‘£ DipatcherServlet.processDispatchResult()
+	   æœ‰å¼‚å¸¸ 
+	     å…ˆæ‰¾ HandleMethod é‡Œçš„ @ExceptionHandler æ–¹æ³•
+	     å†æ‰¾ ControllerAdviceé‡Œçš„ @ExceptionHandler æ–¹æ³•
+	   æ²¡æœ‰å¼‚å¸¸
 
-	¢İ HandlerInterceptor.afterCompletion()
+	â‘¤ HandlerInterceptor.afterCompletion()
 
 
-16.RequestMappingHandlerAdapterÖ´ĞĞÁ÷³Ì
+16.RequestMappingHandlerAdapteræ‰§è¡Œæµç¨‹
 
-   ¢Ù ServletWebRequest
+   â‘  ServletWebRequest
 
-   ¢Ú WebDataBinderFactory // ²éÕÒ @ControllerAdvicÏÂ ºÍµ±Ç° @Controller ÏÂµÄËùÓĞ @InitBinder·½·¨
+   â‘¡ WebDataBinderFactory // æŸ¥æ‰¾ @ControllerAdvicä¸‹ å’Œå½“å‰ @Controller ä¸‹çš„æ‰€æœ‰ @InitBinderæ–¹æ³•
 
-   ¢Û ModelFactory // ²éÕÒ @ControllerAdvicÏÂ ºÍµ±Ç° @Controller ÏÂµÄËùÓĞ @ModelAttribute ·½·¨
+   â‘¢ ModelFactory // æŸ¥æ‰¾ @ControllerAdvicä¸‹ å’Œå½“å‰ @Controller ä¸‹çš„æ‰€æœ‰ @ModelAttribute æ–¹æ³•
                    
-                  // ²éÕÒ @Controller ÀàÉÏµÄ @SessionAttributes
+                  // æŸ¥æ‰¾ @Controller ç±»ä¸Šçš„ @SessionAttributes
 
 
 
-   ¢Ü ServletInvocableHandlerMethod
+   â‘£ ServletInvocableHandlerMethod
 
-   ¢İ ModelAndViewContainer
+   â‘¤ ModelAndViewContainer
   
-   ¢Ş ModelFactory.init(ModelAndViewContainer) // ½« @SessionAttributes(ÔÚµ±Ç°ControllerÀàÉÏ) Ö¸¶¨µÄÊôĞÔ£¬´ÓHttpSessionÈ¡³ö²¢ ·ÅÈë ModelAndViewContainer
+   â‘¥ ModelFactory.init(ModelAndViewContainer) // å°† @SessionAttributes(åœ¨å½“å‰Controllerç±»ä¸Š) æŒ‡å®šçš„å±æ€§ï¼Œä»HttpSessionå–å‡ºå¹¶ æ”¾å…¥ ModelAndViewContainer
 
-                                               // ½« @ModelAttribute·½·¨(°üÀ¨ µ±Ç°ControllerÀàÖĞµÄ ºÍ @ControllerAdviceÀàÖĞµÄ) 
-					              ·½·¨µÄ·µ»ØÖµ ·ÅÈë ModelAndViewContainer
+                                               // å°† @ModelAttributeæ–¹æ³•(åŒ…æ‹¬ å½“å‰Controllerç±»ä¸­çš„ å’Œ @ControllerAdviceç±»ä¸­çš„) 
+					              æ–¹æ³•çš„è¿”å›å€¼ æ”¾å…¥ ModelAndViewContainer
 
 					   
 
 
-   ¢ß invocableMethod.invokeAndHandle(webRequest, mavContainer);
+   â‘¦ invocableMethod.invokeAndHandle(webRequest, mavContainer);
 
-   ¢à getModelAndView(mavContainer, modelFactory, webRequest)
+   â‘§ getModelAndView(mavContainer, modelFactory, webRequest)
 
 
 
-17 <mvc:annotation-driver>¶¼¼ÓÔØÁËÊ²Ã´
+17 <mvc:annotation-driver>éƒ½åŠ è½½äº†ä»€ä¹ˆ
 
 	1.HandlerMapping
 	    RequestMappingHandlerMapping.class        order=0
@@ -479,97 +479,97 @@
 	    ResponseStatusExceptionResolver.class     order=1
 	    DefaultHandlerExceptionResolver.class     order=2
 
-	4.ViewResolver(Ã»ÓĞ)
+	4.ViewResolver(æ²¡æœ‰)
 
-¡ô18 <mvc:resources mapping="/css/**" location="/WEB-INF/css/"  order="ÉèÖÃµÄ±ÈÉÏÃæRequestMappingHandlerMappingĞ¡ ±ÜÃâ @RequestMappingÄ¬ÈÏÆ¥Åä£¬¾ßÌåÇë¿´ÏÂÃæ"/> ÔõÃ´ÓÃ
+â—†18 <mvc:resources mapping="/css/**" location="/WEB-INF/css/"  order="è®¾ç½®çš„æ¯”ä¸Šé¢RequestMappingHandlerMappingå° é¿å… @RequestMappingé»˜è®¤åŒ¹é…ï¼Œå…·ä½“è¯·çœ‹ä¸‹é¢"/> æ€ä¹ˆç”¨
 
-	<mvc:resources mapping="¢Ù" location="¢Ú"/>
+	<mvc:resources mapping="â‘ " location="â‘¡"/>
 
-	      a. Èô¢Ù²»ÒÔ/¿ªÍ·£¬ºóÃæ»á¼ÓÉÏ/£¬¼´ "css/**"  -----> "/css/**"
+	      a. è‹¥â‘ ä¸ä»¥/å¼€å¤´ï¼Œåé¢ä¼šåŠ ä¸Š/ï¼Œå³ "css/**"  -----> "/css/**"
 	      
-	      b. ËùÒÔ¢Ù ×ÜÊÇÏà¶ÔÓÚµ±Ç°µÄcontextPath
+	      b. æ‰€ä»¥â‘  æ€»æ˜¯ç›¸å¯¹äºå½“å‰çš„contextPath
 		  
-			¡ï·Ç¸ùÓ¦ÓÃÊ±   
-			     contextPath²»Îª¿Õ  http://Ö÷»úµØÖ·:¶Ë¿Ú/contextPath
+			â˜…éæ ¹åº”ç”¨æ—¶   
+			     contextPathä¸ä¸ºç©º  http://ä¸»æœºåœ°å€:ç«¯å£/contextPath
 			  
-			  ¡ï¸ùÓ¦ÓÃÊ±
-			    contextPath=¿Õ      http://Ö÷»úµØÖ·:¶Ë¿Ú/
+			  â˜…æ ¹åº”ç”¨æ—¶
+			    contextPath=ç©º      http://ä¸»æœºåœ°å€:ç«¯å£/
 
-		     /a	  ¡îµ±<servlet-mapping>ÖĞµÄ<url-pattern>Îª /a  Ê±
-			   ·Ç¸ùÓ¦ÓÃÊ±
-			     http://Ö÷»úµØÖ·:¶Ë¿Ú/bbs/a        ¿ÉÒÔµ÷ÓÃµ±Ç°servlet,   contextPath=/bbs servletPath=/a
-			     http://Ö÷»úµØÖ·:¶Ë¿Ú/bbs/a/sada   ²»¿ÉÒÔµ÷ÓÃµ±Ç°servlet
+		     /a	  â˜†å½“<servlet-mapping>ä¸­çš„<url-pattern>ä¸º /a  æ—¶
+			   éæ ¹åº”ç”¨æ—¶
+			     http://ä¸»æœºåœ°å€:ç«¯å£/bbs/a        å¯ä»¥è°ƒç”¨å½“å‰servlet,   contextPath=/bbs servletPath=/a
+			     http://ä¸»æœºåœ°å€:ç«¯å£/bbs/a/sada   ä¸å¯ä»¥è°ƒç”¨å½“å‰servlet
 
-			   ¸ùÓ¦ÓÃÊ±
-			     http://Ö÷»úµØÖ·:¶Ë¿Ú/a        ¿ÉÒÔµ÷ÓÃµ±Ç°servlet,   contextPath=¿Õ servletPath=/a
-			     http://Ö÷»úµØÖ·:¶Ë¿Ú/a/sada   ²»¿ÉÒÔµ÷ÓÃµ±Ç°servlet
+			   æ ¹åº”ç”¨æ—¶
+			     http://ä¸»æœºåœ°å€:ç«¯å£/a        å¯ä»¥è°ƒç”¨å½“å‰servlet,   contextPath=ç©º servletPath=/a
+			     http://ä¸»æœºåœ°å€:ç«¯å£/a/sada   ä¸å¯ä»¥è°ƒç”¨å½“å‰servlet
 			  
-		     /a/*  ¡îµ±<servlet-mapping>ÖĞµÄ<url-pattern>Îª /a/*  Ê±
-			   ·Ç¸ùÓ¦ÓÃÊ±
-			     http://Ö÷»úµØÖ·:¶Ë¿Ú/bbs/a        ¿ÉÒÔµ÷ÓÃµ±Ç°servlet,   contextPath=/bbs servletPath=/a PathInfo=null
-			     http://Ö÷»úµØÖ·:¶Ë¿Ú/bbs/a/sada   ¿ÉÒÔµ÷ÓÃµ±Ç°servlet,   contextPath=/bbs servletPath=/a PathInfo=/sada
+		     /a/*  â˜†å½“<servlet-mapping>ä¸­çš„<url-pattern>ä¸º /a/*  æ—¶
+			   éæ ¹åº”ç”¨æ—¶
+			     http://ä¸»æœºåœ°å€:ç«¯å£/bbs/a        å¯ä»¥è°ƒç”¨å½“å‰servlet,   contextPath=/bbs servletPath=/a PathInfo=null
+			     http://ä¸»æœºåœ°å€:ç«¯å£/bbs/a/sada   å¯ä»¥è°ƒç”¨å½“å‰servlet,   contextPath=/bbs servletPath=/a PathInfo=/sada
 
-			   ¸ùÓ¦ÓÃÊ±
-			     http://Ö÷»úµØÖ·:¶Ë¿Ú/a        ¿ÉÒÔµ÷ÓÃµ±Ç°servlet,       contextPath=¿Õ servletPath=/a PathInfo=null
-			     http://Ö÷»úµØÖ·:¶Ë¿Ú/a/sada   ¿ÉÒÔµ÷ÓÃµ±Ç°servlet,       contextPath=¿Õ servletPath=/a PathInfo=/sada
+			   æ ¹åº”ç”¨æ—¶
+			     http://ä¸»æœºåœ°å€:ç«¯å£/a        å¯ä»¥è°ƒç”¨å½“å‰servlet,       contextPath=ç©º servletPath=/a PathInfo=null
+			     http://ä¸»æœºåœ°å€:ç«¯å£/a/sada   å¯ä»¥è°ƒç”¨å½“å‰servlet,       contextPath=ç©º servletPath=/a PathInfo=/sada
 
-		     /	  ¡îµ±<servlet-mapping>ÖĞµÄ<url-pattern>Îª /  Ê±
-			   ·Ç¸ùÓ¦ÓÃÊ±
-			     http://Ö÷»úµØÖ·:¶Ë¿Ú/bbs/         ¿ÉÒÔµ÷ÓÃµ±Ç°servlet,   contextPath=/bbs servletPath=/       PathInfo=null
-			     http://Ö÷»úµØÖ·:¶Ë¿Ú/bbs/a/sada   ¿ÉÒÔµ÷ÓÃµ±Ç°servlet,   contextPath=/bbs servletPath=/a/sada PathInfo=null
+		     /	  â˜†å½“<servlet-mapping>ä¸­çš„<url-pattern>ä¸º /  æ—¶
+			   éæ ¹åº”ç”¨æ—¶
+			     http://ä¸»æœºåœ°å€:ç«¯å£/bbs/         å¯ä»¥è°ƒç”¨å½“å‰servlet,   contextPath=/bbs servletPath=/       PathInfo=null
+			     http://ä¸»æœºåœ°å€:ç«¯å£/bbs/a/sada   å¯ä»¥è°ƒç”¨å½“å‰servlet,   contextPath=/bbs servletPath=/a/sada PathInfo=null
 
-			   ¸ùÓ¦ÓÃÊ±
-			     http://Ö÷»úµØÖ·:¶Ë¿Ú/        ¿ÉÒÔµ÷ÓÃµ±Ç°servlet,       contextPath=¿Õ servletPath=/        PathInfo=null
-			     http://Ö÷»úµØÖ·:¶Ë¿Ú/a/sada   ¿ÉÒÔµ÷ÓÃµ±Ç°servlet,       contextPath=¿Õ servletPath=/a/sada PathInfo=null
+			   æ ¹åº”ç”¨æ—¶
+			     http://ä¸»æœºåœ°å€:ç«¯å£/        å¯ä»¥è°ƒç”¨å½“å‰servlet,       contextPath=ç©º servletPath=/        PathInfo=null
+			     http://ä¸»æœºåœ°å€:ç«¯å£/a/sada   å¯ä»¥è°ƒç”¨å½“å‰servlet,       contextPath=ç©º servletPath=/a/sada PathInfo=null
 			    
 	      
-	      c. Èô¢Ù="/css"¡¢"css/"¡¢"/css/" 
-		    ÔòÖ»ÄÜÆ¥Åä¾ßÌåµÄÂ·¾¶ 
+	      c. è‹¥â‘ ="/css"ã€"css/"ã€"/css/" 
+		    åˆ™åªèƒ½åŒ¹é…å…·ä½“çš„è·¯å¾„ 
 		    http://localhost/bbs/css
-		    ¶øÒ»°ã²»ÕâÃ´ÓÃ£¬ÒòÎªÎÒÃÇĞèÒªÆ¥Åä
+		    è€Œä¸€èˆ¬ä¸è¿™ä¹ˆç”¨ï¼Œå› ä¸ºæˆ‘ä»¬éœ€è¦åŒ¹é…
 		    http://localhost/bbs/css/a.css
 		
-	      d.¹Ê¢ÙÒ»°ãÒªÓëÍ¨Åä·ûÒ»ÆğÓÃ  <mvc:resources mapping="/css/**" location="¢Ú"/>
-		 /css/** Æ¥Åä
-			 http://localhost/bbs/css/a.css          --->  ¢Úa.css         ¢ÚÊÇÉÏĞĞµÄ location
-		×¢ÒâÕâ¸ö http://localhost/bbs/css/d/e/f/a.css    --->  ¢Úd/e/f/a.css
+	      d.æ•…â‘ ä¸€èˆ¬è¦ä¸é€šé…ç¬¦ä¸€èµ·ç”¨  <mvc:resources mapping="/css/**" location="â‘¡"/>
+		 /css/** åŒ¹é…
+			 http://localhost/bbs/css/a.css          --->  â‘¡a.css         â‘¡æ˜¯ä¸Šè¡Œçš„ location
+		æ³¨æ„è¿™ä¸ª http://localhost/bbs/css/d/e/f/a.css    --->  â‘¡d/e/f/a.css
 	      
-	      e. <mvc:resources mapping="/css/**" location="¢Ú"/> ÖĞµÄ¢Ú
+	      e. <mvc:resources mapping="/css/**" location="â‘¡"/> ä¸­çš„â‘¡
 		  
-		  ¡ï¢Ú ÎŞÂÛ¼Ó²»¼Ó / ¶¼»áÔÚºóÃæ×Ô¶¯¼ÓÉÏ£¬¼´ "abc/"  -----> "/abc/"
-		  ¡ï¢Ú ½áÎ²±ØĞëÒÔ/½áÎ²£¬·ñÔò¾ÍÄ¬ÈÏ×ÊÔ´ÔÚ¸ùÄ¿Â¼ÏÂ
+		  â˜…â‘¡ æ— è®ºåŠ ä¸åŠ  / éƒ½ä¼šåœ¨åé¢è‡ªåŠ¨åŠ ä¸Šï¼Œå³ "abc/"  -----> "/abc/"
+		  â˜…â‘¡ ç»“å°¾å¿…é¡»ä»¥/ç»“å°¾ï¼Œå¦åˆ™å°±é»˜è®¤èµ„æºåœ¨æ ¹ç›®å½•ä¸‹
 
-		  <mvc:resources mapping="/css/**" location="/WEB-INF"/>  -------Î´ÒÔ / ½áÎ²
-		  ¶ÔÓÚ http://localhost/bbs/css/a.css
-		  »áÆ¥Åä   /a.css ¼´a.css±ØĞë³öÏÖÔÚÓ¦ÓÃ¸ùÄ¿Â¼
+		  <mvc:resources mapping="/css/**" location="/WEB-INF"/>  -------æœªä»¥ / ç»“å°¾
+		  å¯¹äº http://localhost/bbs/css/a.css
+		  ä¼šåŒ¹é…   /a.css å³a.csså¿…é¡»å‡ºç°åœ¨åº”ç”¨æ ¹ç›®å½•
 
-		  <mvc:resources mapping="/css/**" location="/WEB-INF/"/> -------ÒÔ / ½áÎ²
-		  ¶ÔÓÚ http://localhost/bbs/css/a.css
-		  »áÆ¥Åä  /WEB-INF/a.css ,¼´ a.css±ØĞë³öÏÖÔÚÓ¦ÓÃ¸ùÄ¿Â¼ÏÂWEB-INFÎÄ¼ş¼ĞÏÂ
+		  <mvc:resources mapping="/css/**" location="/WEB-INF/"/> -------ä»¥ / ç»“å°¾
+		  å¯¹äº http://localhost/bbs/css/a.css
+		  ä¼šåŒ¹é…  /WEB-INF/a.css ,å³ a.csså¿…é¡»å‡ºç°åœ¨åº”ç”¨æ ¹ç›®å½•ä¸‹WEB-INFæ–‡ä»¶å¤¹ä¸‹
 
-		  ¡ï¢Ú ×ÜÊÇÏà¶ÔÓÚÓ¦ÓÃµÄ¸ùÄ¿Â¼£¬ÇÒËüÊÇ Ò»ÖÖResource(ServletContextResource)
+		  â˜…â‘¡ æ€»æ˜¯ç›¸å¯¹äºåº”ç”¨çš„æ ¹ç›®å½•ï¼Œä¸”å®ƒæ˜¯ ä¸€ç§Resource(ServletContextResource)
 
 
-19. @RequestMapping(path=""),ÕâÀïµÄpathÔõÃ´ÉèÖÃ
+19. @RequestMapping(path=""),è¿™é‡Œçš„pathæ€ä¹ˆè®¾ç½®
     
 	    public class IndexController{
 		 
-		¢Ù @RequestMapping            ---------------> Õâ¸öÊÇÄ¬ÈÏÆ¥Åä£¬¼´ÆäËû @RequestMapping ¶¼²»Æ¥ÅäÊ±»áÆ¥Åä
+		â‘  @RequestMapping            ---------------> è¿™ä¸ªæ˜¯é»˜è®¤åŒ¹é…ï¼Œå³å…¶ä»– @RequestMapping éƒ½ä¸åŒ¹é…æ—¶ä¼šåŒ¹é…
 		 public String index1(){
 		    return null;
 		 }
 		 
-		¢Ú @RequestMapping(path="/")  -----------------> Õâ¸öÖ»Æ¥Åä /
+		â‘¡ @RequestMapping(path="/")  -----------------> è¿™ä¸ªåªåŒ¹é… /
 		 public String index1(){
 		    return null;
 		 }
 	    }
 
-	    http://localhost/bbs/              /           Æ¥Åä ¢ÙºÍ¢Ú µ«¢ÚÓÅÏÈ¼¶¸ü¸ß
-	    http://localhost/bbs/asdadada      /asdadada   Ö»Æ¥Åä¢Ù
+	    http://localhost/bbs/              /           åŒ¹é… â‘ å’Œâ‘¡ ä½†â‘¡ä¼˜å…ˆçº§æ›´é«˜
+	    http://localhost/bbs/asdadada      /asdadada   åªåŒ¹é…â‘ 
 
 
-20.RequestMappingHandlerMapping ÔÚ´¦Àí @RequestMapping Ê±ÓÃµ½µÄ¼¸¸ömap
+20.RequestMappingHandlerMapping åœ¨å¤„ç† @RequestMapping æ—¶ç”¨åˆ°çš„å‡ ä¸ªmap
 
 	mappingLookup
 	  RequestMappingInfo  ---> HandlerMethod
@@ -581,15 +581,15 @@
 	  name                ---> List<HandlerMethod>
 
 
-21. BeanDefiniton µÄ×ÓÀà¼°ÆäÊôĞÔ role
+21. BeanDefiniton çš„å­ç±»åŠå…¶å±æ€§ role
 
-     ¢Ù           AbstractBeanDefiniton
-			  ¡ı
-		      ¨L      ¨K
+     â‘            AbstractBeanDefiniton
+			  â†“
+		      â†™      â†˜
         RootBeanDefinition    GenericBeanDefinition
 
       
-     ¢Ú BeanDefiniton½Ó¿Ú¸ørole¶¨ÒåÁËÈı¸ö³£Á¿
+     â‘¡ BeanDefinitonæ¥å£ç»™roleå®šä¹‰äº†ä¸‰ä¸ªå¸¸é‡
         
 	int ROLE_APPLICATION = 0;
 
@@ -597,35 +597,35 @@
 
 	int ROLE_INFRASTRUCTURE = 2;
 
-	Ä¬ÈÏrole = ROLE_APPLICATION = 0
+	é»˜è®¤role = ROLE_APPLICATION = 0
 
 
-22.ÔÚweb.xmlÅäÖÃµÄListener×ÜÊÇÔçÓÚServlet±»³õÊ¼»¯ 
-       ËùÒÔ
+22.åœ¨web.xmlé…ç½®çš„Listeneræ€»æ˜¯æ—©äºServletè¢«åˆå§‹åŒ– 
+       æ‰€ä»¥
         ContextLoaderListener
-	ÔçÓÚ
+	æ—©äº
 	DispatcherServlet
-	³õÊ¼»¯
+	åˆå§‹åŒ–
 
 
 
-23. RequestMappingHandlerAdapter Ä¬ÈÏ×¢²áµÄ argumentResolvers
+23. RequestMappingHandlerAdapter é»˜è®¤æ³¨å†Œçš„ argumentResolvers
 
-	·½·¨²ÎÊıĞë·ûºÏÊ²Ã´Ìõ¼ş
+	æ–¹æ³•å‚æ•°é¡»ç¬¦åˆä»€ä¹ˆæ¡ä»¶
 					     // Annotation-based argument resolution
-	@RequestParam	²ÎÊıÎª»ù±¾ÀàĞÍ			resolvers.add(new RequestParamMethodArgumentResolver(getBeanFactory(), false)); 
+	@RequestParam	å‚æ•°ä¸ºåŸºæœ¬ç±»å‹			resolvers.add(new RequestParamMethodArgumentResolver(getBeanFactory(), false)); 
 
-	@RequestParam(name=²»ÉèÖµ)ÇÒ²ÎÊıÀàĞÍÎªMap	resolvers.add(new RequestParamMapMethodArgumentResolver());
+	@RequestParam(name=ä¸è®¾å€¼)ä¸”å‚æ•°ç±»å‹ä¸ºMap	resolvers.add(new RequestParamMapMethodArgumentResolver());
 						
 	@PathVariable					resolvers.add(new PathVariableMethodArgumentResolver());
 							
-	@PathVariable(name=²»ÉèÖµ)ÇÒ²ÎÊıÀàĞÍÎªMap	resolvers.add(new PathVariableMapMethodArgumentResolver());
+	@PathVariable(name=ä¸è®¾å€¼)ä¸”å‚æ•°ç±»å‹ä¸ºMap	resolvers.add(new PathVariableMapMethodArgumentResolver());
 							
 							resolvers.add(new MatrixVariableMethodArgumentResolver());
 							
 							resolvers.add(new MatrixVariableMapMethodArgumentResolver());
 							
-	@ModelAttribute	»òÕß²ÎÊı  ²»ÊÇ  »ù±¾ÀàĞÍ	resolvers.add(new ServletModelAttributeMethodProcessor(false));
+	@ModelAttribute	æˆ–è€…å‚æ•°  ä¸æ˜¯  åŸºæœ¬ç±»å‹	resolvers.add(new ServletModelAttributeMethodProcessor(false));
 							
 							resolvers.add(new RequestResponseBodyMethodProcessor(getMessageConverters(), this.requestResponseBodyAdvice));
 							
@@ -664,31 +664,31 @@
 							resolvers.add(new ServletModelAttributeMethodProcessor(true));
 
 
-24. RequestMappingHandlerMapping Ä¬ÈÏ»áÁî
+24. RequestMappingHandlerMapping é»˜è®¤ä¼šä»¤
 
-	 a. /post µÈ¼ÛÓÚ /post.* 
-	 b. ËùÒÔµ¼ÖÂ /post Ò²»áÆ¥Åä /post.abca¡¢/post.sadafa
-	 c.Òª¹Ø±Õ¸Ã¹¦ÄÜ
+	 a. /post ç­‰ä»·äº /post.* 
+	 b. æ‰€ä»¥å¯¼è‡´ /post ä¹Ÿä¼šåŒ¹é… /post.abcaã€/post.sadafa
+	 c.è¦å…³é—­è¯¥åŠŸèƒ½
 	  
 	    <mvc:annotation-driven >
 		<mvc:path-matching suffix-pattern="false"/>
 	    </mvc:annotation-driven>
 
-25. @ModelAttribute µÄ×÷ÓÃ
+25. @ModelAttribute çš„ä½œç”¨
 
-	  ¢ÙÖ±½Ó±ê×¢ÔÚ·½·¨ÉÏ£¬»áÈÃ¸Ã·½·¨µÄ·µ»ØÖµ´æ´¢µ½
+	  â‘ ç›´æ¥æ ‡æ³¨åœ¨æ–¹æ³•ä¸Šï¼Œä¼šè®©è¯¥æ–¹æ³•çš„è¿”å›å€¼å­˜å‚¨åˆ°
 	    
-	    ModelAndViewContainer ----½ø¶ø----> ModelAndView ----½ø¶ø----> HttpServletRequest Attrubite
+	    ModelAndViewContainer ----è¿›è€Œ----> ModelAndView ----è¿›è€Œ----> HttpServletRequest Attrubite
 
-		  @ModelAttribute(ÕâÀï¿ÉÒÔ¸ø·µ»ØµÄPostÆğÃû×Ö£¬·ñÔòÄ¬ÈÏÃû×ÖÎªÊ××ÖÄ¸Ğ¡Ğ´µÄÀàÃû)
+		  @ModelAttribute(è¿™é‡Œå¯ä»¥ç»™è¿”å›çš„Postèµ·åå­—ï¼Œå¦åˆ™é»˜è®¤åå­—ä¸ºé¦–å­—æ¯å°å†™çš„ç±»å)
 		  public Post addPost(){
 		    return new Post();
 		  }
 
 
-	  ¢ÚÍ¬ÉÏµ«ÊÇ£¬Õâ¸ö·½·¨²»½öÊÇ½«·µ»ØÖµ¼ÓÈëµ½ModelAndViewContainer
+	  â‘¡åŒä¸Šä½†æ˜¯ï¼Œè¿™ä¸ªæ–¹æ³•ä¸ä»…æ˜¯å°†è¿”å›å€¼åŠ å…¥åˆ°ModelAndViewContainer
 	     
-	     Í¬Ê±£¬ËüÒ²´¦Àí ÇëÇó/post£¬Ëü¶àÒ»¸ö @RequestMapping("/post")
+	     åŒæ—¶ï¼Œå®ƒä¹Ÿå¤„ç† è¯·æ±‚/postï¼Œå®ƒå¤šä¸€ä¸ª @RequestMapping("/post")
 	  
 		  @RequestMapping("/post")
 		  @ModelAttrubite
@@ -696,11 +696,11 @@
 		     return new Post();
 		  }
 
-	  ¢ÛÔÚ²ÎÊıÉÏ±ê×¢ @ModelAttribute
+	  â‘¢åœ¨å‚æ•°ä¸Šæ ‡æ³¨ @ModelAttribute
 	    
-	    a.post ´æÔÚÓÚModelAndViewContainer Ôò»áÖ±½Ó¸³Öµ
+	    a.post å­˜åœ¨äºModelAndViewContainer åˆ™ä¼šç›´æ¥èµ‹å€¼
 
-	    b.·ñÔò ÏÈ´´½¨Ò»¸öPost£¬È»ºóÔÙÓÃrequst.getParamMapºÍURI_TEMPLATE_VARIABLES£¬½øĞĞ°ó¶¨£¬²¢×îÖÕÌî³äµ½ HttpServletRequest Attrubite
+	    b.å¦åˆ™ å…ˆåˆ›å»ºä¸€ä¸ªPostï¼Œç„¶åå†ç”¨requst.getParamMapå’ŒURI_TEMPLATE_VARIABLESï¼Œè¿›è¡Œç»‘å®šï¼Œå¹¶æœ€ç»ˆå¡«å……åˆ° HttpServletRequest Attrubite
 
 	    @RequestMapping("/post")
 	    public String deletePost(@ModelAttribute Post post){
@@ -708,95 +708,95 @@
 	    }
 
 
-26. Spring <form:errors />Ó¦¸ÃÔõÃ´ÓÃ
+26. Spring <form:errors />åº”è¯¥æ€ä¹ˆç”¨
     
-	    <form:errors path="°ó¶¨¶ÔÏó.ÊôĞÔ" />
+	    <form:errors path="ç»‘å®šå¯¹è±¡.å±æ€§" />
 	    
-	    °ó¶¨¶ÔÏó    ¿´controller·½·¨µÄ²ÎÊıµÄÀàÃû(ÕâÀïÊÇuser)
-	    ÊôĞÔ        ¿´ÄãÒªÏÔÊ¾ÄÇ¸öÊôĞÔµÄ´íÎó
+	    ç»‘å®šå¯¹è±¡    çœ‹controlleræ–¹æ³•çš„å‚æ•°çš„ç±»å(è¿™é‡Œæ˜¯user)
+	    å±æ€§        çœ‹ä½ è¦æ˜¾ç¤ºé‚£ä¸ªå±æ€§çš„é”™è¯¯
 
 	     public String login(@Valid User user, BindingResult result{
 
 	    <form:errors path="user.username" />
 	   
 	    
-	    -------------- ¢Ù °ó¶¨Ç°Ì¨formµÄ¶ÔÏó(´øÁËÑéÖ¤) -------------- 
+	    -------------- â‘  ç»‘å®šå‰å°formçš„å¯¹è±¡(å¸¦äº†éªŒè¯) -------------- 
 	    
 	    public class User{
 	      @NotNull
 	      private String username;
 	    }
 	    
-	    -------------- ¢Ú controller·½·¨ --------------
+	    -------------- â‘¡ controlleræ–¹æ³• --------------
 
 	    public String login(@Valid User user, BindingResult result){
 	       
 	       if(result.hasErrors()){
 		  return "login";
 	       }
-		Ê¡ÂÔÏ¸½Ú....
+		çœç•¥ç»†èŠ‚....
 	       return "index";
 		  
 	    }
 
-	    -------------- ¢Û ServletModelAttributeMethodProcessor ÖĞÊµÏÖ²ÎÊı½âÎöºÍÑéÖ¤ --------------
+	    -------------- â‘¢ ServletModelAttributeMethodProcessor ä¸­å®ç°å‚æ•°è§£æå’ŒéªŒè¯ --------------
 		
 	    WebDataBinder binder = binderFactory.createBinder(webRequest, attribute, name);
 			
 		   if (binder.getTarget() != null) {
 			if (!mavContainer.isBindingDisabled(name)) {
-	      ¡ø°ó¶¨           bindRequestParameters(binder, webRequest); //ÕâÀïÖ»»á²úÉú ÀàĞÍ×ª»»´íÎó,¾ßÌå¿´Ô´Âë
-									   ËùÒÔerrorCode¶¼ÒÔ typeMismatch ´òÍ·(×¢ÒâÊ××ÖÄ¸ Ğ¡Ğ´)
+	      â–²ç»‘å®š           bindRequestParameters(binder, webRequest); //è¿™é‡Œåªä¼šäº§ç”Ÿ ç±»å‹è½¬æ¢é”™è¯¯,å…·ä½“çœ‹æºç 
+									   æ‰€ä»¥errorCodeéƒ½ä»¥ typeMismatch æ‰“å¤´(æ³¨æ„é¦–å­—æ¯ å°å†™)
 		   }
-	      ¡øĞ£Ñé	validateIfApplicable(binder, parameter);  //ÕâÀïµÄerrorCode¶¼ÒÔĞ£Ñé×¢ÊÍÀàµÄÀàÃû´òÍ·£¬ÈçÕâÀï
+	      â–²æ ¡éªŒ	validateIfApplicable(binder, parameter);  //è¿™é‡Œçš„errorCodeéƒ½ä»¥æ ¡éªŒæ³¨é‡Šç±»çš„ç±»åæ‰“å¤´ï¼Œå¦‚è¿™é‡Œ
 								    
 								    @NotNull
 								    
-								    errorCode¶¼ÒÔ NotNull ´òÍ·(×¢ÒâÊ××ÖÄ¸  ²»Ğ¡Ğ´)
+								    errorCodeéƒ½ä»¥ NotNull æ‰“å¤´(æ³¨æ„é¦–å­—æ¯  ä¸å°å†™)
 
-	       //ÏÂÃæÉú³ÉµÄMap,»á·Åµ½ ModelAndViewContainer ----½ø¶ø----> ModelAndView ----½ø¶ø----> HttpServletRequest Attrubite
+	       //ä¸‹é¢ç”Ÿæˆçš„Map,ä¼šæ”¾åˆ° ModelAndViewContainer ----è¿›è€Œ----> ModelAndView ----è¿›è€Œ----> HttpServletRequest Attrubite
 		   
-	       // bindingResultModelµÄ¾ßÌåÄÚÈİ£º
+	       // bindingResultModelçš„å…·ä½“å†…å®¹ï¼š
 	      //       key                                                                               value
 
-			org.springframework.validation.BindingResult.°ó¶¨¶ÔÏóµÄÃû×Ö   <----------->     binder.getBindingResult()
+			org.springframework.validation.BindingResult.ç»‘å®šå¯¹è±¡çš„åå­—   <----------->     binder.getBindingResult()
 			
-			°ó¶¨¶ÔÏóµÄÃû×Ö                                                <----------->     binder.getTarget()
+			ç»‘å®šå¯¹è±¡çš„åå­—                                                <----------->     binder.getTarget()
 
-		//ÕâÀï °ó¶¨¶ÔÏóµÄÃû×Ö Îª user
+		//è¿™é‡Œ ç»‘å®šå¯¹è±¡çš„åå­— ä¸º user
 	       
 	       Map<String, Object> bindingResultModel = binder.getBindingResult().getModel();
 
 	       mavContainer.addAllAttributes(bindingResultModel);     
 	    
 
-	    -------------- ¢Ü Éú³ÉµÄObjectErrorµÄÖÖÀà --------------
+	    -------------- â‘£ ç”Ÿæˆçš„ObjectErrorçš„ç§ç±» --------------
 
-	      ObjectError Ö÷ÒªÓÉÏÂÃæÈı¸ö×é³É
+	      ObjectError ä¸»è¦ç”±ä¸‹é¢ä¸‰ä¸ªç»„æˆ
 		errorCode
 		arg
 		defaultMessage
 
-		ÎÒÃÇÖ÷ÒªÀûÓÃ errorCode À´Ğ´   vaild.properties
-		ÒòÎªerrorCodeÒ»°ã¶¼ÓĞÈçÏÂ¸ñÊ½
+		æˆ‘ä»¬ä¸»è¦åˆ©ç”¨ errorCode æ¥å†™   vaild.properties
+		å› ä¸ºerrorCodeä¸€èˆ¬éƒ½æœ‰å¦‚ä¸‹æ ¼å¼
 		
-		´íÎóÀàĞÍ.°ó¶¨¶ÔÏóµÄÃû×Ö.ÊôĞÔÃû×Ö
+		é”™è¯¯ç±»å‹.ç»‘å®šå¯¹è±¡çš„åå­—.å±æ€§åå­—
 		
-		typeMismatch.user.username=ÇëÊäÈëÕıÈ·µÄÓÃ»§Ãû
+		typeMismatch.user.username=è¯·è¾“å…¥æ­£ç¡®çš„ç”¨æˆ·å
 
 
-						   //////////////////  vaild.propertiesÅäÖÃÎÄ¼ş  //////////////////
+						   //////////////////  vaild.propertiesé…ç½®æ–‡ä»¶  //////////////////
 						  //                                                            //
-						 //           typeMismatch.user.username=ÇëÊäÈëÕıÈ·µÄÓÃ»§Ãû    //
-						//            NotEmpty.user.username=ÓÃ»§Ãû²»¿ÉÒÔÎª¿Õ         //
+						 //           typeMismatch.user.username=è¯·è¾“å…¥æ­£ç¡®çš„ç”¨æˆ·å    //
+						//            NotEmpty.user.username=ç”¨æˆ·åä¸å¯ä»¥ä¸ºç©º         //
 					       //                                                            //
-					      ///////////////////  vaild.propertiesÅäÖÃÎÄ¼ş  /////////////////
+					      ///////////////////  vaild.propertiesé…ç½®æ–‡ä»¶  /////////////////
 
-	    -------------- ¢İ ÅäÖÃMessageSource --------------
+	    -------------- â‘¤ é…ç½®MessageSource --------------
 
 	     String message = ApplicationContext.getMessage(ObjectError)
 	     
-	     Ä¬ÈÏµÄMessageSource²»¿ÉÒÔÓÃ£¬ËùÒÔÒªÖØĞÂÅä
+	     é»˜è®¤çš„MessageSourceä¸å¯ä»¥ç”¨ï¼Œæ‰€ä»¥è¦é‡æ–°é…
 
 	    <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
 		<property name="basenames" >
@@ -806,24 +806,24 @@
 		</property>
 	    </bean>     
 
-	    -------------- ¢Ş ÉèÖÃ<form:errors> --------------
+	    -------------- â‘¥ è®¾ç½®<form:errors> --------------
 
-	    <form:errors path="°ó¶¨¶ÔÏóµÄÃû×Ö.ÊôĞÔÃû">
-	       ÆäÊµÏÖÀàErrorsTag
-	      Ê×ÏÈÀûÓÃ  °ó¶¨¶ÔÏóµÄÃû×Ö À´ÄÃµ½ BindingResult
+	    <form:errors path="ç»‘å®šå¯¹è±¡çš„åå­—.å±æ€§å">
+	       å…¶å®ç°ç±»ErrorsTag
+	      é¦–å…ˆåˆ©ç”¨  ç»‘å®šå¯¹è±¡çš„åå­— æ¥æ‹¿åˆ° BindingResult
 
-	     BindingResult result =  request.getAttribute(BindingResult.MODEL_KEY_PREFIX + °ó¶¨¶ÔÏóÃû)
+	     BindingResult result =  request.getAttribute(BindingResult.MODEL_KEY_PREFIX + ç»‘å®šå¯¹è±¡å)
 	 
-	     µ±ÊôĞÔÃûÎª¾ßÌåÃû×ÖÊ±
-	       result.getFiledErrors(ÊôĞÔÃû)
+	     å½“å±æ€§åä¸ºå…·ä½“åå­—æ—¶
+	       result.getFiledErrors(å±æ€§å)
 
-	     µ±ÊôĞÔÃûÎª*Ê±
+	     å½“å±æ€§åä¸º*æ—¶
 		result.getAllErrors()
 
 	   
 	     <form:errors path="user.username">
 	     
-	     //µÚ¢Û²½·Å½øÈ¥µÄ
+	     //ç¬¬â‘¢æ­¥æ”¾è¿›å»çš„
 	     BindingResult result =  request.getAttribute(BindingResult.MODEL_KEY_PREFIX + "user")
 	    
 	     List<ObjectErrors> errors = result.getFiledErrors("username")
@@ -834,17 +834,17 @@
 		messages.add(message);
 	     }
 
-27¡¢Spring³õÊ¼»¯beanµÄÁ÷³Ì (ÔÚÀàAbstractAutowireCapableBeanFactoryµÄdoCreateBean·½·¨ÖĞ¶¨Òå)
+27ã€Springåˆå§‹åŒ–beançš„æµç¨‹ (åœ¨ç±»AbstractAutowireCapableBeanFactoryçš„doCreateBeanæ–¹æ³•ä¸­å®šä¹‰)
 
-1¡¢new ÀàÃû()  ===========> ¾ßÌå²é¿´ ÀàAbstractAutowireCapableBeanFactoryµÄ·½·¨createBeanInstance
+1ã€new ç±»å()  ===========> å…·ä½“æŸ¥çœ‹ ç±»AbstractAutowireCapableBeanFactoryçš„æ–¹æ³•createBeanInstance
 
-     A.µ±ÓĞAutowiredAnnotationBeanPostProcessor(¼´<context:component-scan>»á×¢²áµÄ)£¬
-        »áÒÔ <¹¹Ôì·½·¨×¢Èë> µÄ·½Ê½£¬newÒ»¸ö¶ÔÏó
+     A.å½“æœ‰AutowiredAnnotationBeanPostProcessor(å³<context:component-scan>ä¼šæ³¨å†Œçš„)ï¼Œ
+        ä¼šä»¥ <æ„é€ æ–¹æ³•æ³¨å…¥> çš„æ–¹å¼ï¼Œnewä¸€ä¸ªå¯¹è±¡
 
-     B.Ã»ÓĞAutowiredAnnotationBeanPostProcessor£¬ÄÃµ½<Ä¬ÈÏµÄ¹¹Ôì·½·¨>£¬new Ò»¸ö¶ÔÏó
+     B.æ²¡æœ‰AutowiredAnnotationBeanPostProcessorï¼Œæ‹¿åˆ°<é»˜è®¤çš„æ„é€ æ–¹æ³•>ï¼Œnew ä¸€ä¸ªå¯¹è±¡
 
-	   ÔÚÓĞAutowiredAnnotationBeanPostProcessorÊ±£¬È¥É¨Ãèbean @Autowired×¢ÊÍµÄField
-	   Çë¿´ ÀàAbstractAutowireCapableBeanFactoryµÄdoCreateBean·½·¨£¬ÏÂÃæµÄ·½·¨
+	   åœ¨æœ‰AutowiredAnnotationBeanPostProcessoræ—¶ï¼Œå»æ‰«æbean @Autowiredæ³¨é‡Šçš„Field
+	   è¯·çœ‹ ç±»AbstractAutowireCapableBeanFactoryçš„doCreateBeanæ–¹æ³•ï¼Œä¸‹é¢çš„æ–¹æ³•
 		
 		synchronized (mbd.postProcessingLock) {
 				if (!mbd.postProcessed) {
@@ -858,151 +858,151 @@
 					mbd.postProcessed = true;
 				}
 			}
-2¡¢¸ø bean ÒÀÀµ×¢Èë
-3¡¢µ÷ÓÃ bean ÊµÏÖµÄAware½Ó¿ÚµÄ·½·¨(BeanNameAware¡¢BeanClassLoaderAwareºÍBeanFactoryAware)
-4¡¢µ÷BeanPostProcessor
+2ã€ç»™ bean ä¾èµ–æ³¨å…¥
+3ã€è°ƒç”¨ bean å®ç°çš„Awareæ¥å£çš„æ–¹æ³•(BeanNameAwareã€BeanClassLoaderAwareå’ŒBeanFactoryAware)
+4ã€è°ƒBeanPostProcessor
      A.postProcessBeforeInitialization
      B.postProcessAfterInitialization
 
 
-28. @EnableWebFlux×¢ÊÍË­´¦Àí
-  ConfigurationClassPostProcessor ÔÚ´¦Àí @Import×¢ÊÍ»á´¦Àí
-  ÒòÎª @EnableWebFlux ±» @Import ×¢ÊÍ
+28. @EnableWebFluxæ³¨é‡Šè°å¤„ç†
+  ConfigurationClassPostProcessor åœ¨å¤„ç† @Importæ³¨é‡Šä¼šå¤„ç†
+  å› ä¸º @EnableWebFlux è¢« @Import æ³¨é‡Š
 
-29¡¢½áºÏ netty ºÍ Spring 5
+29ã€ç»“åˆ netty å’Œ Spring 5
 
-        ¢Ù ApplicationContext context = new AnnotationConfigApplicationContext(Bootstrap.class);
+        â‘  ApplicationContext context = new AnnotationConfigApplicationContext(Bootstrap.class);
         
-	¢Ú HttpHandler handler = WebHttpHandlerBuilder.applicationContext(context).build();
+	â‘¡ HttpHandler handler = WebHttpHandlerBuilder.applicationContext(context).build();
         
-	¢Û ReactorHttpHandlerAdapter adapter = new ReactorHttpHandlerAdapter(handler);
+	â‘¢ ReactorHttpHandlerAdapter adapter = new ReactorHttpHandlerAdapter(handler);
         
-	¢Ü HttpServer.create(60000).newHandler(adapter).block();
+	â‘£ HttpServer.create(60000).newHandler(adapter).block();
 
-       ¢Ù ÏÈÀûÓÃ Bootstrap.class Ïò ApplicationContext×¢²áÒ»Ğ©Ä¬ÈÏµÄ×é¼ş
-       HandlerMapping           --------> Èç RequestMappingHandlerMapping(´¦Àí @RequestMappingµÄcontroller)
-					  ×¢Òâ£º´¦ÀíwebSocketÇëÇóµÄWebSocketHandlerÄ¬ÈÏÃ»ÓĞ¶ÔÓ¦µÄ
-					  HandlerMapping£¬¹Ù·½½Ì³ÌÊ¹ÓÃSimpleUrlHandlerMapping×öÓ³Éä£¬¿ÉÒÔÀ©Õ¹ËüÒÔÊµÏÖ
-					  ÀàËÆ RequestMappingHandlerMapping ¸ù¾İ @RequestMapping 
-					  ×Ô¶¯×°Åä×¢ÊÍÓĞ @RequestMappingµÄcontrollerµÄ¹¦ÄÜ
+       â‘  å…ˆåˆ©ç”¨ Bootstrap.class å‘ ApplicationContextæ³¨å†Œä¸€äº›é»˜è®¤çš„ç»„ä»¶
+       HandlerMapping           --------> å¦‚ RequestMappingHandlerMapping(å¤„ç† @RequestMappingçš„controller)
+					  æ³¨æ„ï¼šå¤„ç†webSocketè¯·æ±‚çš„WebSocketHandleré»˜è®¤æ²¡æœ‰å¯¹åº”çš„
+					  HandlerMappingï¼Œå®˜æ–¹æ•™ç¨‹ä½¿ç”¨SimpleUrlHandlerMappingåšæ˜ å°„ï¼Œå¯ä»¥æ‰©å±•å®ƒä»¥å®ç°
+					  ç±»ä¼¼ RequestMappingHandlerMapping æ ¹æ® @RequestMapping 
+					  è‡ªåŠ¨è£…é…æ³¨é‡Šæœ‰ @RequestMappingçš„controllerçš„åŠŸèƒ½
 
-       HandlerAdapter           --------> Èç RequestMappingHandlerAdapter(Ëü»á×Ô×°Åä @ControllerAdvice)
-                                          WebSocketHandler ÓĞ¶ÔÓ¦µÄ HandlerAdapter£¬¼´
+       HandlerAdapter           --------> å¦‚ RequestMappingHandlerAdapter(å®ƒä¼šè‡ªè£…é… @ControllerAdvice)
+                                          WebSocketHandler æœ‰å¯¹åº”çš„ HandlerAdapterï¼Œå³
 					  WebSocketHandlerAdapter
 
-       HandlerResultHandler     --------> ¿´¹ÙÍø
+       HandlerResultHandler     --------> çœ‹å®˜ç½‘
         
-       DispatcherHandler        --------> »á´ÓApplicationContextÊÕ¼¯ÉÏÊö×é¼ş£¬Ëü×÷ÓÃÀàËÆDispatcherServlet
+       DispatcherHandler        --------> ä¼šä»ApplicationContextæ”¶é›†ä¸Šè¿°ç»„ä»¶ï¼Œå®ƒä½œç”¨ç±»ä¼¼DispatcherServlet
 
-      ¢Ú °Ñ WebHandler ×ª»»Îª HttpHandler(¾ßÌå¿´Ô´Âë)
-           ÒòÎª DispatcherHandler ÊÇ WebHandler£¬¶øSpring·â×°µÄ¸÷´óHttp·şÎñÆ÷ÈÏÊ¶µÄControllerÊÇHttpHandler
-	   ËùÒÔĞèÒª×ª»»£¬×ª»»¹ı³ÌÖĞ£¬¼ÓÈëÁË
-	   WebFilter¡¢WebExceptionHandlerµÈµÈ
+      â‘¡ æŠŠ WebHandler è½¬æ¢ä¸º HttpHandler(å…·ä½“çœ‹æºç )
+           å› ä¸º DispatcherHandler æ˜¯ WebHandlerï¼Œè€ŒSpringå°è£…çš„å„å¤§HttpæœåŠ¡å™¨è®¤è¯†çš„Controlleræ˜¯HttpHandler
+	   æ‰€ä»¥éœ€è¦è½¬æ¢ï¼Œè½¬æ¢è¿‡ç¨‹ä¸­ï¼ŒåŠ å…¥äº†
+	   WebFilterã€WebExceptionHandlerç­‰ç­‰
 
-      ¢Û ÔÙ°Ñ HttpHandler ×ª»»Îª Spring·â×°µÄ·şÎñÆ÷ËùÈÏÊ¶µÄController, ÕâÀïµÄ·şÎñÆ÷ÊÇNetty
-         ËüĞèÒªBiFunction(jdk8´øµÄFunctional½Ó¿Ú)
+      â‘¢ å†æŠŠ HttpHandler è½¬æ¢ä¸º Springå°è£…çš„æœåŠ¡å™¨æ‰€è®¤è¯†çš„Controller, è¿™é‡Œçš„æœåŠ¡å™¨æ˜¯Netty
+         å®ƒéœ€è¦BiFunction(jdk8å¸¦çš„Functionalæ¥å£)
 
-      ¢Ü Æô¶¯Netty
+      â‘£ å¯åŠ¨Netty
 
-32¡¢SpringBoot µÄÅäÖÃÎÄ¼ş·ÖÁ½ÖÖ
+32ã€SpringBoot çš„é…ç½®æ–‡ä»¶åˆ†ä¸¤ç§
 
-	ÆÕÍ¨ÅäÖÃÎÄ¼ş(ËüÄ¬ÈÏµÄprofile=null)                   profilesÏà¹ØµÄ
+	æ™®é€šé…ç½®æ–‡ä»¶(å®ƒé»˜è®¤çš„profile=null)                   profilesç›¸å…³çš„
 	application.properties                               application-[profiles].properties 
 	application.yml                                      application-[profiles].yml
        
-       ×¢ÒâÅäÖÃÎÄ¼şÒ»°ãĞÎÊ½
+       æ³¨æ„é…ç½®æ–‡ä»¶ä¸€èˆ¬å½¢å¼
        
       ####################### application.properties ########################################################
-      # spring.profiles.active = dev   ----> Ö¸¶¨Òª¼¤»îµÄpofiles£¬                                          #  
-      #                                      ¼´¶ÁÍê¸ÃÅäÖÃÎÄ¼şºó£¬                                           #
-      #					    ¾Í¶Á¸ÃprofileÎÄ¼ş(application-dev.properties)                   #
+      # spring.profiles.active = dev   ----> æŒ‡å®šè¦æ¿€æ´»çš„pofilesï¼Œ                                          #  
+      #                                      å³è¯»å®Œè¯¥é…ç½®æ–‡ä»¶åï¼Œ                                           #
+      #					    å°±è¯»è¯¥profileæ–‡ä»¶(application-dev.properties)                   #
       # server.port = 88                                                                                    #
-      # person.name = ÕÅÈı             ----> ÕâÁ½¸öÅäÖÃÁË                                                   #
-      #				            Á½¸ö PropertySource(<server.port = 88>, <person.name = ÕÅÈı>) £¬#
-      #				    ¶øÁ½¸ö PropertySource×é³ÉÒ»¸öMutablePropertySources                     #
+      # person.name = å¼ ä¸‰             ----> è¿™ä¸¤ä¸ªé…ç½®äº†                                                   #
+      #				            ä¸¤ä¸ª PropertySource(<server.port = 88>, <person.name = å¼ ä¸‰>) ï¼Œ#
+      #				    è€Œä¸¤ä¸ª PropertySourceç»„æˆä¸€ä¸ªMutablePropertySources                     #
       #######################################################################################################
 
-31¡¢SpringBoot ¶ÁÈ¡ÅäÖÃÎÄ¼şµÄ¹ı³Ì(¿´Ô´Âë¿ÉÖªConfigFileApplicationListener.Loader.load())
+31ã€SpringBoot è¯»å–é…ç½®æ–‡ä»¶çš„è¿‡ç¨‹(çœ‹æºç å¯çŸ¥ConfigFileApplicationListener.Loader.load())
 
-	¢Ù£ºÍ¨¹ıÅäÖÃÎÄ¼ş£¬ÉèÖÃEnvironment»î¶¯µÄProfile
-			 (½öÅäÖÃµÚÒ»¸öº¬ÓĞspring.profiles.activeµÄÅäÖÃÎÄ¼ş£¬
-			  ºóÃæµÄÅäÖÃÎÄ¼şµÄspring.profiles.active¶¼²»»áÉúĞ§£¬
-			  ÅäÖÃÎÄ¼ş¶ÁÈ¡µÄË³Ğò£º´ÓÉÏµ½ÏÂ
-				  file:./config/         -------->  Ïà¶ÔÓÚuser.dir
-				  file:./                -------->  Ïà¶ÔÓÚuser.dir
+	â‘ ï¼šé€šè¿‡é…ç½®æ–‡ä»¶ï¼Œè®¾ç½®Environmentæ´»åŠ¨çš„Profile
+			 (ä»…é…ç½®ç¬¬ä¸€ä¸ªå«æœ‰spring.profiles.activeçš„é…ç½®æ–‡ä»¶ï¼Œ
+			  åé¢çš„é…ç½®æ–‡ä»¶çš„spring.profiles.activeéƒ½ä¸ä¼šç”Ÿæ•ˆï¼Œ
+			  é…ç½®æ–‡ä»¶è¯»å–çš„é¡ºåºï¼šä»ä¸Šåˆ°ä¸‹
+				  file:./config/         -------->  ç›¸å¯¹äºuser.dir
+				  file:./                -------->  ç›¸å¯¹äºuser.dir
 				  classpath:./config/
 				  classpath:./)
 	
-	¢Ú£ºÍ¨¹ıÅäÖÃÎÄ¼ş£¬ÉèÖÃÊôĞÔÔ´MutablePropertySources 
+	â‘¡ï¼šé€šè¿‡é…ç½®æ–‡ä»¶ï¼Œè®¾ç½®å±æ€§æºMutablePropertySources 
 	                  
 
-	¢Û: µ±EnvironmentÓĞ»î¶¯ProfileÊ±£¬°´¢Ù¡¢¢Ú¶ÁÈ¡profilesÏà¹ØµÄµÄÅäÖÃÎÄ¼ş(application-[profiles].properties)       
+	â‘¢: å½“Environmentæœ‰æ´»åŠ¨Profileæ—¶ï¼ŒæŒ‰â‘ ã€â‘¡è¯»å–profilesç›¸å…³çš„çš„é…ç½®æ–‡ä»¶(application-[profiles].properties)       
 
-        ¢Ü£º×¢ÒâSpringBoot¶ÁÈ¡ÅäÖÃÎÄ¼ş£¬¶¼»á²úÉúÊôĞÔÔ´MutablePropertySources£¬²¢°ó¶¨µ½ÅäÖÃÎÄ¼ş¶ÔÓ¦µÄprofileÉÏ£¬
+        â‘£ï¼šæ³¨æ„SpringBootè¯»å–é…ç½®æ–‡ä»¶ï¼Œéƒ½ä¼šäº§ç”Ÿå±æ€§æºMutablePropertySourcesï¼Œå¹¶ç»‘å®šåˆ°é…ç½®æ–‡ä»¶å¯¹åº”çš„profileä¸Šï¼Œ
 	                    (
-			       Í¬Ò»¸öprofileÉÏµÄMutablePropertySources£¬»á°´ÏÈºóË³Ğò¼Óµ½Êı×éºóÃæ
+			       åŒä¸€ä¸ªprofileä¸Šçš„MutablePropertySourcesï¼Œä¼šæŒ‰å…ˆåé¡ºåºåŠ åˆ°æ•°ç»„åé¢
 
-			       <MutablePropertySources = List<PropertySource>£¬Ã¿¸öPropertySource´ú±íÒ»¸ö¼üÖµ¶Ô>
+			       <MutablePropertySources = List<PropertySource>ï¼Œæ¯ä¸ªPropertySourceä»£è¡¨ä¸€ä¸ªé”®å€¼å¯¹>
 
 			       MutablePropertySources ms = HashMap.get(profile);
                                if(ms == null){
 			           HashMap.put(profile, ms);
 			       }
-			       ms.addLast(µ±Ç°ÅäÖÃÎÄ¼ş²úÉúµÄMutablePropertySources);
+			       ms.addLast(å½“å‰é…ç½®æ–‡ä»¶äº§ç”Ÿçš„MutablePropertySources);
 			    )
 	   
            
-	   ÅäÖÃÎÄ¼ş                                          profile
+	   é…ç½®æ–‡ä»¶                                          profile
 
            file:./config/application.properties              null
-           file:./application.properties                     null     (Ëü»áºÍÉÏÃæµÄÅäÖÃÎÄ¼şºÏ²¢£¬ÒòÎªËûÁ©profileÏàÍ¬)
+           file:./application.properties                     null     (å®ƒä¼šå’Œä¸Šé¢çš„é…ç½®æ–‡ä»¶åˆå¹¶ï¼Œå› ä¸ºä»–ä¿©profileç›¸åŒ)
            file:./application-dev.properties                 dev
            
 	 
-32¡¢SpringBootÅäÖÃÎÄ¼şÓÅÏÈ¼¶
-¢Ù£ºÓĞprofilesµÄÅäÖÃÎÄ¼ş£¬ÓÅÓÚÆÕÍ¨ÅäÖÃÎÄ¼ş
+32ã€SpringBooté…ç½®æ–‡ä»¶ä¼˜å…ˆçº§
+â‘ ï¼šæœ‰profilesçš„é…ç½®æ–‡ä»¶ï¼Œä¼˜äºæ™®é€šé…ç½®æ–‡ä»¶
     
     application-dev.properties 
-          ¸²¸Ç 
-    application.propertiesÅäÖÃµÄÊôĞÔ
+          è¦†ç›– 
+    application.propertiesé…ç½®çš„å±æ€§
    
-   ¼ûÔ´ÂëConfigFileApplicationListener.Loader.addLoadedPropertySources()
+   è§æºç ConfigFileApplicationListener.Loader.addLoadedPropertySources()
 
-¢Ú£º³öÏÖÔÚÉÏÃæÂ·¾¶ÏÂµÄÅäÖÃÎÄ¼ş£¬»á¸²¸Ç³öÏÖÔÚÏÂÃæµÄÅäÖÃÎÄ¼ş
-    ¸²¸Ç
-    ×î¸ßÓÅÏÈ¼¶                                      file:./config/         -------->  Ïà¶ÔÓÚuser.dir
-                                                    file:./                -------->  Ïà¶ÔÓÚuser.dir
+â‘¡ï¼šå‡ºç°åœ¨ä¸Šé¢è·¯å¾„ä¸‹çš„é…ç½®æ–‡ä»¶ï¼Œä¼šè¦†ç›–å‡ºç°åœ¨ä¸‹é¢çš„é…ç½®æ–‡ä»¶
+    è¦†ç›–
+    æœ€é«˜ä¼˜å…ˆçº§                                      file:./config/         -------->  ç›¸å¯¹äºuser.dir
+                                                    file:./                -------->  ç›¸å¯¹äºuser.dir
                                                     classpath:./config/
-    »á±»ÉÏÃæÈı¸ö°´ÓÉÏÂÏòÉÏµÄË³Ğò¸²¸Ç                classpath:./
+    ä¼šè¢«ä¸Šé¢ä¸‰ä¸ªæŒ‰ç”±ä¸‹å‘ä¸Šçš„é¡ºåºè¦†ç›–                classpath:./
     
-    ¼ûÔ´ÂëConfigFileApplicationListener.Loader.load()
+    è§æºç ConfigFileApplicationListener.Loader.load()
 
-¢Û£ºÒ»°ã»á°´ÏÂÃæË³Ğò
-      file:./config/         -------->  Ïà¶ÔÓÚuser.dir
-      file:./                -------->  Ïà¶ÔÓÚuser.dir
+â‘¢ï¼šä¸€èˆ¬ä¼šæŒ‰ä¸‹é¢é¡ºåº
+      file:./config/         -------->  ç›¸å¯¹äºuser.dir
+      file:./                -------->  ç›¸å¯¹äºuser.dir
       classpath:./config/
       classpath:./
     
     !!!
-	    ¼ÓÔØÆÕÍ¨ÅäÖÃÎÄ¼ş(ÀıÈçapplication.properties)£¬
-	    È»ºó¼ÓÔØ£¬Èç¹ûÓĞµÄ»°£¬ÆÕÍ¨ÅäÖÃÎÄ¼şÖ¸¶¨µÄprofileÏà¹ØµÄÅäÖÃÎÄ¼ş(ÀıÈçapplication-[profile].properties)
-	    ×îºó£¬ÏÈ½« application-[profile].properties ²úÉúµÄ MutablePropertySources¼ÓÈëµ½Environment
-	    ÔÙ½«application.properties²úÉúµÄMutablePropertySources¼ÓÈëµ½Environment
+	    åŠ è½½æ™®é€šé…ç½®æ–‡ä»¶(ä¾‹å¦‚application.properties)ï¼Œ
+	    ç„¶ååŠ è½½ï¼Œå¦‚æœæœ‰çš„è¯ï¼Œæ™®é€šé…ç½®æ–‡ä»¶æŒ‡å®šçš„profileç›¸å…³çš„é…ç½®æ–‡ä»¶(ä¾‹å¦‚application-[profile].properties)
+	    æœ€åï¼Œå…ˆå°† application-[profile].properties äº§ç”Ÿçš„ MutablePropertySourcesåŠ å…¥åˆ°Environment
+	    å†å°†application.propertiesäº§ç”Ÿçš„MutablePropertySourcesåŠ å…¥åˆ°Environment
     !!!
 
-33¡¢YAMLÎÄ¼şµÄÓï·¨
+33ã€YAMLæ–‡ä»¶çš„è¯­æ³•
 
-	¶ÔÏó
-	a: "a"(×¢ÒâÃ°ºÅ:ºóÃæ±ØĞëÓĞÒ»¸ö¿Õ¸ñ) {"a": "a"}
+	å¯¹è±¡
+	a: "a"(æ³¨æ„å†’å·:åé¢å¿…é¡»æœ‰ä¸€ä¸ªç©ºæ ¼) {"a": "a"}
 
-	Êı×é
-	- "1"   (¶Ì¸ÜºóÃæ±ØĞëÓĞÒ»¸ö¿Õ¸ñ, 1»á±»½âÊÍÎªboolean true, ËùÒÔÒª¼ÓÒıºÅ)   [1, 2, 3]
+	æ•°ç»„
+	- "1"   (çŸ­æ åé¢å¿…é¡»æœ‰ä¸€ä¸ªç©ºæ ¼, 1ä¼šè¢«è§£é‡Šä¸ºboolean true, æ‰€ä»¥è¦åŠ å¼•å·)   [1, 2, 3]
 	- 2
 	- 3
 
-34¡¢AOPÏê½â
-    ÕûÌå½éÉÜ       https://blog.csdn.net/javazejian/article/details/56267036
-    Æ¥Åä¹æÔòµÄ½éÉÜ https://blog.csdn.net/qq_23167527/article/details/78623639
+34ã€AOPè¯¦è§£
+    æ•´ä½“ä»‹ç»       https://blog.csdn.net/javazejian/article/details/56267036
+    åŒ¹é…è§„åˆ™çš„ä»‹ç» https://blog.csdn.net/qq_23167527/article/details/78623639
 
-35¡¢spring cloudµÄ½Ì³Ì
+35ã€spring cloudçš„æ•™ç¨‹
 https://www.cnblogs.com/lenve/p/7985943.html?tdsourcetag=s_pcqq_aiomsg

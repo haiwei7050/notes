@@ -18,7 +18,7 @@
    sudo apt -y install open-vm-tools-desktop
 
 3、安装必要的软件
-   sudo apt -y install tree vim openssh-server net-tools git
+   sudo apt -y install tree vim openssh-server net-tools git curl
 
 4、修改/etc/skel/.bashrc
     vi /etc/skel/.bashrc
@@ -63,8 +63,26 @@
     https://www.jianshu.com/p/c936a8a2180e
     https://blog.csdn.net/lupengCSDN/article/details/80279177
 
+7、安装docker
+   apt -y install apt-transport-https ca-certificates curl gnupg-agent software-properties-common
+   curl -fsSL http://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg | sudo apt-key add -
+   add-apt-repository "deb [arch=amd64] http://mirrors.aliyun.com/docker-ce/linux/ubuntu $(lsb_release -cs) stable"
+   apt update
+   apt -y install docker-ce docker-ce-cli containerd.io
 
+   vi /etc/docker/daemon.json
+{
+  "registry-mirrors": ["https://registry.docker-cn.com"]
+}
+   systemctl restart docker
 
+8、安装chrome
+   dpkg -i chrome.deb
+   vi /opt/google/chrome/google-chrome
+   把
+     exec -a "$0" "$HERE/chrome" "$@"
+   改为
+     exec -a "$0" "$HERE/chrome" "$@" --user-data-dir --no-sandbox
 
 附录1、如何知道全局的bash配置文件
        1)man bash
