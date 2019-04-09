@@ -77,20 +77,47 @@
    
    prefix会被maven映射为groupId:artifactId，映射的方法是:
    
-   a、看setting.xml中是否定义了
-      <pluginGroups>
-        <pluginGroup>插件的groupId</pluginGroup>
-      </pluginGroups>
-  
-   b、从插件库中, 下载 maven-metadata.xml
-      Downloaded from <仓库名字>: https://repo.maven.apache.org/maven2/     <groupId>         /maven-metadata.xml
-      Downloaded from central_backup: https://repo.maven.apache.org/maven2/<org/codehaus/mojo>/maven-metadata.xml
+   1、通过当前项目的pom.xml文件进行映射
+      
+      a、下载pom.xml中的所有插件(<pluginManagement> 和 <plugins>)
+      
+      b、根据下面方式，抽取 prefix --> groupId:artifactId 的映射关系         
+	 
+	 模式                    例子 
+                                         artifactId               prefix
+	 maven-{prefix}-plugins  maven-compiler-plugin    --->    compiler
+         
+	 {prefix}-maven-plugins  spring-boot-maven-plugin --->    spring-boot
 
-      并将下好的 maven-metadata.xml 重命名为 maven-metadata-仓库名.xml
-      其中groupId为 步骤a <pluginGroups>中配置的 groupId，和两个默认的 org.apache.maven.plugins、org.codehaus.mojo.
+      c、用步骤b抽取的映射关系进行匹配，如果成功就返回，否则执行步骤2
+
+   2、通过maven-metadata.xml进行映射
+      a、确定需要下载哪些groupId下的maven-metadata.xml文件
+         
+	 setting.xml通过下面的标签，来确定下载哪些groupId下的maven-metadata.xml文件
+
+	 <pluginGroups>
+            <pluginGroup>插件的groupId</pluginGroup>
+         </pluginGroups>
+         
+	 默认需要下载 org.apache.maven.plugins、org.codehaus.mojo下的插件的maven-metadata.xml文件
+	     
+
+      b、具体的下载步骤
+         Downloaded from <仓库名字>: https://repo.maven.apache.org/maven2/     <groupId>         /maven-metadata.xml
+         Downloaded from central_backup: https://repo.maven.apache.org/maven2/<org/codehaus/mojo>/maven-metadata.xml
+
+         并将下好的 
+	    maven-metadata.xml 
+	 重命名为 
+	   maven-metadata-仓库名.xml
+	 保存到
+	   ~/.m2/repository/<groupId>
+
+        其中groupId为 步骤a <pluginGroups>中配置的 groupId，和两个默认的 org.apache.maven.plugins、org.codehaus.mojo.
   
-   c、查看maven-metadata.xml，里面有prefix 和 artifactId的对应关系，然后再对应maven-metadata.xml位于哪个groupId下
-      即可得到 prefix ----> groupId:artifactId
+      c、查看maven-metadata.xml，里面有prefix 和 artifactId的对应关系，然后再对应maven-metadata.xml位于哪个groupId下
+         即可得到 prefix ----> groupId:artifactId
   
   prefix有个约定
   maven官方插件的的artifactId: maven-prefix-plugins
@@ -100,6 +127,24 @@
   https://stackoverflow.com/questions/40205664/how-does-maven-plugin-prefix-resolution-work-why-is-it-resolving-findbugs-but
   https://maven.apache.org/guides/introduction/introduction-to-plugin-prefix-mapping.html
 
+7c mvn phase和mvn goal是怎么运行的
+   
+   a、mvn phase怎么运行
+      mvn test会运行test之前的所有phase，如validate、compile、test-compile等等
+      而所谓运行phase就是运行所有绑定在该phase上的plugin的goal
+         
+   b、mvn goal怎么运行
+      主要分下面两种，且这两种都会读取当前项目的pom.xml中对该插件的全局配置
+
+      1) 要执行的goal有默认绑定的phase
+        a 执行它绑定的phase之前的所有phase
+	b 最后再执行该goal
+         
+      2) 要执行的goal没有默认绑定的phase
+         之间执行该goal
+
+   参考链接: https://stackoverflow.com/questions/16205778/what-are-maven-goals-and-phases-and-what-is-their-difference
+  
 8、maven的pom继承
    
    a、合并
