@@ -134,16 +134,31 @@
       而所谓运行phase就是运行所有绑定在该phase上的plugin的goal
          
    b、mvn goal怎么运行
-      主要分下面两种，且这两种都会读取当前项目的pom.xml中对该插件的全局配置
+      1)读取当前项目的pom.xml中对该插件的全局配置
+      2)和<id>为default-cli的配置，
+      3)然后执行该goal
+<groupId>org.codehaus.mojo</groupId>
+<artifactId>exec-maven-plugin</artifactId>
+<version>1.6.0</version>
+<executions>
+  <execution>
+  <id>default-cli</id>
+  <goals>
+    <goal>exec</goal>
+  </goals>
+  <phase>test</phase>
+  <configuration>
+    <executable>echo</executable>
+    <commandlineArgs>hello world</commandlineArgs>
+  </configuration>
+ </execution>
+</executions>
+mvn exec:exec //输出 hello world
 
-      1) 要执行的goal有默认绑定的phase
-        a 执行它绑定的phase之前的所有phase
-	b 最后再执行该goal
-         
-      2) 要执行的goal没有默认绑定的phase
-         之间执行该goal
+
 
    参考链接: https://stackoverflow.com/questions/16205778/what-are-maven-goals-and-phases-and-what-is-their-difference
+           https://stackoverflow.com/questions/34590452/what-is-the-implicit-id-of-a-maven-plugin-execution
   
 8、maven的pom继承
    
