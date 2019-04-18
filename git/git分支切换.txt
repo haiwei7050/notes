@@ -6,8 +6,8 @@
 2、基于远程标签建立本地分支
    git tag [-l]         # 查看所有标签(无论在哪个分支，无论远程或本地)
    git show 标签名字    # 查看标签指向那个提交点
-   git checkout -b tags/远程tag名  本地分支名
-   git checkout -b tags/v1.6.5     v1.6.5
+   git checkout tags/远程tag名 -b 本地分支名
+   git checkout tags/v1.6.5   -b v1.6.5
 
 
 3、打标签
