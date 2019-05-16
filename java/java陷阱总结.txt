@@ -1,0 +1,40 @@
+1、运算符优先级和运算顺序的关系
+  static <T> T m(T ret, String name){
+     System.out.printf("%s被调用\n", name);
+     return ret;
+  }
+
+
+  m(true, "m1") || m(false, "m2") && m(false, "m3")
+
+以为的调用顺序为: m2 -> m3 -> m1
+实际为:         m1
+
+解释:
+ a + b * c,   a,b,c叫作运算数， +,*叫作运算符
+ java表达式运算过程为:
+ 1) 先计算运算数的值，计算顺序由运算符的运算顺序决定
+ 2) 再按照运算符的优先级执行运算
+ 
+ 上述例子 a + b * c具体过程是
+ 1) + * 都是从左到右计算运算数，即按照从左到右的顺序读取变量a,b,c的值
+ 2)因为*的优先级高于+， 所以先计算 b * c, 然后计算 a + (b * c)
+
+ 上述例子 m(true, "m1") || m(false, "m2") && m(false, "m3")具体的过程是
+ 1) || &&都是从左到右计算运算数，
+    但是||只在左运算数为false时，才计算右运算数
+       &&只在左运算数为true时, 才计算右运算数
+
+    故本应该从左到右的调用 m1 -> m2 -> m3
+    但是由于m1返回true触发了||的短路，所以
+    实际结果为 m1
+
+参考链接:
+运算符优先级和运算顺序:
+  https://blog.csdn.net/xiaoli_feng/article/details/4567184
+
+java表达式运算过程为:
+  https://stackoverflow.com/questions/46506098/why-does-short-circuit-evaluation-work-when-operator-precedence-says-it-shouldn
+
+||和&&的计算运算数的规则:
+   https://stackoverflow.com/questions/13425984/java-logical-and-vs-or-short-circuiting-consistency
