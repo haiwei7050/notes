@@ -707,6 +707,35 @@ NM_CONTROLLED="no"
 A可能出现负库存，而B不会出现负库存，因为(下面这句话摘抄自第二个链接，看第二个链接就能明白)
  select操作不会更新版本号，是快照读（历史版本）；insert、update和delete会更新版本号，是当前读（当前版本）
 
+ 乐观锁解决办法: 
+   SELECT count FROM prod WHERE id = 13;
+   UPDATE prod SET count = count - buy WHERE count = count AND id = 13;
+
+ 原理: 每个线程都先拿到count, 
+      只有当前记录的count是我拿到的count时，才更新这条记录, 整个过程不锁记录
+      这里的count就相当于版本号，只有版本号是我拿数据时的版本号时，才证明没人动过记录我才会去改
+
+      缺点: 2个人同时各买一个, 本来应该可以成功，
+           但是同时只有一个人才能抢成功, 因为成功的那个人会改变版本号
+           另一个人下单就失败了
+ 
+ 类似 java的compareAndSet
+   class A{
+     private static final AtomicIntegerFieldUpdater<A> A_UPDATER =
+        AtomicIntegerFieldUpdater.newUpdater(A.class, "a");
+     private volatile int a = 1;
+     void m(){
+        int old = this.a;  
+        A_UPDATER.compareAndSet(this, old, new);
+     }
+   }
+
+
+ 悲观锁解决办法
+    SELECT count FROM prod WHERE id = 13 FOR UPDATE;  //先锁上该记录
+    UPDATE prod SET count = count - buy WHERE id = 13; //再去修改记录
+ 
+
 prod表
 id  count 
 13    1

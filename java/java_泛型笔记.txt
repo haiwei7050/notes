@@ -13,6 +13,12 @@
 
 	   public static <E> Set<E> union(Set<? extends E> s1, Set<? extends E> s2){
 	      Set<E> result = new HashSet<>();
+	      for (E e : s1) {
+             result.add(e);    // 从集合s1取
+           }
+           for (E e : s1) {
+             result.add(e);
+           }
 	      return result;
 	   }
 

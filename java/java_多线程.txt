@@ -1,0 +1,9 @@
+1、Jdk中的原子类的写操作是互斥的吗？
+  AtomicBoolean b = new AtomicBoolean(false);
+  b.set(true) vs b.compareAndSet(false, true);
+  上面的操作
+  
+  https://stackoverflow.com/questions/8262982/atomicreferencefieldupdater-methods-set-get-compareandset-semantics
+
+2、怎么处理InterruptedException
+  https://www.yegor256.com/2015/10/20/interrupted-exception.html
