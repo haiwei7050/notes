@@ -7,3 +7,81 @@
 
 2、怎么处理InterruptedException
   https://www.yegor256.com/2015/10/20/interrupted-exception.html
+
+3、读写锁实现生产者消费者模式
+  看最后的评论
+https://stackoverflow.com/questions/14279765/correct-usage-of-reentrantreadwritelock-while-signalling-from-writer-to-reader
+
+读写锁解决读多写少的场景
+注意由javadoc可知 读锁不支持 condition, readLock.newCondition()会抛异常
+
+public class ReadWrite
+{
+    private final Lock readLock;
+    private final Lock writeLock;
+    private final Condition condition;
+
+    {
+        ReadWriteLock rwl = new ReentrantReadWriteLock();
+        readLock = rwl.readLock();
+        writeLock = rwl.writeLock();
+        condition = writeLock.newCondition(); 
+    }
+
+    private Object data;
+
+    // If data is there, return it, otherwise, return null
+    private Object tryGetData ()
+    {
+        readLock.lock ();
+        try
+        {
+            return data; // May return null
+        }
+        finally
+        {
+            readLock.unlock ();
+        }
+    }
+
+    // Wait for data if necessary and then return it
+    private Object doGetData () throws InterruptedException
+    {
+        writeLock.lock ();
+        try
+        {
+            while (data == null)
+                condition.await ();
+
+            return data;
+        }
+        finally
+        {
+            writeLock.unlock ();
+        }
+    }
+
+    // Used by reader, return value cannot be null, may block
+    public Object getData () throws InterruptedException
+    {
+        Object result = tryGetData ();
+        return result == null ? doGetData () : result;
+    }
+
+    // Used by writer, data may be null
+    public void setData (Object data)
+    {
+        writeLock.lock ();
+        try
+        {
+            Object previousData = this.data;
+            this.data = data;
+            if (previousData == null && data != null)
+                condition.notifyAll ();
+        }
+        finally
+        {
+            writeLock.unlock ();
+        }
+    }
+}
