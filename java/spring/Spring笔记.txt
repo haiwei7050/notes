@@ -358,7 +358,24 @@
 
 	a.Type 子接口 及实现类
 	   
-	   ParameterizedType (子接口)   举例 List<String> a  --> a就是 ParameterizedType 类型
+	   ParameterizedType (子接口)   举例 
+                                        例子1
+  
+                                         List<String> a = new ArrayList<>();
+                                         a.class                        -----> ArrayList.class                               (类型是Class, 也是Type)
+                                         A.class.getGenericInterfaces() -----> interface java.util.List<java.lang.Long>      (类型是ParameterizedType, 也是Type)
+                                         
+                                         "类型是ParameterizedType"      ------>  A.class.getGenericInterfaces() instanceOf ParameterizedType
+
+                                        例子2
+                                          pacakge com.demo;
+                                          public interface A<ID>{}
+
+                                          pacakge com.demo;
+                                          public interface B implement A<Long>{}
+                                          
+                                          则 B.class.getGenericInterfaces()  -----> interface com.demo.A<java.lang.Long>      (类型是ParameterizedType, 也是Type)
+                         
 	   
 	   TypeVariable      (子接口)   举例  T entity       --> entity就是 TypeVariable 类型
 	   
@@ -380,8 +397,8 @@
 	    然后 Type c = Field.getGenericType() 
 		 
 		 c instanceof ParameterizedType、TypeVariable、GenericArrayType
-
-	c.-------------------------- 举例 ----------------------------------
+                                                                                                                                                                
+	c.-------------------------- 举例 ----------------------------------                                                                                                          
 	    
 	    ① ParameterizedType(下面是接口内的方法)         List<String> a
 	       
@@ -396,7 +413,7 @@
 								  T entity
 							     }
 							    
-							    Field entity = A.class.getDeclaredField("key");
+							    Field entity = A.class.getDeclaredField("entity");
 							    TypeVariable entityType = (TypeVariable)entity.getGenericType();
 							    entityType.getBounds()
 	       
