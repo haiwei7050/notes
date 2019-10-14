@@ -1,0 +1,8 @@
+1、显示某个commit，都对哪些文件进行了改动
+  git show --name-only commit-id
+
+2、只显示某个分支，某个人的commit
+  git log 不想显示的分支名..想显示的分支名 --author=C5281409
+
+  只显示分支wallace_bak_SM-9520，C5281409的commit
+  git log master..wallace_bak_SM-9520 --author=C5281409
