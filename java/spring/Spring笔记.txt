@@ -1023,3 +1023,19 @@
 
 35、spring cloud的教程
 https://www.cnblogs.com/lenve/p/7985943.html?tdsourcetag=s_pcqq_aiomsg
+
+36、spring 事务的核心组件
+BeanPostProccesor         AnnotationAwareAspectJAutoProxyCreator
+
+
+
+            pointcut --->     在Advisor内部定义
+Advisor              --->     BeanFactoryTransactionAttributeSourceAdvisor
+            advice   --->     TransactionInterceptor
+
+Object beanToReturn = originalBean;
+Pointcut pc = Advisor.getPointcut();
+Advice ae = Advisor.getAdvice();
+if(pc.match(originalBean)){
+	beanToReturn = proxy(ae);
+}
