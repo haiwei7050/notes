@@ -249,3 +249,33 @@ public class User{
 输出: 
     SELECT COUNT(*) FROM users                             <不同步>
     INSERT INTO user(id, name, age)VALUES(1, "AUTO", 18);
+
+
+
+4、hibernate 源码分析
+@Entity
+@Table
+public class User{}
+
+User.class ->         XClass ->         PersistentClass  ->         EntityPersister
+
+                  1                  2                         3
+步骤1
+Configuartion#processAnnotatedClassesQueue()
+
+步骤2
+AnnotationBinder#bindClass()
+
+1) AnnotationBinder#processIdPropertiesIfNotAlready()
+   把User中的所有属性转成了Ejb3Column, 在转换过程中消费@Column, @ManyToOne等注解
+
+2) 在生成Ejb3Colum时会产生Column, 它才是属性和列对应的关系, 它最终保存在下面的Property的Value里
+
+3) Ejb3Column又会转换成org.hibernate.mapping.Property                      
+   (通过PropertyBinder#makePropertyValueAndBind())
+
+4) Property又会加到PersistentClass#properties数组里                         
+   (通过PropertyBinder#makePropertyValueAndBind() -> PropertyHolder#addProperty())
+
+步骤3
+ EntityPersister保存了对User进行增删改查的sql在构造函数了

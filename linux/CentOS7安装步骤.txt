@@ -231,7 +231,7 @@ CentOS7 自带的jdk为 :
    A、不指定文件名
        wget https://www.baidu.com/a.txt
        curl -O https://www.baidu.com/a.txt
-   B、不指定文件名
+   B、指定文件名
        wget -O(大写) /tmp/b.txt https://www.baidu.com/a.txt
        curl -O(大写) /tmp/b.txt https://www.baidu.com/a.txt
 

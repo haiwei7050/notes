@@ -955,7 +955,7 @@
 
 	③: 当Environment有活动Profile时，按①、②读取profiles相关的的配置文件(application-[profiles].properties)       
 
-        ④：注意SpringBoot读取配置文件，都会产生属性源MutablePropertySources，并绑定到配置文件对应的profile上，
+    ④：注意SpringBoot读取配置文件，都会产生属性源MutablePropertySources，并绑定到配置文件对应的profile上，
 	                    (
 			       同一个profile上的MutablePropertySources，会按先后顺序加到数组后面
 
@@ -987,10 +987,10 @@
 
 ②：出现在上面路径下的配置文件，会覆盖出现在下面的配置文件
     覆盖
-    最高优先级                                      file:./config/         -------->  相对于user.dir
+    最高优先级                                        file:./config/         -------->  相对于user.dir
                                                     file:./                -------->  相对于user.dir
                                                     classpath:./config/
-    会被上面三个按由下向上的顺序覆盖                classpath:./
+    会被上面三个按由下向上的顺序覆盖                      classpath:./
     
     见源码ConfigFileApplicationListener.Loader.load()
 
@@ -1022,20 +1022,25 @@
     匹配规则的介绍 https://blog.csdn.net/qq_23167527/article/details/78623639
 
 35、spring cloud的教程
-https://www.cnblogs.com/lenve/p/7985943.html?tdsourcetag=s_pcqq_aiomsg
+    https://www.cnblogs.com/lenve/p/7985943.html?tdsourcetag=s_pcqq_aiomsg
 
 36、spring 事务的核心组件
-BeanPostProccesor         AnnotationAwareAspectJAutoProxyCreator
+    BeanPostProccesor         AnnotationAwareAspectJAutoProxyCreator
 
 
 
             pointcut --->     在Advisor内部定义
-Advisor              --->     BeanFactoryTransactionAttributeSourceAdvisor
+    Advisor          --->     BeanFactoryTransactionAttributeSourceAdvisor
             advice   --->     TransactionInterceptor
 
-Object beanToReturn = originalBean;
-Pointcut pc = Advisor.getPointcut();
-Advice ae = Advisor.getAdvice();
-if(pc.match(originalBean)){
-	beanToReturn = proxy(ae);
-}
+    Object beanToReturn = originalBean;
+    Pointcut pc = Advisor.getPointcut();
+    Advice ae = Advisor.getAdvice();
+    if(pc.match(originalBean)){
+	  beanToReturn = proxy(ae);
+    }
+
+37、spring boot tomcat启动流程
+                         engine -> host -> context(servlet都在这里)
+    server -> service -> 
+                         connector -> Http11NioProtocol -> NioEndpoint(这里ServerSocket)

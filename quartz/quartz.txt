@@ -1,0 +1,53 @@
+1 Quartz流程
+################  1 phase ################
+
+1)
+SELECT 
+  TRIGGER_NAME, TRIGGER_GROUP, NEXT_FIRE_TIME, PRIORITY 
+FROM QRTZ_TRIGGERS 
+WHERE 
+  SCHED_NAME = 'SCHEDULER_JOB_MANAGER_SCHEDULER' AND 
+  TRIGGER_STATE = ? AND 
+  NEXT_FIRE_TIME <= ? AND 
+  (MISFIRE_INSTR = -1 OR (MISFIRE_INSTR != -1 AND NEXT_FIRE_TIME >= ?)) 
+  ORDER BY NEXT_FIRE_TIME ASC, PRIORITY DESC
+
+
+   state = waiting
+   noLaterThan= now + idleWaitTime + batchTimeWindow
+   noEarlierThan = now - misfireThreshold
+
+2)
+  UPDATE QRTZ_TRIGGERS 
+    SET TRIGGER_STATE = ? 
+  WHERE 
+    SCHED_NAME = 'SCHEDULER_JOB_MANAGER_SCHEDULER' AND 
+    TRIGGER_NAME = ? AND 
+    TRIGGER_GROUP = ? AND 
+    TRIGGER_STATE = ?
+
+   (triggers)    wait -> acquired
+
+3)
+  INSERT INTO QRTZ_FIRED_TRIGGERS 
+
+  没有插入trigger绑定的job的信息
+  (fired_triggers) null -> acquired
+
+################  2 phase ################
+1)
+  UPDATE QRTZ_FIRED_TRIGGERS 
+   SET 
+    INSTANCE_NAME = ?, FIRED_TIME = ?, SCHED_TIME = ?, STATE = ?, JOB_NAME = ?, JOB_GROUP = ?, IS_NONCONCURRENT = ?, REQUESTS_RECOVERY = ? 
+    WHERE SCHED_NAME = 'SCHEDULER_JOB_MANAGER_SCHEDULER' AND ENTRY_ID = ?
+
+   (fired_triggers) acquired -> executing
+2）
+   
+  if 不允许并发
+     (triggers)    acquired -> blocked
+
+################  3 phase ################
+
+    (triggers)    blocked -> wait
+    delete fired_triggers

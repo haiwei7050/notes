@@ -130,3 +130,34 @@
      var start = Date.now();
      while(Date.now()- start < ms);
    }
+
+5、变量结构赋值
+   
+   基本语法: http://es6.ruanyifeng.com/#docs/destructuring
+
+   var rs = [[1,2], [3,4]].map(([x, y]) => x + y);
+   
+   等价于:
+   
+   1) js伪代码
+   function myMap([x, y]){  //这个表明函数接收数组为参数
+     return x + y;
+   }
+
+   [[1,2], [3,4]].map(myMap);
+
+   2) java伪代码
+   List<List> source = new ArrayList();
+   List des = new ArrayList();
+   for(List e : source){
+      Object newVal = map(e);
+      des.add(newVal);
+   }
+
+   void int map(List arr){
+     int x = arr.get(0);
+     int y = arr.get(1);
+     return x + y;
+   }
+
+
