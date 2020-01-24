@@ -1,0 +1,6 @@
+1 nodejs模块加载路径
+  ~/.node_modules
+  ~/.node_libraries
+  $PREFIX/lib/node
+
+  其中$PREFIX, 可以用npm config ls -l 查看prefix
