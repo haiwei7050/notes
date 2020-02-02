@@ -1,11 +1,31 @@
-1 nodejs模块加载路径
-  ~/.node_modules
-  ~/.node_libraries
-  $PREFIX/lib/node
+1 nodejs 如何加载模块
+  1) 从 <当前目录> 一直搜寻到 <根目录>，逐层在每级目录下的 <node_modules> 目录下寻找要加载的模块
+  2) 如果没有找到就到NODE_PATH指定的目录下搜寻，如果没有设置NODE_PATH直接到第三步（NODE_PATH 是类似 PATH 的环境变量）
+  3) 到下列目录去寻找
+     ~/.node_modules
+     ~/.node_libraries
+     $PREFIX/lib/node
+    其中 $PREFIX 是 npm config ls -l | grep prefix的值
+    参考链接: https://nodejs.org/docs/latest-v12.x/api/modules.html#modules_loading_from_node_modules_folders
 
-  其中$PREFIX, 可以用npm config ls -l 查看prefix
+2 nodejs如何查看安装了哪些模块
+  1) 查看全局安装了哪些目录
+  npm ls -l -g -depth=0 
+  参考链接 https://stackoverflow.com/questions/5926672/where-does-npm-install-packages
 
-2 nodejs查看装了那些模块
-  https://stackoverflow.com/questions/5926672/where-does-npm-install-packages
-  npm ls -g -depth=0
-  
+3 npm install 如何工作
+  1) 直接在项目目录下执行 npm install, 会去下载package.json指定的项目依赖
+  2) npm install 模块名称
+     请看下面的链接，它有详细的算法描述
+     https://docs.npmjs.com/configuring-npm/folders#more-information
+
+     eg 
+         npm install foo@1.0.0  (local install)
+     (1) 寻找包含 node_modules或package.json文件的目录，如果找不到就在当前目录新建node_modules目录并安装
+     (2) foo@1.0.0模块的package.json中bin字段指定的命令会被安装到node_modules/.bin/目录下 （https://docs.npmjs.com/files/package.json#bin）
+
+          npm install -g foo@1.0.0  (global install)
+     (1) 会直接安装到 {prefix}/lib/node_modules, prefix 是npm config ls -l | grep prefix的值
+         或者直接用 npm root -g 查看全局安装的目录
+     (2) foo@1.0.0模块的package.json中bin字段指定的命令会被安装到prefix/bin目录下 （https://docs.npmjs.com/files/package.json#bin）
+     
