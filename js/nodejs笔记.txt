@@ -27,5 +27,8 @@
           npm install -g foo@1.0.0  (global install)
      (1) 会直接安装到 {prefix}/lib/node_modules, prefix 是npm config ls -l | grep prefix的值
          或者直接用 npm root -g 查看全局安装的目录
+
+4 nodejs官方安装方法
+  https://nodejs.org/en/download/
      (2) foo@1.0.0模块的package.json中bin字段指定的命令会被安装到prefix/bin目录下 （https://docs.npmjs.com/files/package.json#bin）
      
