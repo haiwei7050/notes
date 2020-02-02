@@ -4,3 +4,8 @@
   $PREFIX/lib/node
 
   其中$PREFIX, 可以用npm config ls -l 查看prefix
+
+2 nodejs查看装了那些模块
+  https://stackoverflow.com/questions/5926672/where-does-npm-install-packages
+  npm ls -g -depth=0
+  
