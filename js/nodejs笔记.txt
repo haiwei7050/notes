@@ -31,4 +31,30 @@
 4 nodejs官方安装方法
   https://nodejs.org/en/download/
      (2) foo@1.0.0模块的package.json中bin字段指定的命令会被安装到prefix/bin目录下 （https://docs.npmjs.com/files/package.json#bin）
+
+5 npm 如何使用阿里源
+  1) 安装cnpm (它包装了原本的npm)
+     npm install -g cnpm --registry=https://registry.npm.taobao.org
+  2) 可以用cnpm代替npm进行本笔记的其他操作
+  3) ！！！ 一定要注意不要直接替换 npm默认的registry为淘宝源https://registry.npm.taobao.org ！！！
+     因为npm从阿里源下一些包时会下不到，从而间接导致一些问题，比如安装angular cli并创建一个全新的项目，就会报错
+    
+       npm config set registry https://registry.npm.taobao.org
+       npm install -g @angular/cli                             // npm 切换到阿里源后可以正确的下载 angular/cli
+       ng new test-project                                     // 这步会报找不到angular cli的某个module
+
+     下面是如何正确使用阿里源的操作
+     npm install -g cnpm --registry=https://registry.npm.taobao.org
+     cnpm install -g @angular/cli
+     ng config -g cli.packageManager cnpm                     // 这步是将angular cli默认的包管理工具,从npm切换为cnpm
+     ng new test-project
+    
+     也可以这样操作
+     npm install -g cnpm --registry=https://registry.npm.taobao.org
+     cnpm install -g @angular/cli
+     ng new test-project --skip-install                    // 这步在创建默认项目时不去下载依赖
+     cd test-project
+     cnpm install
+     
+
      
