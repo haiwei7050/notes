@@ -57,4 +57,6 @@
      cnpm install
      
 
-     
+6 npm 删除全局安装的module
+  npm uninstall -g @angular/cli
+  npm cache clean --force 
