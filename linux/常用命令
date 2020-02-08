@@ -1,2 +1,2 @@
-1 计时命令 /
+1 计时命令time
 /usr/bin/time --format='%C took %e seconds' sleep 3
