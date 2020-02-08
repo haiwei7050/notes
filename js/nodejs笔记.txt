@@ -1,80 +1,91 @@
 1 nodejs 如何加载模块
-  1) 从 <当前目录> 一直搜寻到 <根目录>，逐层在每级目录下的 <node_modules> 目录下寻找要加载的模块
-  2) 如果没有找到就到NODE_PATH指定的目录下搜寻，如果没有设置NODE_PATH直接到第三步（NODE_PATH 是类似 PATH 的环境变量）
-  3) 到下列目录去寻找
-     ~/.node_modules
-     ~/.node_libraries
-     $PREFIX/lib/node
-    其中 $PREFIX 是 npm config ls -l | grep prefix的值
-    参考链接: https://nodejs.org/docs/latest-v12.x/api/modules.html#modules_loading_from_node_modules_folders
+ // a.js
+ const moduleA = require("moduleA的名字") // moduleA不是nodejs自带的模块
+ nodejs按照下面算法来寻找moduleA
+ 1) 从 <当前目录> 一直搜寻到 <根目录>，逐层在每级目录下的 <node_modules> 目录下寻找要加载的模块
+ 2) 如果设置了环境变量NODE_PATH, 则到其指定的目录下寻找,否则直接按 第 3) 步寻找
+ 3) 到下列目录去寻找
+    ~/.node_modules
+    ~/.node_libraries
+    $PREFIX/lib/node  // $PREFIX 是 npm config ls -l | grep prefix的值
+  
+  参考链接: https://nodejs.org/docs/latest-v12.x/api/modules.html#modules_loading_from_node_modules_folders
 
-2 nodejs如何查看安装了哪些模块
-  1) 查看全局安装了哪些目录
-  npm ls -l -g -depth=0 
-  参考链接 https://stackoverflow.com/questions/5926672/where-does-npm-install-packages
-
-3 npm install 如何工作
-  1) 直接在项目目录下执行 npm install, 会去下载package.json指定的项目依赖
-  2) npm install 模块名称
-     请看下面的链接，它有详细的算法描述
-     https://docs.npmjs.com/configuring-npm/folders#more-information
-
-     eg 
-         npm install foo@1.0.0  (local install)
-     (1) 寻找包含 node_modules或package.json文件的目录，如果找不到就在当前目录新建node_modules目录并安装
-     (2) foo@1.0.0模块的package.json中bin字段指定的命令会被安装到node_modules/.bin/目录下 （https://docs.npmjs.com/files/package.json#bin）
-
-          npm install -g foo@1.0.0  (global install)
-     (1) 会直接安装到 {prefix}/lib/node_modules, prefix 是npm config ls -l | grep prefix的值
-         或者直接用 npm root -g 查看全局安装的目录
-
-4 nodejs官方安装方法
-  https://nodejs.org/en/download/
-     (2) foo@1.0.0模块的package.json中bin字段指定的命令会被安装到prefix/bin目录下 （https://docs.npmjs.com/files/package.json#bin）
-
-5 npm 如何使用阿里源
-  1) 安装cnpm (它包装了原本的npm)
-     npm install -g cnpm --registry=https://registry.npm.taobao.org
-  2) 可以用cnpm代替npm进行本笔记的其他操作
-  3) ！！！ 一定要注意不要直接替换 npm默认的registry为淘宝源https://registry.npm.taobao.org ！！！
-     因为npm从阿里源下一些包时会下不到，从而间接导致一些问题，比如安装angular cli并创建一个全新的项目，就会报错
-    
-       npm config set registry https://registry.npm.taobao.org
+2 npm的配置文件有4个
+  项目级别 /path/to/yourproject/.npmrc
+  用户级别 ~/.npmrc
+  全局级别 $PREFIX/etc/npmrc             // $PREFIX 是 npm config ls -l | grep prefix的值
+  npm代码中 
+  
+  npm config set key value               // 设置的是 ~/.npmrc
+  npm config set key value -g|--global   // 设置的是 $PREFIX/etc/npmrc
+  
+  npm config ls -l 会按上面的顺序打印所有配置项(注意如果没有配过则不会打印)
+  
+  参考链接: https://stackoverflow.com/questions/51330735/npm-config-global-vs-local
+ 
+ 3 npm install如何安装软件的
+   1) npm install
+      必须在项目目录下执行(包含package.json的目录), 下载package.json指定的所有依赖到/path/to/yourproject/node_modules去
+   
+   2) npm install @angular/cli                 // 本地安装
+      a 确定安装目录: 从 <当前目录> 一直搜寻到 <根目录>，找到第一个包含 node_modules或package.json文件的目录, 如果没有就设定为当前目录
+      b 下载并安装模块到 步骤a确定的 <安装目录>/node_modules, 
+        并将 模块的package.json中bin字段指定的命安装到<安装目录>/node_modules/.bin/目录下
+   
+   3) npm install @angular/cli -g|--global    // 全局安装
+      下载并安装目录到  $PREFIX/lib/node_modules中去,  $PREFIX 是 npm config ls -l | grep prefix的值
+      
+   参考链接: npm install 算法 
+             https://docs.npmjs.com/configuring-npm/folders#more-information
+             npm install 对 package.json 中bin字段的处理
+             https://docs.npmjs.com/files/package.json#bin
+  
+  4 npm切换为阿里源
+    1) 请用 cnpm 替换 npm
+       npm install -g cnpm --registry=https://registry.npm.taobao.org
+    2) ！！！ 一定要注意不要直接替换 npm默认的registry为淘宝源https://registry.npm.taobao.org ！！！
+       因为npm从阿里源下一些包时会下不到，从而间接导致一些问题，比如安装angular cli并创建一个全新的项目，就会报错
+       npm config set registry https://registry.npm.taobao.org 
        npm install -g @angular/cli                             // npm 切换到阿里源后可以正确的下载 angular/cli
        ng new test-project                                     // 这步会报找不到angular cli的某个module
 
-     下面是如何正确使用阿里源的操作
-     npm install -g cnpm --registry=https://registry.npm.taobao.org
-     cnpm install -g @angular/cli
-     ng config -g cli.packageManager cnpm                     // 这步是将angular cli默认的包管理工具,从npm切换为cnpm
-     ng new test-project
+        下面是如何正确使用阿里源的操作
+        npm install -g cnpm --registry=https://registry.npm.taobao.org
+        cnpm install -g @angular/cli
+        ng config -g cli.packageManager cnpm                     // 这步是将angular cli默认的包管理工具,从npm切换为cnpm
+        ng new test-project
     
-     也可以这样操作
-     npm install -g cnpm --registry=https://registry.npm.taobao.org
-     cnpm install -g @angular/cli
-     ng new test-project --skip-install                    // 这步在创建默认项目时不去下载依赖
-     cd test-project
-     cnpm install
-     
-
-6 npm 删除全局安装的module
-  cnpm uninstall -g @angular/cli
-  cnpm cache clean --force 
-
-7 yarn 安装及设置阿里源
-  1) 安装
-     npm show yarn versions
-     npm install -g yarn@1.22.0
-  2) 换阿里源
-     yarn config set registry https://registry.npm.taobao.org -g
-     yarn config set disturl https://npm.taobao.org/dist -g
-     
-     要想yarn使用阿里源必须也要更改npm的源为阿里源
-     npm config set registry https://registry.npm.taobao.org
-     下面的设置是为了下载node-sass
-     npm set sass_binary_site https://npm.taobao.org/mirrors/node-sass
-     npm set electron_mirror https://npm.taobao.org/mirrors/electron/
-     npm set puppeteer_download_host https://npm.taobao.org/mirrors
-     npm set chromedriver_cdnurl https://npm.taobao.org/mirrors/chromedriver
-
-
+        也可以这样操作
+        npm install -g cnpm --registry=https://registry.npm.taobao.org
+        cnpm install -g @angular/cli
+        ng new test-project --skip-install                    // 这步在创建默认项目时不去下载依赖
+        cd test-project
+        cnpm install    
+  
+  5 npm 常用命令
+    cnpm|npm ll -g -depth=0                  // 查看全局安装了哪些模块
+    cnpm|npm uninstall -g moduleName && \    // 删除全局安装的模块
+    npm cache clean --force
+    npm show moduleName versions             // 查看module的所有版本 
+  6 yarn的安装及设置阿里源
+    1) 安装
+      npm install -g yarn@1.22.0 --registry=https://registry.npm.taobao.org
+    2) 换阿里源(注意必须同时更换npm的源也为阿里源,yarn才能正确的切换到阿里源)
+      
+      先换npm的源为阿里源
+      npm config set registry https://registry.npm.taobao.org 
+      npm set sass_binary_site https://npm.taobao.org/mirrors/node-sass
+      npm set electron_mirror https://npm.taobao.org/mirrors/electron/
+      npm set puppeteer_download_host https://npm.taobao.org/mirrors
+      npm set chromedriver_cdnurl https://npm.taobao.org/mirrors/chromedriver
+      
+      再换yarn的源
+      yarn config set registry https://registry.npm.taobao.org
+      yarn config set disturl https://npm.taobao.org/dist
+ 
+ 7 yarn 的配置文件
+   yarn config set key value
+   yarn config set key value -g|--global
+   都只操作一个配置文件 find / -name '.yarnrc' -type f
+      
