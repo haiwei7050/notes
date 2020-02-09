@@ -160,4 +160,39 @@
      return x + y;
    }
 
+6、Object.keys(), Object.getOwnPropertyNames(), for in
+   1) Object.keys()                  // 只遍历 <自身> 的属性，且属性必须是 <可枚举> 的
+      Object.getOwnPropertyNames()   // 只遍历 <自身> 的属性, 包括 <可枚举> 和 <不可枚举>
+
+      例子
+      let o = {};
+      Object.defineProperty(o, "noEnumerable", {
+          value: 1,
+          enumerable: false
+      })
+
+      Object.defineProperty(o, 'enumerable', {
+         value: 2,
+         enumerable: true
+      })
+
+      let keys_1 = Object.keys(o);
+      let keys_2 = Object.getOwnPropertyNames(o);
+
+      console.log(`Object.keys = ${keys_1}`);                 // Object.keys = enumerable
+
+      console.log(`Object.getOwnPropertyNames = ${keys_2}`);  // Object.getOwnPropertyNames = noEnumerable,enumerable
+  
+  2) for in 可以遍历 <自身> 和其 <父类> 的 <可枚举> 属性
+     function Parent(){
+     }
+     Parent.prototype.tostring = function(){
+         console.log("tostring");
+     }
+     let o = new Parent();
+     o.enumerable = 1;
+     for(let key in o){
+         console.log(key)            //  enumerable, tostring
+     }
+      
 
