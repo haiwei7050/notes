@@ -197,14 +197,14 @@
       
  7 全局变量
    1) 浏览器脚本
-      let|var|const a = 1;
+      var a = 1;
       console.log(`window.a = ${window.a}`); // window.a = 1
    2) node 
       REPL(命令行下,直接敲node进入)
-        let|var|const a = 1;
+        var a = 1;
         console.log(`global.a = ${global.a}`); // global.a = 1
       脚本中(node index.js)
-        let|var|const a = 1;
+        var a = 1;
         console.log(`global.a = ${global.a}`); // global.a = undefined
    这是因为node在执行脚本时,会把脚本包在一个方法中, 所以脚本中的全局变量并不是绑定到global上去的
    
