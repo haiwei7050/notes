@@ -203,7 +203,8 @@
       REPL(命令行下,直接敲node进入)
         var a = 1;
         console.log(`global.a = ${global.a}`); // global.a = 1
-      脚本中(node index.js)
+	
+   **** 脚本中(node index.js) *******
         var a = 1;
         console.log(`global.a = ${global.a}`); // global.a = undefined
    这是因为node在执行脚本时,会把脚本包在一个方法中, 所以脚本中的全局变量并不是绑定到global上去的
@@ -223,4 +224,15 @@
    
    参考链接 https://www.codementor.io/@dariogarciamoya/understanding-this-in-javascript-with-arrow-functions-gcpjwfyuc
    
-   
+   9 let|const 和 var在声明全局变量时的区别
+     let|const声明的全局变量不会绑定到window或global上, 而var会
+     所以
+     let name = 'zs' 
+     // var name = 'z3'
+     function a(){
+        console.log(this.name); 
+     }
+     
+     a() // 能看到var定义的name而看不到let定义的name, 注意this指向的window或global
+     
+     参考链接: https://stackoverflow.com/questions/28776079/do-let-statements-create-properties-on-the-global-object
