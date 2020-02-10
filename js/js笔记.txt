@@ -195,4 +195,32 @@
          console.log(key)            //  enumerable, tostring
      }
       
-
+ 7 全局变量
+   1) 浏览器脚本
+      let|var|const a = 1;
+      console.log(`window.a = ${window.a}`); // window.a = 1
+   2) node 
+      REPL(命令行下,直接敲node进入)
+        let|var|const a = 1;
+        console.log(`global.a = ${global.a}`); // global.a = 1
+      脚本中(node index.js)
+        let|var|const a = 1;
+        console.log(`global.a = ${global.a}`); // global.a = undefined
+   这是因为node在执行脚本时,会把脚本包在一个方法中, 所以脚本中的全局变量并不是绑定到global上去的
+   
+   参考链接: https://stackoverflow.com/questions/34967530/about-global-variables-in-node-js
+ 
+ 8 this和arrow function
+   let o = {
+       name: 'z3',
+       p: () => console.log(this)
+   }
+   o.p();  // node命令行和浏览器中运行结果为 global和 window, node脚本中运行时为空对象{}
+   这是因为 arrow function 的this 是继承parent scope的this,
+   node命令行的this       global                  // 直接在命令行敲node进入命令行模式
+   浏览器中的this         window            
+   node脚本中的this       {}                      //  node index.js
+   
+   参考链接 https://www.codementor.io/@dariogarciamoya/understanding-this-in-javascript-with-arrow-functions-gcpjwfyuc
+   
+   
