@@ -65,8 +65,10 @@
   
   5 npm 常用命令
     cnpm|npm ll -g -depth=0                  // 查看全局安装了哪些模块
+    
     cnpm|npm uninstall -g moduleName && \    // 删除全局安装的模块
     npm cache clean --force
+    
     npm show moduleName versions             // 查看module的所有版本 
   6 yarn的安装及设置阿里源
     1) 安装
