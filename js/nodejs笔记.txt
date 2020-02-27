@@ -103,14 +103,17 @@
         c <script>标签这样写 <script src='assert/lib.js'></script>
         d 根据lib.js的export方式确定如何引入
           d1) CommonJS export
+              //下面是lib.js的内容
               module.exports = function (msg){
                  alert(msg);
               }
           d2) ES6 export
+              //下面是lib.js的内容
               export function log(msg){
                  alert(msg);
               }
           d3) 没有导出方式
+              //下面是lib.js的内容
               function log(msg){
                  alert(msg);
               }
