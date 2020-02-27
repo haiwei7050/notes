@@ -96,7 +96,51 @@
      ng config -g cli.packageManager cnpm   // 更换为阿里的cnpm
      ng config -g cli.packageManager yarn   // 跟换为yarn
    
-   9 angular中怎么引用纯js写的lib
+   9 angular引用lib
+     1) 没提供npm包
+        a 把lib.js放到 /path/to/project/src/asserts目录下
+        b 在/path/to/project/src/index.html中加入<script>标签
+        c <script>标签这样写 <script src='assert/lib.js'></script>
+        d 根据lib.js的export方式确定如何引入
+          d1) CommonJS export
+              module.exports = function (msg){
+                 alert(msg);
+              }
+          d2) ES6 export
+              export function log(msg){
+                 alert(msg);
+              }
+          d3) 没有导出方式
+              function log(msg){
+                 alert(msg);
+              }
+          f 组件里如何引用
+            f1) 编写lib说明文件
+                vi /path/to/project/src/app/lib.d.ts  
+                
+                // lib.d.ts的内容
+                   declare function log(msg: string): void;  //当采用的是 d3)(没有导出方式)时, 写到这里就行
+                   export = log;                             //当采用的是 d1)(CommonJS export)时, 必须这样export
+                   export {log};                             //当采用的是 d2)(ES6 export)时, 必须这样export
+                   
+            f2) 在*.component.ts中引用
+                import * as log from '../asserts/lib';      //当采用的是 d1)(CommonJS export)时, 必须这样import
+                import {log} from '../asserts/lib';         //当采用的是 d2)(ES6 export)时, 必须这样import
+                                                            // 当采用的是 d3)(没有导出方式)时, 必须 不写import
+                class AComponent{
+                   constructor(){
+                     log('CommonJS export');
+                   }
+                }
+                
+     2) 提供npm包
+        具体怎么引入看下面 2)提供了npm包, 我这里只想让注意的是 import .. from中from的写法
+        1) 没提供npm包的lib, 我们是把他们放到 /path/to/project/src/asserts目录下,所以引用要写成
+           import .. from '../asserts/lib.js'
+        2) 而提供了npm包的lib会被直接安装到 /path/to/project/node_modules目录下,所以引用要写成
+           import .. from 'lib'          // 这里使用了node如何加载module的处理方法,请看最上面 
+                                         // 1 nodejs 如何加载模块  
+   10 angular中怎么引用纯js写的lib
      1) 没有提供npm包
         a 把lib.js放到 /path/to/project/src/asserts目录下
         b 在/path/to/project/src/index.html中加入<script>标签
