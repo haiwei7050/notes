@@ -291,3 +291,51 @@ location /a { #2
 #1 返回的是 $prefix/html/a/1/png 而
 #2 返回的是 $prefix/html/1.png    =====> 用 $prefix/html/ 替换 /a
 
+9 nginx利用上面讲的实现本地http代理，只实现了http协议
+  
+worker_processes  1;
+
+error_log /usr/local/var/log/nginx/error.log debug;
+
+events {
+    worker_connections  256;
+}
+
+
+http {
+    include       mime.types;
+    default_type  text/html;
+
+    log_format myFormat 'http_x_forwarded_for = $http_x_forwarded_for\n'
+                        'request = $request\n'
+                        'hostname = $hostname';
+    
+    access_log /usr/local/var/log/nginx/access.log myFormat;
+
+    sendfile        on;
+
+    keepalive_timeout  65;
+
+    server {
+         charset utf-8;
+         listen 80;
+         server_name "";
+         location / {
+           #return 200 'port=$request, requestURI=$request_uri, host=$host';
+           if ( $request ~ "8150" ){
+               proxy_pass http://127.0.0.1:8091$request_uri;
+           }
+            
+           if ( $request ~ "8080" ){
+               proxy_pass http://127.0.0.1:8092$request_uri;
+           }
+
+         }
+    }
+
+  }
+
+
+
+
+
