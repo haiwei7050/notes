@@ -64,12 +64,14 @@
         cnpm install    
   
   5 npm 常用命令
-    cnpm|npm ll -g -depth=0                  // 查看全局安装了哪些模块
+    cnpm|npm ll -g -depth=0                  // npm查看全局安装了哪些模块
     
     cnpm|npm uninstall -g moduleName && \    // 删除全局安装的模块
     npm cache clean --force
     
     npm show moduleName versions             // 查看module的所有版本 
+    yarn global list                         // yarn查看全局安装了哪些模块
+    
     yarn global list                         // yarn查看全局安装了哪些模块
     
   6 yarn的安装及设置阿里源
@@ -144,70 +146,4 @@
         2) 而提供了npm包的lib会被直接安装到 /path/to/project/node_modules目录下,所以引用要写成
            import .. from 'lib'          // 这里使用了node如何加载module的处理方法,请看最上面 
                                          // 1 nodejs 如何加载模块  
-   10 angular中怎么引用纯js写的lib
-     1) 没有提供npm包
-        a 把lib.js放到 /path/to/project/src/asserts目录下
-        b 在/path/to/project/src/index.html中加入<script>标签
-        c <script>标签这样写 <script src='assert/lib.js'></script>
-        d 引入lib的说明文件
-          d1 提供了说明文件(@types/lib)
-              cd /path/to/project
-              yarn add @types/lib
-              
-        f 在组件中引用 (即在*.component.ts中引用)
-          import * as log from 'lib';   //这里的import方式由@types/lib的export方式决定, export的方式可以参考下面链接
-          class LoginComponent{
-             constructor(){
-               log('使用lib中的log方法');
-             }
-          }
-          d2 自己写说明文件
-             cd /path/to/project/src/app
-             vi lib.d.ts
-             declare function log(msg: string): void; // lib.d.ts的内容
-             
-        f 在组件中引用 (即在*.component.ts中引用)
-          class LoginComponent{
-             constructor(){
-               log('使用lib中的log方法');            //不需要写import直接就能用
-             }                                      //这是因为d2步写的声明文件,采用了全局变量的export方式
-          }                                         //具体请参考下面链接
-          
-     2) 提供了npm包
-        2.1) lib的结构
-             - lib
-                  - package.json
-                  - index.js
-         2.1.a) index.js采用CommonJS方式export
-                module.exports = function (msg){
-                   alert(msg);
-                }
-                
-         2.1.b) index.js采用ES6方式export
-                exports function log (msg){
-                   alert(msg);
-                }
-         2.2)安装
-           a) cd /path/to/project && yarn add lib
-           b)引入lib的说明文件
-             b1) 提供了说明文件(@types/lib)
-                cd /path/to/project
-                yarn add @types/lib
-             b2) 自己写说明文件
-                 cd /path/to/project/src/app
-                 vi lib.d.ts
-                   // lib.d.ts的内容
-                   declare function log(msg: string): void;
-                   export = log;       //当采用的是 2.1.a)(CommonJS方式的export), 必须这样export,具体可以看链接
-                   export {log};       //当采用的是 2.1.b)(ES6方式export), 必须这样export,具体可以看链接
-           c) 在组件中引用 (即在*.component.ts中引用)
-              import * as log from 'lib';   //当采用的是 2.1.a)(CommonJS方式的export), 必须这样import,具体可以看链接
-              import {log} from 'lib';      //当采用的是 2.1.b)(ES6方式export), 必须这样import,具体可以看链接
-              class LoginComponent{
-                 constructor(){
-                    log('使用lib中的log方法');
-                  }
-              }
-     参考链接:
-      typescript声明文档和import export方式的参考
-      https://ts.xcatliu.com/basics/declaration-files#quan-ju-bian-liang
+   10
