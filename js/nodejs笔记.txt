@@ -63,7 +63,7 @@
         cd test-project
         cnpm install    
   
-  5 npm 常用命令
+  5 常用命令
     cnpm|npm ll -g -depth=0                  // npm查看全局安装了哪些模块
     
     cnpm|npm uninstall -g moduleName && \    // 删除全局安装的模块
@@ -73,6 +73,8 @@
     yarn global list                         // yarn查看全局安装了哪些模块
     
     yarn global list                         // yarn查看全局安装了哪些模块
+    
+    ng new 项目名称 --skipGit=true           // ng新建angular项目时不需要初始化git
     
   6 yarn的安装及设置阿里源
     1) 安装
