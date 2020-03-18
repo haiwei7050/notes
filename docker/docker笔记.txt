@@ -1,0 +1,12 @@
+1 docker registry国内镜像
+  1)修改docker配置文件
+    
+    vi /etc/docker/daemon.json
+    {
+          "registry-mirrors": ["https://dockerhub.azk8s.cn"]
+    }
+     
+  2) 重启docker
+     systemctl restart docker 
+
+参考链接:https://zhuanlan.zhihu.com/p/73374337
