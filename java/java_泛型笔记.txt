@@ -12,6 +12,7 @@
 
   2) List<Parent> arr = new Array<Sub1>();      //error, 因为泛型没有继承关系
 
+参考链接:https://www.jianshu.com/p/ddbe1db509da
   
 
 2 PECS(Producer extends and Consumer super)
