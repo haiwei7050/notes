@@ -100,7 +100,7 @@
    8 更换angular/cli的包管理工具
      ng config -g cli.packageManager cnpm   // 更换为阿里的cnpm
      ng config -g cli.packageManager yarn   // 跟换为yarn
-   
+     ng set --global packageManager=yarn    // 这个是angular-cli 1.7时的设置方法, 上面是angular 6及以后版本的设置方法
    9 angular引用lib
      1) 没提供npm包
         a 把lib.js放到 /path/to/project/src/asserts目录下
