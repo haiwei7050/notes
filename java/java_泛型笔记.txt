@@ -1,35 +1,79 @@
-1.PECS(Producer extends and Consumer super) 是从集合的视角去看
+1 泛型基本知识
+  class Parent{}
+  class Sub1 extend Parent{}
+  class Sub2 extend Parent{}
+
+  1) List<Parent> arr = new ArrayList<Parent>();
+     arr.put(new Parent());                      // ok
+
+     arr.put(new Sub1());                        // 这两个都ok，是因为List<Parent>规定了  
+     arr.put(new Sub2());                        // arr里面只能放 Parent, 而Sub1和Sub2
+                                                 // 是一个Parent(有继承关系)
+
+  2) List<Parent> arr = new Array<Sub1>();      //error, 因为泛型没有继承关系
+
+  
+
+2 PECS(Producer extends and Consumer super)
+  1) 你有个方法，方法要对泛型集合进行操作
+      
+     ------------------------- ? extend 只从方法参数的集合中取数据
+      void pop(List<? extend Parent> list){     
+          Parent a = list.get(0);               //  这步ok
+          list.add(a);                          //  这步error，因为 ? extend意味着只能取数据
+
+          Sub1 b =  list.get(0);                //  这步不行，取出的数据的类型必须为extend右边的类型
+                                                //  这里为 Parent
+      }
+      List<Sub1> sub1List = Arrays.asList(new Sub1());
+
+      pop(sub1List);                             
+
+    -------------------------? super 只向方法参数的集合中放数据
+     
+     void push(List<? supper Sub1> list){     
+          list.put(new Sub1());              // 这步ok
+          list.put(new Parent());            // 这步不行, 放到集合里的数据的类型必须为extend右边的类型
+                                             // 这里是 Sub1
+     }
+
+     List<Parent> container = new ArrayList();
+     push(container);
+
+
+3.PECS(Producer extends and Consumer super) 经典案例
 
 	① 从 集合  只取         ------> ? extends E
 	② 从 集合  只放         ------> ? super E
 	③          又取又放     ------>  先?，后<E>
 	https://stackoverflow.com/questions/2723397/what-is-pecs-producer-extends-consumer-super
 
-	只取(对s1和s2)
+        ------------------------- ? extend 只从方法参数的集合中取数据
 	   
 	   Set<Integer> s1 = new HashSet<>(Arrays.asList(1, 2));
 	   Set<Double>  s2 = new HashSet<>(Arrays.asList(0.11, 0.22));
 	   Set<Number> number = union(s1, s2);
 
-	   public static <E> Set<E> union(Set<? extends E> s1, Set<? extends E> s2){
+	   <E> Set<E> union(Set<? extends E> s1, Set<? extends E> s2)
+          {
+              //方法传进两个集合，要把它们的内容收集到一起
+              // 所以我们需要： 从方法参数的集合中取数据
+              // 所以要用 ? extend
+
 	      Set<E> result = new HashSet<>();
 	      for (E e : s1) {
-             result.add(e);    // 从集合s1取
-           }
-           for (E e : s1) {
-             result.add(e);
-           }
+                result.add(e);    
+              }
+              
+              for (E e : s1) {
+                result.add(e);
+              }
+        
 	      return result;
 	   }
 
-	只放
-	   Box<Integer> a = new Box<>();
-	   a.put(1);
-	   a.put(2);
-	   Set<Number> result = new HashSet<>();
-	   a.popAll(result);
-
-	   public class Box<E>{
+         -------------------------? super 只向方法参数的集合中放数据
+          public class Box<E>{
 	      private Set<E> thingSet = new HashSet<>();
 	      public void popAll(Set<? super E> container){
 		 for(E e : thingSet){
@@ -40,8 +84,15 @@
 		 thingSet.put(e);
 	      }
 	   }
+           
+	   Box<Integer> a = new Box<>();
+	   a.put(1);
+	   a.put(2);
+	   Set<Number> result = new HashSet<>();
+	   a.popAll(result);
 
-	又取又放
+
+	 ------------------------先?后<E>又放又取
 	    先 ?
 	    public static void swap(List<?> list, int i, int j){
 		   swapInternal(list, i , j);
