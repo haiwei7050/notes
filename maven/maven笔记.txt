@@ -364,3 +364,93 @@ mvn exec:exec //输出 hello world
 </project>
   
   2、mvn help:effective-pom
+
+12 maven 如何解析dependency
+  按照下面三个规则依次进行解析,
+  当第1)步解析不了时, 
+  使用第2)步来解析, 
+  *** 3)步会优先级最高会覆盖1),2)步解析的结果 ***
+  1) 最近原则
+    假设我们的项目叫 P1, 有以下依赖关系
+    P1 -> A -> B -> D(1.0)
+    P1 -> C -> D(2.0)
+    P1最终会依赖D(2.0), 因为P1通过依赖C到依赖D的距离最短, 为2, 而通过依赖A到依赖D的距离为3
+    
+  2) 最前原则
+    假设我们的项目叫 P1, 有以下依赖关系
+    P1 -> A -> D(1.0)
+    P1 -> C -> D(2.0)
+    P1依赖哪个版本的D,由依赖A,C在项目P1的pom.xml定义的顺序决定, 靠前的会覆盖靠后的
+    
+    P1               P1最终会依赖D(1.0), 因为A定义在C前面 
+      --A
+      --C
+      
+  3) 当前原则
+     当项目P1的pom.xml直接定义依赖D时,它会覆盖依赖A 和 依赖 C中的定义, 无论在什么位置
+     
+     P1                  P1最终会依赖D(0.9), 无论位置
+       --A -> D(1.0)
+       --C -> D(2.0)
+       --D(0.9)
+       
+     P1                  P1最终会依赖D(0.9), 无论位置
+       --A -> D(1.0)
+       --D(0.9)
+       --C -> D(2.0)
+       
+     P1                  P1最终会依赖D(0.9), 无论位置
+       --D(0.9)
+       --A -> D(1.0)
+       --C -> D(2.0)
+       
+   4) dependencyManagement中也适用上述规则
+      项目P1
+        <dependencyManagement>
+	   <dependencies>
+             <dependency>
+	        <groupId>A</groupId>
+                 <artifactId>A</artifactId>
+                 <version>1.0</version>
+		 <type>pom</type>                    // type默认是jar,一般可以省略不写
+		                                     // 但是,项目A和项目B的packageing是pom,所以要写<type>并且值为pom
+						     
+                 <scope>import</scope>               // <scope>写成import表明, 把这里A的信息
+		                                     // 都替换为项目A的<dependencyManagement>中定义的内容
+	     </dependency>
+           </dependencies>
+	</dependencyManagement>
+      项目A
+          <groupId>A</groupId>
+          <artifactId>A</artifactId>
+          <version>1.0</version>
+	  <packaging>pom</packaging>
+	  <dependencyManagement>
+	   <dependencies>
+             <dependency>
+	         D:1.0
+	     </dependency>
+           </dependencies>
+	</dependencyManagement>
+      项目C
+          <groupId>C</groupId>
+          <artifactId>C</artifactId>
+          <version>1.0</version>
+	  <packaging>pom</packaging>
+	  <dependencyManagement>
+	   <dependencies>
+             <dependency>
+	         D:2.0
+	     </dependency>
+           </dependencies>
+	</dependencyManagement>
+     
+    4.1) 假如在P1的dependencyManagement, 这样定义
+         P1               P1最终会依赖D(1.0), 因为A定义在C前面 
+           --A
+           --C
+    4.2) 假如在P1的dependencyManagement, 这样定义
+         P1               P1最终会依赖D(0.9), 无论位置
+           --A
+           --C
+           --D(0.9)
