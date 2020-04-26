@@ -1047,3 +1047,7 @@
 			 
 38 项目不继承spring boot时,最小的maven配置
    https://javadeveloperzone.com/spring-boot/spring-boot-without-parent-pom
+
+39 org.springframework.core.io.support.SpringFactoriesLoader加载类的配置文件为
+   META-INF/spring.factories
+   
