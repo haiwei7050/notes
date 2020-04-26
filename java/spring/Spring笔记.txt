@@ -1044,3 +1044,6 @@
                          engine -> host -> context(servlet都在这里)
     server -> service -> 
                          connector -> Http11NioProtocol -> NioEndpoint(这里ServerSocket)
+			 
+38 项目不继承spring boot时,最小的maven配置
+   https://javadeveloperzone.com/spring-boot/spring-boot-without-parent-pom
