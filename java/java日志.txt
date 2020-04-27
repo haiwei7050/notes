@@ -1,5 +1,5 @@
-1¡¢¸÷¸öÈÕÖ¾¿ò¼ÜµÄÓï·¨
-  1) JCL(common-apiÓï·¨)
+1ã€å„ä¸ªæ—¥å¿—æ¡†æ¶çš„è¯­æ³•
+  1) JCL(common-apiè¯­æ³•)
      import org.apache.commons.logging.*;
      Log log = LogFactory.getLog(A.class);
 
@@ -14,31 +14,35 @@
   4) log4j2
      import org.apache.logging.log4j.*;
      Logger logger = LogManager.getLogger(A.class);
+     
+  5) jboss logging
+     import org.jboss.logging.Logger;
+     Logger log = Logger.getLogger(A.class);
 
-2¡¢¸÷¸öÈÕÖ¾¿ò¼Ü×ªslf4jµÄ°üÃû
-   1) jcl-over-slf4j          ÓÃslf4jÊµÏÖJCL API
-   2) jul-to-slf4j            ÓÃslf4jÊµÏÖJDK Log API
-   3) log4j-over-slf4j        ÓÃslf4jÊµÏÖlog4j API
+2ã€å„ä¸ªæ—¥å¿—æ¡†æ¶è½¬slf4jçš„åŒ…å
+   1) jcl-over-slf4j          ç”¨slf4jå®ç°JCL API
+   2) jul-to-slf4j            ç”¨slf4jå®ç°JDK Log API
+   3) log4j-over-slf4j        ç”¨slf4jå®ç°log4j API
    
-3 Àı×Ó
-  Ç°Ìá£º
-        1) ÏîÄ¿Ê¹ÓÃµÄÊÇslf4j×÷ÎªÈÕÖ¾¿ò¼Ü, ¾ßÌåÊµÏÖÎªlogback
-        2) ÏîÄ¿ÓĞĞ©ÒÀÀµÊ¹ÓÃµÄÊÇlog4j×÷ÎªÈÕÖ¾¿ò¼Ü
+3 ä¾‹å­
+  å‰æï¼š
+        1) é¡¹ç›®ä½¿ç”¨çš„æ˜¯slf4jä½œä¸ºæ—¥å¿—æ¡†æ¶, å…·ä½“å®ç°ä¸ºlogback
+        2) é¡¹ç›®æœ‰äº›ä¾èµ–ä½¿ç”¨çš„æ˜¯log4jä½œä¸ºæ—¥å¿—æ¡†æ¶
 
-  ÎÊÌâ: ÈçºÎÊµÏÖ,ÔÚÏîÄ¿ÖĞÎŞÂÛÊ¹ÓÃlog4j API(±ÈÈçÇ°ÃæÌáµ½µÄÒÀÀµ),»¹ÊÇslf4j API, ×îÖÕµÄµ÷ÓÃ¶¼»á×ªµ½slf4j API
+  é—®é¢˜: å¦‚ä½•å®ç°,åœ¨é¡¹ç›®ä¸­æ— è®ºä½¿ç”¨log4j API(æ¯”å¦‚å‰é¢æåˆ°çš„ä¾èµ–),è¿˜æ˜¯slf4j API, æœ€ç»ˆçš„è°ƒç”¨éƒ½ä¼šè½¬åˆ°slf4j API
 
-  ·½·¨1: 
-        1) ÌŞ³ıÒÀÀµÖĞµÄlog4j
-	2) ÒıÈëlog4j-over-slf4j ºÍ logback ÒÀÀµ
+  æ–¹æ³•1: 
+        1) å‰”é™¤ä¾èµ–ä¸­çš„log4j
+	2) å¼•å…¥log4j-over-slf4j å’Œ logback ä¾èµ–
 
-  ·½·¨2:
-        1) ÌŞ³ıÒÀÀµÖĞµÄlog4j
-	2) ÒıÈëspring-boot-starter-logging, Ëü°ïÎÒÃÇ×öÍêÁË·½·¨1ÖĞµÄµÚ2)²½
+  æ–¹æ³•2:
+        1) å‰”é™¤ä¾èµ–ä¸­çš„log4j
+	2) å¼•å…¥spring-boot-starter-logging, å®ƒå¸®æˆ‘ä»¬åšå®Œäº†æ–¹æ³•1ä¸­çš„ç¬¬2)æ­¥
 	
-·½·¨1¾ßÌåÊµÏÖ
+æ–¹æ³•1å…·ä½“å®ç°
 <dependencies>
    
-   <!---       ÒÀÀµA  ----->
+   <!---       ä¾èµ–A  ----->
    <dependency>
        <groupId>A</groupId>
        <artifactId>A</artifactId>
