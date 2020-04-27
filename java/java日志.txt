@@ -24,7 +24,22 @@
    2) jul-to-slf4j            用slf4j实现JDK Log API
    3) log4j-over-slf4j        用slf4j实现log4j API
    
-3 例子
+3 jboss-logging日志框架
+  1) Hibernate使用这个框架
+  2) 该框架会按如下顺序,找到第一个可以委托的日志框架进行日志工作
+     
+     JBoss LogManager (mainly used only inside the WildFly app server)
+     Log4j 2
+     Log4j 1
+     Slf4j
+     JDK logging
+     
+  3) 可以通过设置系统参数来覆盖上述算法: -Dorg.jboss.logging.provider=
+     (jboss, jdk, log4j2, log4j, slf4j)
+     
+ 参考链接:https://docs.jboss.org/hibernate/orm/4.3/topical/html/logging/Logging.html
+ 
+4 例子
   前提：
         1) 项目使用的是slf4j作为日志框架, 具体实现为logback
         2) 项目有些依赖使用的是log4j作为日志框架
