@@ -1,0 +1,69 @@
+1、各个日志框架的语法
+  1) JCL(common-api语法)
+     import org.apache.commons.logging.*;
+     Log log = LogFactory.getLog(A.class);
+
+  2) log4j
+     import org.apache.log4j.Logger;
+     Logger log = Logger.getLogger(A.class);
+
+  3) slf4j
+     import org.slf4j.*;
+     Logger logger = LoggerFactory.getLogger(A.class);
+
+  4) log4j2
+     import org.apache.logging.log4j.*;
+     Logger logger = LogManager.getLogger(A.class);
+
+2、各个日志框架转slf4j的包名
+   1) jcl-over-slf4j          用slf4j实现JCL API
+   2) jul-to-slf4j            用slf4j实现JDK Log API
+   3) log4j-over-slf4j        用slf4j实现log4j API
+   
+3 例子
+  前提：
+        1) 项目使用的是slf4j作为日志框架, 具体实现为logback
+        2) 项目有些依赖使用的是log4j作为日志框架
+
+  问题: 如何实现,在项目中无论使用log4j API(比如前面提到的依赖),还是slf4j API, 最终的调用都会转到slf4j API
+
+  方法1: 
+        1) 剔除依赖中的log4j
+	2) 引入log4j-over-slf4j 和 logback 依赖
+
+  方法2:
+        1) 剔除依赖中的log4j
+	2) 引入spring-boot-starter-logging, 它帮我们做完了方法1中的第2)步
+	
+方法1具体实现
+<dependencies>
+   
+   <!---       依赖A  ----->
+   <dependency>
+       <groupId>A</groupId>
+       <artifactId>A</artifactId>
+       <version>1</version>
+       <exclusions>
+          <exclusion>
+              <groupId>log4j</groupId>
+              <artifactId>log4j</artifactId>
+          </exclusion>
+       </exclusions>
+   </dependency>
+
+   <!--- logback ----->
+   <dependency>
+       <groupId>ch.qos.logback</groupId>
+       <artifactId>logback-classic</artifactId>
+       <version>1.1.11</version>
+   </dependency>
+
+
+   <!--- log4j-over-slf4j----->
+   <dependency>
+       <groupId>org.slf4j</groupId>
+       <artifactId>log4j-over-slf4j</artifactId>
+       <version>1.7.25</version>
+   </dependency>
+
+</dependencies>
