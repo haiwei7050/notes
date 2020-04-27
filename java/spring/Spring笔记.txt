@@ -1045,9 +1045,81 @@
     server -> service -> 
                          connector -> Http11NioProtocol -> NioEndpoint(这里ServerSocket)
 			 
-38 项目不继承spring boot时,最小的maven配置
+38、项目不继承spring boot时,最小的maven配置
    https://javadeveloperzone.com/spring-boot/spring-boot-without-parent-pom
 
-39 org.springframework.core.io.support.SpringFactoriesLoader加载类的配置文件为
+39、org.springframework.core.io.support.SpringFactoriesLoader加载类的配置文件为
    META-INF/spring.factories
+
+40、springboot启动流程
+   1)利用SpringFactoriesLoader,从类路径META-INF/spring.factories下加载, 加载方式是用下面类作为key读取其后的值
+     a) ApplicationContextInitializer(接口)
+     b) ApplicationListener(接口)
+
+     备注:
+          两个比较重要的ApplicationListener
+          a)ConfigFileApplicationListener     --设置Spring配置文件  order = Ordered.HIGHEST_PRECEDENCE + 10
+          b)LoggingApplicationListener        --设置Spring日志      order = Ordered.HIGHEST_PRECEDENCE + 20
    
+   2)确定使用哪种ApplicationContext
+     a) AnnotationConfigEmbeddedWebApplicationContext
+     b) AnnotationConfigApplicationContext
+
+     c) 上面两个ApplicationContext在初始化工程中,都会
+        c.1) this.beanFactory = new DefaultListableBeanFactory()
+	c.2) 利用AnnotationConfigUtils#registerAnnotationConfigProcessors,注册一些BeanFactoryPostProcessor
+
+   3)run方法中的步骤
+     
+     3.1) 发布 ApplicationStartedEvent
+        
+     3.2) getOrCreateEnvironment
+     
+     3.3) 发布 ApplicationEnvironmentPreparedEvent
+     
+     3.4) createApplicationContext
+     
+     3.5) ApplicationContextInitializer#initialize
+     
+     3.6) 注册自己写的springboot启动类到Spring中去
+     
+     3.7) 发布 ApplicationPreparedEvent
+          
+   * 3.8) AbstractApplicationContext#refresh  !!!!!ApplicationContext初始化的模板方法!!!!
+     
+     3.9) ApplicationRunner#run()和CommandLineRunner#run
+
+
+     备注:
+          1)发布 ApplicationStartedEvent 时
+	    a) LoggingApplicationListener 创建loggingSystem
+	  
+	  2)发布 ApplicationEnvironmentPreparedEvent 时
+	    a) ConfigFileApplicationListener 处理springboot的配置文件
+	    b) LoggingApplicationListener 初始化loggingSystem
+
+	  3)步骤3.6)具体做法
+	    a) 创建BeanDefinition(本例是AnnotatedGenericBeanDefinition)
+	    b) ApplicationContext#registerBeanDefinition
+
+	  4)发布 ApplicationPreparedEvent 时
+	    a) LoggingApplicationListener 注册 loggingSystem 实例到spring
+
+	  5)当步骤3.8)的 ApplicationContext = AnnotationConfigEmbeddedWebApplicationContext 时
+	    a) refresh => onRefresh             创建Servlet容器
+	    b) refresh => finishRefresh         启动Servlet容器
+
+
+41、@Conditional注解
+@Conditional(EnableOAuth2SsoCondition.class)
+@Configurable
+public class A{
+    @Bean
+    public B b(){
+       return new B();
+    }
+}
+
+1) 配置类A准备向Spring注册一个类B的实例
+2) 注解@Conditional用来指定一个Condition(本例中是EnableOAuth2SsoCondition)
+3) Condition#matches 封装了在什么条件下, 配置类A可以向Spring注册一个类B的实例
