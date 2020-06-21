@@ -1069,18 +1069,33 @@
      }
 
   2) 步骤
-     // 定义在 EmbeddedWebApplicationContext#createEmbeddedServletContainer
-     EmbeddedServletContainerFactory fac;
-     ServletContextInitializer initializer = EmbeddedWebApplicationContext.getSelfInitializer()
-     EmbeddedServletContainer contanier = fac.getEmbeddedServletContainer(initializer);
-     
-     2.1) EmbeddedWebApplicationContext 匿名定义的 ServletContextInitializer最主要的作用是:
-          for (ServletContextInitializer beans : getServletContextInitializerBeans()) {
-			beans.onStartup(servletContext);
-          }
-	  
-     2.2) fac.getEmbeddedServletContainer(initializer)这步的具体过程
+     2.1)大流程
+         onRefresh       =>   创建EmbeddedServletContainer， 并初始化内嵌的tomcat
+         finishRefresh   =>   spring初始化完所有bean后会掉这个方法
+                              EmbeddedServletContainer.start() 
+                              发布tomcat启动完的事件, EmbeddedServletContainerInitializedEvent
+     2.2)核心流程
+         a 获取Spring容器里已经注册的EmbeddedServletContainerFactory
+         b 再创建一个初始化其他ServletContextInitializer的ServletContextInitializer
+         c 并利用它和步骤a获得fac来创建EmbeddedServletContainer
+
+     2.3) 代码(定义在EmbeddedWebApplicationContext#createEmbeddedServletContainer)
+
+          EmbeddedServletContainerFactory fac = getBeanFactory().getBean(EmbeddedServletContainerFactory.class);
           
+          ServletContextInitializer initalizer = EmbeddedWebApplicationContext.getSelfInitializer();
+        
+          EmbeddedServletContainer container = fac.getEmbeddedServletContainer(initializer);
+
+     2.4) 上面创建的initalizer，最主要的作用是初始化其他initalizer
+          
+          for (ServletContextInitializer beans : getServletContextInitializerBeans()) {
+	       beans.onStartup(servletContext);
+          }
+
+     2.5) 上面创建container的具体内容
+
+     2.6) 嵌入式Tomcat的启动流程
                                engine -> host -> context(servlet都在这里)
           server -> service -> 
                               connector -> Http11NioProtocol -> NioEndpoint(这里ServerSocket)
