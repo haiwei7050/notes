@@ -217,7 +217,7 @@
       https://ts.xcatliu.com/basics/declaration-files#quan-ju-bian-liang
       
 11 npx的使用
-  npx http-server . 
+  npx http-server /path/to/project 
   1) 会在node_modules/.bin及PATH中寻找http-serve, 并使用.
   2) 如果没有找到就会去下载http-server并使用
   3) npx --no-install http-server 只会使用本地的http-server,如果没找到就报错
