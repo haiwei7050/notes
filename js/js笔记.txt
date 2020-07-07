@@ -195,7 +195,7 @@
          console.log(key)            //  enumerable, tostring
      }
       
- 7 全局变量
+ 7、全局变量
    1) 浏览器脚本
       var a = 1;
       console.log(`window.a = ${window.a}`); // window.a = 1
@@ -211,7 +211,7 @@
    
    参考链接: https://stackoverflow.com/questions/34967530/about-global-variables-in-node-js
  
- 8 this和arrow function
+ 8、this和arrow function
    let o = {
        name: 'z3',
        p: () => console.log(this)
@@ -224,7 +224,7 @@
    
    参考链接 https://www.codementor.io/@dariogarciamoya/understanding-this-in-javascript-with-arrow-functions-gcpjwfyuc
    
-   9 let|const 和 var在声明全局变量时的区别
+   9、let|const 和 var在声明全局变量时的区别
      let|const声明的全局变量不会绑定到window或global上, 而var会
      所以
      let name = 'zs' 
@@ -236,3 +236,8 @@
      a() // 能看到var定义的name而看不到let定义的name, 注意this指向的window或global
      
      参考链接: https://stackoverflow.com/questions/28776079/do-let-statements-create-properties-on-the-global-object
+  
+  10、一些重要的事件
+      DOMContentLoaded 
+      readystatechange 
+      请看https://wangdoc.com/javascript/events/common.html#%E7%BD%91%E9%A1%B5%E7%8A%B6%E6%80%81%E4%BA%8B%E4%BB%B6
