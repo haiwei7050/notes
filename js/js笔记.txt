@@ -253,6 +253,7 @@
 	 complete 
 	    网页和所有外部资源已经结束加载，load事件即将触发
 	 参考链接: https://wangdoc.com/javascript/events/common.html#%E7%BD%91%E9%A1%B5%E7%8A%B6%E6%80%81%E4%BA%8B%E4%BB%B6
+	          https://wangdoc.com/javascript/dom/document.html 搜document.readyState
       2) 几个例子
          <html>
             <head>
