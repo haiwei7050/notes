@@ -1,0 +1,69 @@
+1. bitmask
+
+public class Permission {
+    public static final int INSERT = 1 << 0; // 0001
+    public static final int DELETE = 1 << 1; // 0010
+    public static final int UPDATE = 1 << 2; // 0100
+    public static final int SELECT = 1 << 3; // 1000
+
+    private int permission;
+
+    private boolean valid(int permission) {
+        return ( permission & ( INSERT | DELETE | UPDATE | SELECT )) != 0;
+    }
+
+    public void enable(int permission){
+        if(!valid(permission)){
+            throw new IllegalArgumentException("unknown permission");
+        }
+        this.permission = this.permission | permission;
+    }
+
+    public void disable(int permission){
+        if(!valid(permission)){
+            throw new IllegalArgumentException("unknown permission");
+        }
+        this.permission = this.permission & (~permission);
+    }
+
+    public boolean isAllow(int permission){
+        if(!valid(permission)){
+            throw new IllegalArgumentException("unknown permission");
+        }
+        return (this.permission & permission) == permission;
+    }
+
+    public static void main(String[] args) {
+        Permission p = new Permission();  
+        p.enable(INSERT | DELETE);
+        System.out.printf("是否有 INSERT 权限:%s\n", p.isAllow(INSERT));
+        System.out.printf("是否有 DELETE 权限:%s\n", p.isAllow(DELETE));
+        System.out.printf("是否有 INSERT 和 DELETE 权限:%s\n", p.isAllow(INSERT | DELETE));
+        System.out.printf("是否有 SELECT 和 DELETE 权限:%s\n", p.isAllow(SELECT | DELETE));
+    }
+}
+
+       /**
+         *  INSERT 0001
+         *  DELETE 0010
+         *  UPDATE 0100
+         *  SELECT 1000
+         *
+         *  所以
+         *  1) p.enable(INSERT | DELETE) 等于
+         *     this.permission = INSERT | DELETE = 0001 | 0010 = 0011
+         *     
+         *  2) p.isAllow(INSERT) 等于
+         *     this.permission & INSERT == INSERT
+         *     0011            & 0001   == 0001
+         *     
+         *  3) p.isAllow(SELECT | DELETE) 等于
+         *     this.permission & SELECT | DELETE == SELECT | DELETE
+         *     0011            & (1000  | 0010)  == (1000  | 0010)
+         *     0011            &  1010           == 1010
+         *     0010 & 1010 = 0010 
+         */
+
+参考链接及搜索关键词
+https://www.geeksforgeeks.org/bitwise-algorithms/
+bitwise-algorithms
