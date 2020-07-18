@@ -1,4 +1,4 @@
-1.jsÍÏ×§ÎÄ¼şµÄÊµÏÖ
+1.jsæ‹–æ‹½æ–‡ä»¶çš„å®ç°
 
 <!doctype html>
 <html>
@@ -14,7 +14,7 @@
         </style>
     </head>
     <body>
-        <div id="content" draggable="true">ÉÏ´«ÎÄ¼ş</div>
+        <div id="content">ä¸Šä¼ æ–‡ä»¶</div>
         <script>
             const div = document.getElementById('content');
 
@@ -30,9 +30,9 @@
     </body>
 </html>
 
-×¢ÒâÊÂÏî: 1) Ò»¶¨ÒªÔÚdragoverÊÂ¼ş¼àÌıº¯ÊıÖĞµ÷ÓÃe.preventDefault()
-             ·ñÔò²»´¥·¢dropÊÂ¼ş
+æ³¨æ„äº‹é¡¹: 1) ä¸€å®šè¦åœ¨dragoveräº‹ä»¶ç›‘å¬å‡½æ•°ä¸­è°ƒç”¨e.preventDefault()
+             å¦åˆ™ä¸è§¦å‘dropäº‹ä»¶
 	      
-          2) Ò»¶¨ÒªÔÚdropÊÂ¼ş¼àÌıº¯ÊıÖĞµ÷ÓÃe.preventDefault()
-             ·ñÔòä¯ÀÀÆ÷Ä¬ÈÏ»á´ò¿ªÍÏ×§½øÀ´µÄÎÄ¼ş
-²Î¿¼Á´½Ó: https://wangdoc.com/javascript/events/drag.html#%E6%8B%96%E6%8B%89%E4%BA%8B%E4%BB%B6%E7%9A%84%E7%A7%8D%E7%B1%BB
+          2) ä¸€å®šè¦åœ¨dropäº‹ä»¶ç›‘å¬å‡½æ•°ä¸­è°ƒç”¨e.preventDefault()
+             å¦åˆ™æµè§ˆå™¨é»˜è®¤ä¼šæ‰“å¼€æ‹–æ‹½è¿›æ¥çš„æ–‡ä»¶
+å‚è€ƒé“¾æ¥: https://wangdoc.com/javascript/events/drag.html#%E6%8B%96%E6%8B%89%E4%BA%8B%E4%BB%B6%E7%9A%84%E7%A7%8D%E7%B1%BB
