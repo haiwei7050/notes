@@ -1,0 +1,38 @@
+1.js拖拽文件的实现
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>index</title>
+        <style>
+            div#content {
+                width: 400px;
+                height: 200px;
+                border: 2px dashed darkred;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="content" draggable="true">上传文件</div>
+        <script>
+            const div = document.getElementById('content');
+
+            div.addEventListener('dragover', function (e) {
+                e.preventDefault();
+            });
+
+            div.addEventListener('drop', function (e) {
+                console.log('drop');
+                e.preventDefault();
+            })
+        </script>
+    </body>
+</html>
+
+注意事项: 1) 一定要在dragover事件监听函数中调用e.preventDefault()
+             否则不触发drop事件
+	      
+          2) 一定要在drop事件监听函数中调用e.preventDefault()
+             否则浏览器默认会打开拖拽进来的文件
+参考链接: https://wangdoc.com/javascript/events/drag.html#%E6%8B%96%E6%8B%89%E4%BA%8B%E4%BB%B6%E7%9A%84%E7%A7%8D%E7%B1%BB
