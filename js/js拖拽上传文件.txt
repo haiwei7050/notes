@@ -36,3 +36,35 @@
           2) 一定要在drop事件监听函数中调用e.preventDefault()
              否则浏览器默认会打开拖拽进来的文件
 参考链接: https://wangdoc.com/javascript/events/drag.html#%E6%8B%96%E6%8B%89%E4%BA%8B%E4%BB%B6%E7%9A%84%E7%A7%8D%E7%B1%BB
+
+
+2. 文件上传的input详解
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>上传文件的input</title>
+    </head>
+    <body>
+        <input id="uf" type="file"><br>
+        <script>
+            const uf = document.getElementById('uf');
+            const btn = document.getElementById('btn');
+            uf.addEventListener('input', e => {
+                console.log(`input value: ${e.target.value}`);
+                console.log(`input files:${e.target.files[0]}`)
+            })
+        </script>
+    </body>
+</html>
+
+选择文件后:
+           1) uf的value会变成文件的路径');
+           2) input事件会在value改变之后触发');
+           3) 被选中的文件会存放在input.files属性中');
+           4) input.files 是FileList类型');
+           5) input.files[0] 是被选中的文件');
+
+参考链接: input事件     https://wangdoc.com/javascript/events/form.html#input-%E4%BA%8B%E4%BB%B6
+          File,FileList https://wangdoc.com/javascript/bom/file.html
