@@ -1,0 +1,49 @@
+1.利用Cookie保存登录状态
+  
+  <!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>localstorage</title>
+    </head>
+    <body>
+        <p id="content">未登录</p>
+        <button id="btn">登录</button>
+        <script>
+            const content = document.getElementById('content');
+            const btn = document.getElementById('btn');
+
+            function geValueFromCookies(key) {
+                // cookieEntry 类似 a=b
+                const cookieEntryToUse = document.cookie.split(';')
+                    .find(cookieEntry => cookieEntry.split('=')[0] == key);
+                return cookieEntryToUse.split('=')[1];
+            }
+            
+            function checkLogin() {
+                let userId = geValueFromCookies('userId');
+                if (userId) {
+                    content.textContent = `欢迎, ${userId}`;
+                }
+            }
+            btn.onclick = () => {
+                const userId = 'u001';
+                document.cookie = 'b=2';
+                document.cookie = `userId=${userId};max-age=100`;
+                document.cookie = 'a=1';
+                content.textContent = `欢迎, ${userId}`;
+            }
+            
+        </script>
+    </body>
+</html>
+注意事项:
+       1) sessionStorage 不能实现跨标签页保存登录状态, 
+          因为它保存的状态只存在当前窗口, 窗口关闭后就丢失了.
+
+       2) localStorage 可以实现, 但是没办法设置过期时间.
+
+       3) cookie不仅可以实现还可以设置过期时间
+
+参考文档: cookie读写一定要仔细看  https://wangdoc.com/javascript/bom/cookie.html
+          
