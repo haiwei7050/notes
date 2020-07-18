@@ -60,11 +60,11 @@
 </html>
 
 选择文件后:
-           1) uf的value会变成文件的路径');
-           2) input事件会在value改变之后触发');
-           3) 被选中的文件会存放在input.files属性中');
-           4) input.files 是FileList类型');
-           5) input.files[0] 是被选中的文件');
+           1) uf的value会变成文件的路径
+           2) input事件会在value改变之后触发
+           3) 被选中的文件会存放在input.files属性中
+           4) input.files 是FileList类型
+           5) input.files[0] 是被选中的文件
 
 参考链接: input事件     https://wangdoc.com/javascript/events/form.html#input-%E4%BA%8B%E4%BB%B6
           File,FileList https://wangdoc.com/javascript/bom/file.html
