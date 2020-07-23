@@ -68,7 +68,8 @@
 
     2.2) XMLHttpRequest.send(FormData)会采用 multipart/form-data 上传文件
 
-
+参考文档: 
+   拖拽事件 https://wangdoc.com/javascript/events/drag.html
  
 
 2. 文件上传的input详解
