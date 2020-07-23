@@ -1,42 +1,75 @@
-1.js拖拽文件的实现
+1. 实现代码
 
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>index</title>
+        <title>上传文件夹</title>
         <style>
-            div#content {
-                width: 400px;
+            div.box {
+                border: 2px dashed red;
                 height: 200px;
-                border: 2px dashed darkred;
+                line-height: 200px;
+                width: 500px;
+                text-align: center;
             }
         </style>
     </head>
     <body>
-        <div id="content">上传文件</div>
+        <div id="uploadBox" class="box">
+            请将文件拖到这里上传
+        </div>
         <script>
-            const div = document.getElementById('content');
+            const uploadBox = document.getElementById('uploadBox');
+            uploadBox.addEventListener('dragover', e => e.preventDefault());
+            uploadBox.addEventListener('drop', upload);
 
-            div.addEventListener('dragover', function (e) {
+            function upload(e) {
+                e.preventDefault();
+                let fileToUpload;
+                if (!e.dataTransfer.files || !(fileToUpload = e.dataTransfer.files[0]))
+                    return;
+                const formToUpload = new FormData();
+                formToUpload.append("file", fileToUpload);
+                const xhr = new XMLHttpRequest();
+                xhr.open("POST", "http://192.30.0.231:8080/upload2");
+                xhr.onreadystatechange = () => {
+                    if (xhr.readyState == 4 && xhr.status == 200) {
+                        console.log(xhr.responseText);
+                    }
+                };
+                xhr.send(formToUpload);
+            }
+        </script>
+    </body>
+</html>
+
+注意的点
+  1) 假如我们想在div上触发drop事件(即放下拖拽的文件), 则必须
+     1.1) 一定要在dragover事件监听函数中调用e.preventDefault()
+             否则不触发drop事件
+
+           div.addEventListener('dragover', function (e) {
                 e.preventDefault();
             });
+	      
+     1.2) 一定要在drop事件监听函数中调用e.preventDefault()
+             否则浏览器默认会打开拖拽进来的文件
 
             div.addEventListener('drop', function (e) {
                 console.log('drop');
                 e.preventDefault();
             })
-        </script>
-    </body>
-</html>
 
-注意事项: 1) 一定要在dragover事件监听函数中调用e.preventDefault()
-             否则不触发drop事件
-	      
-          2) 一定要在drop事件监听函数中调用e.preventDefault()
-             否则浏览器默认会打开拖拽进来的文件
-参考链接: https://wangdoc.com/javascript/events/drag.html#%E6%8B%96%E6%8B%89%E4%BA%8B%E4%BB%B6%E7%9A%84%E7%A7%8D%E7%B1%BB
+ 2) XMLHttpRequest.send(File) 和 XMLHttpRequest.send(FormData)的区别
+    
+    2.1) XMLHttpRequest.send(File)不会用 multipart/form-data 上传文件,
+         而是读取文件内容,然后直接发送.
 
+    2.2) XMLHttpRequest.send(FormData)会采用 multipart/form-data 上传文件
+
+
+ 
 
 2. 文件上传的input详解
 
@@ -68,3 +101,10 @@
 
 参考链接: input事件     https://wangdoc.com/javascript/events/form.html#input-%E4%BA%8B%E4%BB%B6
           File,FileList https://wangdoc.com/javascript/bom/file.html
+
+
+
+
+
+
+
