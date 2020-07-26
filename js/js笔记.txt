@@ -160,28 +160,35 @@
      return x + y;
    }
 
-6、Object.keys(), Object.getOwnPropertyNames(), for in
+6、Object.keys(), Object.getOwnPropertyNames(), Object.getOwnPropertySymbols(), for in 
    1) Object.keys()                  // 只遍历 <自身> 的属性，且属性必须是 <可枚举> 的
       Object.getOwnPropertyNames()   // 只遍历 <自身> 的属性, 包括 <可枚举> 和 <不可枚举>
+      Object.getOwnPropertySymbols() // 返回对象的通过Symbol定义的属性
 
       例子
       let o = {};
       Object.defineProperty(o, "noEnumerable", {
           value: 1,
           enumerable: false
-      })
+      });
 
       Object.defineProperty(o, 'enumerable', {
          value: 2,
          enumerable: true
-      })
+      });
+
+      // 属性名              值
+      o[Symbol.iterator] = 'Symbol';
 
       let keys_1 = Object.keys(o);
       let keys_2 = Object.getOwnPropertyNames(o);
+      let keys_3 = Object.getOwnPropertySymbols(o);
 
-      console.log(`Object.keys = ${keys_1}`);                 // Object.keys = enumerable
+      console.log(`Object.keys = ${keys_1}`);                   // Object.keys = enumerable
 
-      console.log(`Object.getOwnPropertyNames = ${keys_2}`);  // Object.getOwnPropertyNames = noEnumerable,enumerable
+      console.log(`Object.getOwnPropertyNames = ${keys_2}`);    // Object.getOwnPropertyNames = noEnumerable,enumerable
+
+      console.log(`Object.getOwnPropertySymbols = ${keys_3}`);  // Object.getOwnPropertySymbols = Symbol(Symbol.iterator)
   
   2) for in 可以遍历 <自身> 和其 <父类> 的 <可枚举> 属性
      function Parent(){
