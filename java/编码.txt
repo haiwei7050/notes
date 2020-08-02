@@ -1,11 +1,12 @@
-1 Unicode ����ʵ��
-  1) Unicode, ISO-8859-1, ASCII, GBK2313 �����ַ���
-     ���������ַ��ı��,�������ָ���ַ� a �ڱ��뼯�ı��Ϊ65.
+1 Unicode 及其实现
+  1) Unicode, ISO-8859-1, ASCII, GBK2313 都是字符集
+     它决定了字符的编号,比如可以指定字符 a 在编码集的编号为65.
   
-  2) Unicode ��� ���� 16λ(2���ֽ�) �����б���,�ܹ����Ը�2^16=65535���ַ�����
-     ����ʹ�� 24λ(3���ֽ�)�����б���
+  2) Unicode 最初 采用 16位(2个字节) 来进行编码,总共可以给2^16=65535个字符编码
+     后来使用 24位(3个字节)来进行编码
 
-  3) Unicode�������ַ��ı��,����û�й涨����ڵ����ϴ洢��Щ���
-     UTF8, UTF16, ����ͨ�����ò�ͬ�Ĵ洢������ʵ�� Unicode
+  3) Unicode决定了字符的编号,但是没有规定如何在电脑上存储这些编号
+     UTF8, UTF16, 它们通过采用不同的存储方法来实现 Unicode
 
-  4) ������ôʵ���뿴https://zhuanlan.zhihu.com/p/51202412
+  4) 具体怎么实现请看https://zhuanlan.zhihu.com/p/51202412
+  
