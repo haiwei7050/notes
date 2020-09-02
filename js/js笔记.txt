@@ -377,5 +377,28 @@
      let a = val => val * 5;   // 这样写 隐含函数a的返回是 val * 5
      let a = val => { val *5 } // 这样写 返回undefined, 必须显示的加上return
 
+15. CORS 请求详解
+    1. 简单请求
+       浏览器： 增加一个请求头origin,                             origin: http://192.30.0.231:8081
+       服务器: 增加一个响应头Access-Control-Allow-Origin,         Access-Control-Allow-Origin: http://192.30.0.231:8081(or *)
+
+    2. 非简单请求
+        浏览器发两次请求:
+           preflight request: 1 请求方法必须为OPTIONS, 新增请求头origin, Access-Control-Request-Method
+           后续请求:  新增请求头 origin
+        服务器: 对preflight request的响应, 新增响应头Access-Control-Allow-Origin, Access-Control-Request-Method
+    3. 例子
+        1)浏览器发起的preflight request
+           OPTIONS /user/view/1 HTTP/1.1
+           Origin: http://192.30.0.231:8081
+           Access-Control-Request-Method: PUT
+
+        2) 服务器对preflight request的响应
+           HTTP/1.1 200 OK
+           Access-Control-Allow-Origin: http://192.30.0.231:8081(or *)
+           Access-Control-Allow-Methods: GET, POST, PUT (必须包含Access-Control-Request-Method的值)
+    4. 注意 origin 字段是有 协议 + 域名 + 端口
+       origin: http://192.30.0.231:8018    合法
+       origin: 192.30.0.231:8018           不正确
 附录1 用google搜索指定网站
 关键词 site:https://wangdoc.com/
