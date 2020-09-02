@@ -336,6 +336,7 @@
 
       /^https?:\/\/[^:/](:\d{2,4})?$/
 
+
 12. typeof vs Object.prototype.toString()
       js共有7种类型: number, boolean, string, null, undefined, object, symbol
     12.1) typeof判断数据类型
@@ -368,6 +369,11 @@
             1                    [object Number]
             undefined            [object Undefined]
             null                 [object Null]
+
+      
+13. 箭头函数的返回值
+     let a = val => val * 5;   // 这样写 隐含函数a的返回是 val * 5
+     let a = val => { val *5 } // 这样写 返回undefined, 必须显示的加上return
 
 附录1 用google搜索指定网站
 关键词 site:https://wangdoc.com/
