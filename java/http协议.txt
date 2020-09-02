@@ -1,0 +1,4 @@
+1. 最小的http请求
+GET / HTTP/1.1\r\n     //请求行
+HOST: 浏览器所在IP\r\n  //必须有请求头HOST
+\r\n                   //表示请求结束
