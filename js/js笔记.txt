@@ -370,8 +370,10 @@
             undefined            [object Undefined]
             null                 [object Null]
 
-      
-13. 箭头函数的返回值
+13. 自动转换为false的类型
+    null, undefined, '', 0, false
+
+14. 箭头函数的返回值
      let a = val => val * 5;   // 这样写 隐含函数a的返回是 val * 5
      let a = val => { val *5 } // 这样写 返回undefined, 必须显示的加上return
 
