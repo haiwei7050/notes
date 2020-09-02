@@ -335,3 +335,39 @@
       要想达到完全匹配应该用, ^$来规定边界
 
       /^https?:\/\/[^:/](:\d{2,4})?$/
+
+12. typeof vs Object.prototype.toString()
+      js共有7种类型: number, boolean, string, null, undefined, object, symbol
+    12.1) typeof判断数据类型
+          
+          typeof 1                -->  number
+          typeof new Number(1)    -->  object
+          
+
+          typeof null             -->  object
+          typeof undefined        -->  undefined
+          
+          function a(){}
+          typeof a                --> function
+
+          typeof []               --> object 
+    
+    12.2) typeof 最佳实践
+          function a(v){
+            // let b = v || '默认值'; 当v赋值为false时，这里就会错误的给b赋予 '默认值'
+            let b  = v;
+            if(typeof b == 'undefined' || b === null){
+               b = '默认值'
+            }
+          }
+
+    12.3) Object.prototype.toString.call(v)判断数据类型 
+           [object Number] Number是构造函数的名字            
+           
+            v                    type
+            1                    [object Number]
+            undefined            [object Undefined]
+            null                 [object Null]
+
+附录1 用google搜索指定网站
+关键词 site:https://wangdoc.com/
