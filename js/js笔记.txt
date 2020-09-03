@@ -428,6 +428,19 @@
     const b2 = new Uint16Array(buffer);     //Uint16Array, 每次可以2个字节的大小读写上面的内存
     console.log(b2[0]);                     // 一次读取2个字节, 0x0201
 
+17. XMLHttpRequest
+    1) 使用
+       const xhr = new XMLHttpRequest();
+       xhr.open('GET', 'http://192.30.0.231:8080/test');
+       const body;
+       xhr.send(body); // body的内容将放在请求体中
+
+    2) XMLHttpRequest.send(body)的注意事项
+       2.1) body 可以是Document,
+                      Blob, BufferSource, FormData, URLSearchParams, USVString.
+                      null
+       2.2)当使用GET或HEAD时, send(body) 等价于 send(null)
+
 附录1 用google搜索指定网站
       关键词 site:https://wangdoc.com/
 附录2 大端和小端的区别
