@@ -400,5 +400,39 @@
     4. 注意 origin 字段是有 协议 + 域名 + 端口
        origin: http://192.30.0.231:8018    合法
        origin: 192.30.0.231:8018           不正确
+
+16. ArrayBuffer
+
+  1)简介
+    ArrayBuffer只负责分配内存.
+    UintXArray, IntXArray以X大小的字节读写ArrayBuffer分配的内存(X代表8, 16, 32).
+    DataView用getIntX(setIntX), getUintX(setIntX)以X大小的字节读写ArrayBuffer分配的内存.
+
+    Uint8Array                             无符号1字节整数
+    Uint16Array                            无符号2字节整数
+    Int8Array                              有符号1字节整数
+
+    // 分配1字节的内存
+    const buff = new ArrayBuffer(1);
+
+    // 读写内存
+    const a1 = new Uint8Array(buff);
+    console.log(a1[0]);        // 读内存
+    a1[0] = 1;                 // 写内存, js默认使用小端方式(little-endina)进行写内存, 见下面附录2
+
+  2)例子
+    const buffer = new ArrayBuffer(2);      //申请2字节内存
+    const b1 = new Uint8Array(buffer);      //Uint8Array, 每次可以1个字节的大小读写上面的内存
+    b1[0] = 1;                              // 在上面2字节内存中的 高位 地址写入1    0000 0000 0000 0001  0x0001
+    b1[1] = 2;                              // 在上面2字节内存中的 低位 地址写入2    0000 0010 0000 0001  0x0201
+    const b2 = new Uint16Array(buffer);     //Uint16Array, 每次可以2个字节的大小读写上面的内存
+    console.log(b2[0]);                     // 一次读取2个字节, 0x0201
+
 附录1 用google搜索指定网站
-关键词 site:https://wangdoc.com/
+      关键词 site:https://wangdoc.com/
+附录2 大端和小端的区别
+      写入数据  0x1122 (16进制)
+      大端                          小端
+          地址  0        1               0          1
+          数据  0x11     0x22            0x22       0x11
+      小端先写高地址,再写低地址
