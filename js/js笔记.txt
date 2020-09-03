@@ -433,13 +433,18 @@
        const xhr = new XMLHttpRequest();
        xhr.open('GET', 'http://192.30.0.231:8080/test');
        const body;
-       xhr.send(body); // body的内容将放在请求体中
+       xhr.send(body);                       // body的内容将放在请求体中
 
     2) XMLHttpRequest.send(body)的注意事项
        2.1) body 可以是Document,
                       Blob, BufferSource, FormData, URLSearchParams, USVString.
                       null
        2.2)当使用GET或HEAD时, send(body) 等价于 send(null)
+
+       2.3) 不同类型的body的content-type
+            body                       content-type                        playload
+            FormData                   multipart/form-data                 按照multipart/form-data进行编码
+            URLSearchParams            application/x-www-form-urlencoded   按照application/x-www-form-urlencoded进行编码
 
 附录1 用google搜索指定网站
       关键词 site:https://wangdoc.com/
