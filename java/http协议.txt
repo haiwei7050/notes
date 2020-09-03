@@ -1,4 +1,22 @@
 1. 最小的http请求
 GET / HTTP/1.1\r\n     //请求行
-HOST: 浏览器所在IP\r\n  //必须有请求头HOST
+HOST: 服务器所在IP\r\n  //必须有请求头HOST
 \r\n                   //表示请求结束
+
+2. HttpServletRequest.getParameter()
+  1) 对于 请求行 中的url后带的参数, 无论是什么Http Method(GET,POST...)都可以获取到
+     GET /user/view?name=zhw&age=18 HTTP/1.1\r\n
+     HOST: 192.30.0.231:8080\r\n
+     \r\n
+
+     POST /user/view?name=zhw&age=18 HTTP/1.1
+     HOST: 192.30.0.231:8080\r\n
+     \r\n
+
+  2) 对于请求体中的参数, 必须是下面的请求才能拿到
+     POST /user/view HTTP/1.1\r\n                          //必须是可以带http request body的Http Method, 比如POST
+     HOST: 192.30.0.231:8080\r\n
+     Content-type: application/x-www-form-urlencoded\r\n   // Content-type 必须指定并且是application/x-www-form-urlencoded或multipart/form-data
+     Content-length: 3\r\n                                 //必须有Content-length, 大小等于http request body的大小, 单位是字节
+     \r\n
+     a=1\r\n
