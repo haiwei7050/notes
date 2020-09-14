@@ -22,8 +22,56 @@
           export/import都会替换成webpack实现的方法.
 
 	         
-         
 
+2. typescript 的模块及模块解析
+   1) typescript只负责将当前项目的ts转换为js, 
+      不转换node_modules下面的ts.
+
+   2) 当当前项目的ts引用了第三方的模块
+      lord
+        -src
+           -index.ts
+        -node_modules
+           -ml
+             -package.json
+             -index.ts
+
+      // ./src/index.ts
+      import {say} from 'ml'
+      
+      typescript会使用模块解析的算法定位模块ml， 
+      它最主要的目的是进行语法检查.
+
+  3) 每一个包含import/export的ts都被认定为ts模块
+  4) typescript 模块解析算法
+     https://www.typescriptlang.org/docs/handbook/module-resolution.html#how-nodejs-resolves-modules
+     注意, typescript 主要看package.json的types属性
+
+3. webpack的模块及模块解析
+   1) webpack的模块定义:
+      每个包含import/export, require等文件都被认定为webpack的模块
+ 
+   2) webpack模块解析流程
+      1) 绝对路径且直接指向文件, import {say} from '/lord/node_modules/ml/a.js'
+         把对应的文件交给对应的loader处理
+      
+      2) 相对路径且直接指向文件的， import {say} from './node_modules/ml/a.js'
+         用 context + './node_modules/ml/a.js' 加载文件，并交给对应的loader处理
+      
+      3) module路径,   import {say} from 'ml'
+         到 resolve.modules 指定的目录下搜索, resolve.modules默认为['node_modules']
+         https://webpack.js.org/concepts/module-resolution/#module-paths
+        注意 context，可以在webpack.config.js中设置，默认值等Procces.cwd()，当前工作目录
+        webpack挑选loader是用下面的 test进行筛选的
+        // webpack.config.js
+         module.exports = {
+           module:{
+              rules: [{
+                        test: /\.tsx?$/,
+                        use: 'ts-loader'
+                     }]
+           }
+         };
 备注:
   1. 各种js的模块语法
   
