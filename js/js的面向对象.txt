@@ -37,7 +37,7 @@
                                 继承所有定义在Point.prototype的属性和方法
 
 
-2. this, super
+2. ES6的类中this, super的用法
     class Point{
        static count = 0;
        static showCount(){
