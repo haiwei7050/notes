@@ -23,24 +23,7 @@ import java.util.function.Supplier;
 @Setter(AccessLevel.PRIVATE)
 class TokenSupplier implements Supplier<OauthToken>
 {
-    /**
-     * DEFAULT_TOKEN_REQUEST_TIMEOUT is the default time for
-     * doing the REST call in a background thread,
-     * we want to wait for 5 minutes at most,
-     * to make forward progress when the network is slow.
-     */
     private static final long DEFAULT_TOKEN_REQUEST_TIMEOUT = TimeUnit.MINUTES.toSeconds(5);
-
-    /**
-     * DEFAULT_PENDING_TOKEN_TIMEOUT is the default time that
-     * a thread processing a web request should wait for
-     * the OAuth token to be ready.
-     * We wait 1 second at the most,
-     * because we want to be responsive to the user,
-     * and give them feedback right away that there is a problem in the service,
-     * to discourage them from starting a new window session
-     * and adding more load on us, when OAuth service is being slow to respond.
-     */
     private static final long DEFAULT_PENDING_TOKEN_TIMEOUT = TimeUnit.SECONDS.toSeconds(1);
     private static final String ERROR_MSG_TEMPLATE = "Unable to %s for realm '%s' " +
         "and scope '%s', due to %s.";
