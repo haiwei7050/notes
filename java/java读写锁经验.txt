@@ -1,4 +1,29 @@
-1.下面是读写锁的例子
+1.下面是解决写饥饿问题的例子
+  1) 对于同一个realm, 有且仅有一个线程可以创建TokenSupplier.
+  
+  2) TokenSupplier负责保存(它实现了JDK8的Supplier接口)，更新某个realm的token
+  
+  3) 当多个线程希望同时更新同一个realm的token时，
+     有且仅有一个线程可以进入sync块，创建一个TokenFuture来更新线程.
+     
+  4) 进入sync块的线程只是向THREAD_POOL提交了一个异步任务，
+     并把THREAD_POOL返回的Future包装成TokenFuture.
+  
+  5)当进入sync块的线程创建完TokenFuture后会释放sync块的锁，
+    然后和其他等待sync块的线程一起通过TokenFuture来获取token
+  
+  6)在TokenFuture的doUpdatingThreadGet方法中会去更新token和TokenFuture
+    这就会和sync块中读取token和TokenFuture造成竞争，当没有采取加锁措施时，会出现以下问题: 
+    <1> This thread checks currToken on line 93, finds it null.
+    <2> this thread acquires try block lock on this on line 94.
+    <3> this thread checks currToken on line 95, finds it null and heads towards evaluating right side.
+    <4> updating thread sets currToken = non-null value.
+    <5> updating thread sets tokenFuture = null.
+    <6> updating thread proceeds on its way.
+    <7> this thread checks tokenFuture and finds it null, so calls createTokenFuture, this is bad corner/edge case not handled correctly.
+    但是加上锁会导致写饥饿，所以我们使用JDK8的StampLock来解决写饥饿的问题。
+    
+  7) 重点是StampLock
   Map<String, Map<String, TokenSupplier>> cached = new ConcurrentHashMap<>();
   cached
      .putIfAbsent(realmId, realmId -> new ConcurrentHashMap<>())
