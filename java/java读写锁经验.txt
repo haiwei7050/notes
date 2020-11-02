@@ -23,7 +23,13 @@
     <7> this thread checks tokenFuture and finds it null, so calls createTokenFuture, this is bad corner/edge case not handled correctly.
     但是加上锁会导致写饥饿，所以我们使用JDK8的StampLock来解决写饥饿的问题。
     
-  7) 重点是StampLock
+  7) 重点是StampLock, 请注意
+      long stamp = lock.tryOptimisticRead();
+      上面只是获得了一个时间戳,所以不需要释放锁
+      lock.unlock(stamp)会报错,因为它不是锁
+      
+      
+  8)例子    
   Map<String, Map<String, TokenSupplier>> cached = new ConcurrentHashMap<>();
   cached
      .putIfAbsent(realmId, realmId -> new ConcurrentHashMap<>())
