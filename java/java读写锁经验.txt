@@ -106,11 +106,13 @@ class TokenSupplier implements Supplier<OauthToken>
                  *    where the write thread attempts to acquire a write lock.
                  * 5. Please see also the javadoc of java.util.concurrent.locks.StampedLock.
                  */
+                boolean needUnlock = false;
                 long stamp = lock.tryOptimisticRead();
                 try {
                     if (!isValid(currToken) && tokenFuture == null) {
                         if (!lock.validate(stamp)) {
                             stamp = lock.readLock();
+                            needUnlock = true;
                         }
                         if (!isValid(currToken) && tokenFuture == null) {
                             TokenFuture newTokenFuture = newTokenFuture(currToken, getTokenFlow());
@@ -118,7 +120,9 @@ class TokenSupplier implements Supplier<OauthToken>
                         }
                     }
                 } finally {
-                    lock.unlockRead(stamp);
+                    if(needUnlock){
+                       lock.unlockRead(stamp);
+                    }
                 }
             }
             return getPendingToken(tokenFuture);
