@@ -4,11 +4,43 @@
      .putIfAbsent(realmId, realmId -> new ConcurrentHashMap<>())
      .putIfAbsent(scope, scopeKey -> new TokenSupplier(realmId, scope, null) );
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.locks.StampedLock;
+import java.util.function.Supplier;
+
 @Getter(AccessLevel.PRIVATE)
 @Setter(AccessLevel.PRIVATE)
 class TokenSupplier implements Supplier<OauthToken>
 {
+    /**
+     * DEFAULT_TOKEN_REQUEST_TIMEOUT is the default time for
+     * doing the REST call in a background thread,
+     * we want to wait for 5 minutes at most,
+     * to make forward progress when the network is slow.
+     */
     private static final long DEFAULT_TOKEN_REQUEST_TIMEOUT = TimeUnit.MINUTES.toSeconds(5);
+
+    /**
+     * DEFAULT_PENDING_TOKEN_TIMEOUT is the default time that
+     * a thread processing a web request should wait for
+     * the OAuth token to be ready.
+     * We wait 1 second at the most,
+     * because we want to be responsive to the user,
+     * and give them feedback right away that there is a problem in the service,
+     * to discourage them from starting a new window session
+     * and adding more load on us, when OAuth service is being slow to respond.
+     */
     private static final long DEFAULT_PENDING_TOKEN_TIMEOUT = TimeUnit.SECONDS.toSeconds(1);
     private static final String ERROR_MSG_TEMPLATE = "Unable to %s for realm '%s' " +
         "and scope '%s', due to %s.";
@@ -230,18 +262,30 @@ class TokenSupplier implements Supplier<OauthToken>
 
         private OauthToken doUpdatingThreadGet(Future<OauthToken> realTokenFuture)
         {
-            long stamp = lock.writeLock();
+            Exception ex = null;
+            OauthToken newToken = null;
             try {
                 LOGGER.info(formatInfoLogMessage("The updating thread is " +
                     "waiting for the pending token"));
-                OauthToken tokenToUse = getResultWithTimeout(realTokenFuture,
+                newToken = getResultWithTimeout(realTokenFuture,
                     getTokenRequestTimeout());
-                setCurrToken(tokenToUse);
-                return tokenToUse;
             } catch (Exception e) {
                 LOGGER.error(formatErrorLogMessage("update the pending token ",
-                    "the exception:\n" + e), e);
-                throw new RuntimeException(e);
+                    "the exception:\n" + ex), ex);
+                ex = e;
+            }
+            return handleResult(ex, newToken);
+        }
+
+        private OauthToken handleResult(Exception ex, OauthToken newToken)
+        {
+            long stamp = lock.writeLock();
+            try {
+                if (ex != null) {
+                    throw new RuntimeException(ex);
+                }
+                setCurrToken(newToken);
+                return newToken;
             } finally {
                 setTokenFuture(null);
                 lock.unlockWrite(stamp);
