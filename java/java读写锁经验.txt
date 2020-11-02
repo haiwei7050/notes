@@ -1,0 +1,296 @@
+1.下面是读写锁的例子
+  Map<String, Map<String, TokenSupplier>> cached = new ConcurrentHashMap<>();
+  cached
+     .putIfAbsent(realmId, realmId -> new ConcurrentHashMap<>())
+     .putIfAbsent(scope, scopeKey -> new TokenSupplier(realmId, scope, null) );
+
+@Getter(AccessLevel.PRIVATE)
+@Setter(AccessLevel.PRIVATE)
+class TokenSupplier implements Supplier<OauthToken>
+{
+    private static final long DEFAULT_TOKEN_REQUEST_TIMEOUT = TimeUnit.MINUTES.toSeconds(5);
+    private static final long DEFAULT_PENDING_TOKEN_TIMEOUT = TimeUnit.SECONDS.toSeconds(1);
+    private static final String ERROR_MSG_TEMPLATE = "Unable to %s for realm '%s' " +
+        "and scope '%s', due to %s.";
+    private static final String INFO_MSG_TEMPLATE = "%s for realm '%s' and scope '%s'";
+    private static final Logger LOGGER = LogManager.getLogger(TokenSupplier.class);
+    /**
+     * THREAD_POOL be shared for all instances of TokenSupplier
+     */
+    private static final ExecutorService THREAD_POOL = Executors.newCachedThreadPool();
+    private final String realmId;
+    private final String scope;
+    private final OAuthTokenTracker tokenTracker;
+    private final StampedLock lock = new StampedLock();
+
+    private volatile OauthToken currToken;
+    private volatile TokenFuture tokenFuture;
+    private long tokenRequestTimeout = DEFAULT_TOKEN_REQUEST_TIMEOUT;
+    private long pendingTokenTimeout = DEFAULT_PENDING_TOKEN_TIMEOUT;
+    /**
+     * tokenFlow is used to refresh token in the method refreshToken.
+     */
+    @Setter(AccessLevel.PACKAGE)
+    private OauthTokenFlow tokenFlow = OauthTokenFlowManagement.
+        createOauthTokenFlow(new SM2LOAuthServerProperty());
+
+    TokenSupplier(String realmId, String scope, OAuthTokenTracker tokenTracker)
+    {
+        this.realmId = realmId;
+        this.scope = scope;
+        this.tokenTracker = tokenTracker;
+    }
+
+    @Override
+    public OauthToken get()
+    {
+        if (!isValid(currToken)) {
+            synchronized (this) {
+                /**
+                 * 1. tryOptimisticRead() will put a timestamp here
+                 *    and here is no blocking.
+                 * 2. We will verify whether the timestamp has been
+                 *    changed by the write thread after we test the
+                 *    following conditions.
+                 * 3. If a write thread obtains a write lock when obtaining a timestamp,
+                 *    or a write thread acquires a write lock after placing the timestamp,
+                 *    we will wait for the write thread to complete its operation
+                 *    and then verify the following conditions again.
+                 * 4. Please see also doUpdatingThreadGet() in class TokenFuture,
+                 *    where the write thread attempts to acquire a write lock.
+                 * 5. Please see also the javadoc of java.util.concurrent.locks.StampedLock.
+                 */
+                long stamp = lock.tryOptimisticRead();
+                try {
+                    if (!isValid(currToken) && tokenFuture == null) {
+                        if (!lock.validate(stamp)) {
+                            stamp = lock.readLock();
+                        }
+                        if (!isValid(currToken) && tokenFuture == null) {
+                            TokenFuture newTokenFuture = newTokenFuture(currToken, getTokenFlow());
+                            setTokenFuture(newTokenFuture);
+                        }
+                    }
+                } finally {
+                    lock.unlockRead(stamp);
+                }
+            }
+            return getPendingToken(tokenFuture);
+        }
+        return currToken;
+    }
+
+    private boolean isValid(OauthToken token)
+    {
+        return token != null && getTokenTracker().hasNotExpired(token) &&
+            !StringUtil.isNullOrEmpty(token.getAccessToken());
+    }
+
+    private TokenFuture newTokenFuture(OauthToken prevToken,
+                                       OauthTokenFlow tokenFlow)
+    {
+        LOGGER.info(formatInfoLogMessage("Creating TokenFuture..."));
+        return new TokenFuture(fetchOrRefreshToken(prevToken, tokenFlow));
+    }
+
+    private Future<OauthToken> fetchOrRefreshToken(OauthToken prevToken,
+                                                   OauthTokenFlow tokenFlow)
+    {
+        return canRefresh(prevToken) ?
+            refreshToken(tokenFlow, prevToken) :
+            fetchToken(tokenFlow);
+    }
+
+    private boolean canRefresh(OauthToken token)
+    {
+        return token != null &&
+            !StringUtil.isNullOrEmpty(token.getRefreshToken());
+    }
+
+    private Future<OauthToken> refreshToken(OauthTokenFlow tokenFlow, OauthToken prevToken)
+    {
+        return submitTask(() -> {
+            LOGGER.info(formatInfoLogMessage("Refreshing token"));
+            OauthToken tokenToUse = tokenFlow
+                .refreshOauthToken(prevToken.getRefreshToken());
+            if (isRepeatAccessToken(prevToken, tokenToUse)) {
+                String msg = String.format("Refreshed token for realm '%s' and scope '%s', " +
+                        "but the got same token as before.",
+                    getRealmId(), getScope());
+                LOGGER.error(msg);
+                throw new RuntimeException(msg);
+            }
+            return setTokenUpdateTime(tokenToUse);
+        });
+    }
+
+    private Future<OauthToken> fetchToken(OauthTokenFlow tokenFlow)
+    {
+        return submitTask(() -> {
+            LOGGER.info(formatInfoLogMessage("Fetching token"));
+            OauthToken tokenToUse = getTokenTracker()
+                .getFreshS4SystemTokenInternal(tokenFlow, getRealmId(), getScope());
+            return setTokenUpdateTime(tokenToUse);
+        });
+    }
+
+    /**
+     * @return true if the new current token has the same accessToken as the previous token.
+     * We should have gotten a fresh token with different accessToken,
+     * but somehow the OAuth service gave us the same token again.
+     */
+    private boolean isRepeatAccessToken(OauthToken prevToken, OauthToken currToken)
+    {
+        return prevToken != null &&
+            !StringUtil.isNullOrEmpty(prevToken.getAccessToken()) &&
+            prevToken.getAccessToken().equals(currToken.getAccessToken());
+    }
+
+    /**
+     * Please note that
+     * 1. All threads that want to update the invalid token will
+     * be waiting for the pending token in this method after
+     * the TokenFuture is created by the update thread.
+     * 2. TokenFuture will be null out by the update thread in two case,
+     * One is that it has updated the pending token successfully,
+     * another is that it has failed.
+     * In the first case, other threads above can
+     * get the updated token directly through this.currToken,
+     * while in the second case, an RuntimeException will be thrown.
+     */
+
+    private OauthToken getPendingToken(TokenFuture tokenFuture)
+    {
+        if (tokenFuture == null) {
+            OauthToken tokenToUse = this.currToken;
+            if (isValid(tokenToUse)) {
+                return tokenToUse;
+            }
+            String msg = formatErrorLogMessage("get the pending token",
+                "the updating thread fails to update the token");
+            LOGGER.error(msg);
+            throw new RuntimeException(msg);
+        }
+        return tokenFuture.get();
+    }
+
+    private Future<OauthToken> submitTask(Callable<OauthToken> action)
+    {
+        return THREAD_POOL.submit(action);
+    }
+
+    /**
+     * As in the previous code, we will set the update time of tokens after obtaining them.
+     * The reason is unknown. I just keep the same operation as before.
+     */
+    private OauthToken setTokenUpdateTime(OauthToken token)
+    {
+        token.setTimeUpdated(System.currentTimeMillis());
+        return token;
+    }
+
+    private String formatInfoLogMessage(String action)
+    {
+        return String.format(INFO_MSG_TEMPLATE, action, getRealmId(), getScope());
+    }
+
+    private String formatErrorLogMessage(String action, String reason)
+    {
+        return String.format(ERROR_MSG_TEMPLATE, action, getRealmId(), getScope(), reason);
+    }
+
+    private class TokenFuture implements Future<OauthToken>
+    {
+        private final Thread updatingThread;
+        private final Future<OauthToken> realTokenFuture;
+
+        TokenFuture(Future<OauthToken> realTokenFuture)
+        {
+            this.updatingThread = Thread.currentThread();
+            this.realTokenFuture = realTokenFuture;
+        }
+
+        @Override
+        public OauthToken get()
+        {
+            return doGet(this.realTokenFuture);
+        }
+
+        private OauthToken doGet(Future<OauthToken> realTokenFuture)
+        {
+            return isUpdatingThread() ?
+                doUpdatingThreadGet(realTokenFuture) :
+                doOtherThreadGet(realTokenFuture);
+        }
+
+        private boolean isUpdatingThread()
+        {
+            return Thread.currentThread() == this.updatingThread;
+        }
+
+        private OauthToken doUpdatingThreadGet(Future<OauthToken> realTokenFuture)
+        {
+            long stamp = lock.writeLock();
+            try {
+                LOGGER.info(formatInfoLogMessage("The updating thread is " +
+                    "waiting for the pending token"));
+                OauthToken tokenToUse = getResultWithTimeout(realTokenFuture,
+                    getTokenRequestTimeout());
+                setCurrToken(tokenToUse);
+                return tokenToUse;
+            } catch (Exception e) {
+                LOGGER.error(formatErrorLogMessage("update the pending token ",
+                    "the exception:\n" + e), e);
+                throw new RuntimeException(e);
+            } finally {
+                setTokenFuture(null);
+                lock.unlockWrite(stamp);
+            }
+        }
+
+        private OauthToken doOtherThreadGet(Future<OauthToken> realTokenFuture)
+        {
+            String msg;
+            try {
+                return getResultWithTimeout(realTokenFuture, getPendingTokenTimeout());
+            } catch (Exception e) {
+                msg = e instanceof TimeoutException ?
+                    formatErrorLogMessage("get the pending token", "timeout") :
+                    formatErrorLogMessage("get the pending token",
+                        "the exception:\n" + e);
+                LOGGER.error(msg);
+                throw new RuntimeException(msg);
+            }
+        }
+
+        private OauthToken getResultWithTimeout(Future<OauthToken> tokenFuture, long timeout)
+            throws Exception
+        {
+            return tokenFuture.get(timeout, TimeUnit.SECONDS);
+        }
+
+        @Override
+        public OauthToken get(long timeout, TimeUnit unit)
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean cancel(boolean mayInterruptIfRunning)
+        {
+            return this.realTokenFuture.cancel(mayInterruptIfRunning);
+        }
+
+        @Override
+        public boolean isCancelled()
+        {
+            return this.realTokenFuture.isCancelled();
+        }
+
+        @Override
+        public boolean isDone()
+        {
+            return this.realTokenFuture.isDone();
+        }
+    }
+}
