@@ -54,10 +54,11 @@ import java.util.function.Supplier;
 @Setter(AccessLevel.PRIVATE)
 class TokenSupplier implements Supplier<OauthToken>
 {
+
     private static final long DEFAULT_TOKEN_REQUEST_TIMEOUT = TimeUnit.MINUTES.toSeconds(5);
     private static final long DEFAULT_PENDING_TOKEN_TIMEOUT = TimeUnit.SECONDS.toSeconds(1);
     private static final String ERROR_MSG_TEMPLATE = "Unable to %s for realm '%s' " +
-        "and scope '%s', due to %s.";
+            "and scope '%s', due to %s.";
     private static final String INFO_MSG_TEMPLATE = "%s for realm '%s' and scope '%s'";
     private static final Logger LOGGER = LogManager.getLogger(TokenSupplier.class);
     /**
@@ -74,11 +75,15 @@ class TokenSupplier implements Supplier<OauthToken>
     private long tokenRequestTimeout = DEFAULT_TOKEN_REQUEST_TIMEOUT;
     private long pendingTokenTimeout = DEFAULT_PENDING_TOKEN_TIMEOUT;
     /**
+     * tokenUpdatedTime is used to Junit test.
+     */
+    @Setter(AccessLevel.PACKAGE)
+    private Long tokenUpdatedTime;
+    /**
      * tokenFlow is used to refresh token in the method refreshToken.
      */
     @Setter(AccessLevel.PACKAGE)
-    private OauthTokenFlow tokenFlow = OauthTokenFlowManagement.
-        createOauthTokenFlow(new SM2LOAuthServerProperty());
+    private OauthTokenFlow tokenFlow = new OauthTokenFlow();
 
     TokenSupplier(String realmId, String scope, OAuthTokenTracker tokenTracker)
     {
@@ -93,35 +98,39 @@ class TokenSupplier implements Supplier<OauthToken>
         if (!isValid(currToken)) {
             synchronized (this) {
                 /**
-                 * 1. tryOptimisticRead() will put a timestamp here
-                 *    and here is no blocking.
+                 * 1. lock.tryOptimisticRead() just puts a timestamp here
+                 *    instead of getting a read lock, so here is no blocking.
                  * 2. We will verify whether the timestamp has been
                  *    changed by the write thread after we test the
                  *    following conditions.
                  * 3. If a write thread obtains a write lock when obtaining a timestamp,
                  *    or a write thread acquires a write lock after placing the timestamp,
-                 *    we will wait for the write thread to complete its operation
-                 *    and then verify the following conditions again.
-                 * 4. Please see also doUpdatingThreadGet() in class TokenFuture,
+                 *    we will wait for, by getting a real read lock, the write thread
+                 *    to complete its operation and then verify the following conditions again.
+                 * 4. Please see also handleResult() in class TokenFuture,
                  *    where the write thread attempts to acquire a write lock.
+                 *    The write thread can ignore ABC to obtain the write lock at any time,
+                 *    thus avoiding the starvation of the write thread.
                  * 5. Please see also the javadoc of java.util.concurrent.locks.StampedLock.
                  */
-                boolean needUnlock = false;
                 long stamp = lock.tryOptimisticRead();
+                boolean needUnlock = false;
                 try {
-                    if (!isValid(currToken) && tokenFuture == null) {
-                        if (!lock.validate(stamp)) {
-                            stamp = lock.readLock();
-                            needUnlock = true;
-                        }
-                        if (!isValid(currToken) && tokenFuture == null) {
-                            TokenFuture newTokenFuture = newTokenFuture(currToken, getTokenFlow());
-                            setTokenFuture(newTokenFuture);
+                    if (!isValid(currToken)) {
+                        if(tokenFuture == null) {
+                            if (!lock.validate(stamp)) {
+                                stamp = lock.readLock();
+                                needUnlock = true;
+                            }
+                            if (!isValid(currToken) && tokenFuture == null) {
+                                TokenFuture newTokenFuture = newTokenFuture(currToken, getTokenFlow());
+                                setTokenFuture(newTokenFuture);
+                            }
                         }
                     }
                 } finally {
-                    if(needUnlock){
-                       lock.unlockRead(stamp);
+                    if(needUnlock) {
+                        lock.unlockRead(stamp);
                     }
                 }
             }
@@ -133,13 +142,13 @@ class TokenSupplier implements Supplier<OauthToken>
     private boolean isValid(OauthToken token)
     {
         return token != null && getTokenTracker().hasNotExpired(token) &&
-            !StringUtil.isNullOrEmpty(token.getAccessToken());
+               StringUtils.hasText(token.getAccessToken());
     }
 
     private TokenFuture newTokenFuture(OauthToken prevToken,
                                        OauthTokenFlow tokenFlow)
     {
-        LOGGER.info(formatInfoLogMessage("Creating TokenFuture..."));
+        LOGGER.info(formatInfoLogMessage("Creating TokenFuture"));
         return new TokenFuture(fetchOrRefreshToken(prevToken, tokenFlow));
     }
 
@@ -147,14 +156,14 @@ class TokenSupplier implements Supplier<OauthToken>
                                                    OauthTokenFlow tokenFlow)
     {
         return canRefresh(prevToken) ?
-            refreshToken(tokenFlow, prevToken) :
-            fetchToken(tokenFlow);
+                refreshToken(tokenFlow, prevToken) :
+                fetchToken(tokenFlow);
     }
 
     private boolean canRefresh(OauthToken token)
     {
         return token != null &&
-            !StringUtil.isNullOrEmpty(token.getRefreshToken());
+                StringUtils.hasText(token.getRefreshToken());
     }
 
     private Future<OauthToken> refreshToken(OauthTokenFlow tokenFlow, OauthToken prevToken)
@@ -162,11 +171,11 @@ class TokenSupplier implements Supplier<OauthToken>
         return submitTask(() -> {
             LOGGER.info(formatInfoLogMessage("Refreshing token"));
             OauthToken tokenToUse = tokenFlow
-                .refreshOauthToken(prevToken.getRefreshToken());
+                    .refreshOauthToken(prevToken.getRefreshToken());
             if (isRepeatAccessToken(prevToken, tokenToUse)) {
                 String msg = String.format("Refreshed token for realm '%s' and scope '%s', " +
-                        "but the got same token as before.",
-                    getRealmId(), getScope());
+                                "but the got same token as before.",
+                        getRealmId(), getScope());
                 LOGGER.error(msg);
                 throw new RuntimeException(msg);
             }
@@ -179,7 +188,7 @@ class TokenSupplier implements Supplier<OauthToken>
         return submitTask(() -> {
             LOGGER.info(formatInfoLogMessage("Fetching token"));
             OauthToken tokenToUse = getTokenTracker()
-                .getFreshS4SystemTokenInternal(tokenFlow, getRealmId(), getScope());
+                    .getFreshS4SystemTokenInternal(tokenFlow, getRealmId(), getScope());
             return setTokenUpdateTime(tokenToUse);
         });
     }
@@ -192,8 +201,8 @@ class TokenSupplier implements Supplier<OauthToken>
     private boolean isRepeatAccessToken(OauthToken prevToken, OauthToken currToken)
     {
         return prevToken != null &&
-            !StringUtil.isNullOrEmpty(prevToken.getAccessToken()) &&
-            prevToken.getAccessToken().equals(currToken.getAccessToken());
+                StringUtils.hasText(prevToken.getAccessToken()) &&
+                prevToken.getAccessToken().equals(currToken.getAccessToken());
     }
 
     /**
@@ -217,7 +226,7 @@ class TokenSupplier implements Supplier<OauthToken>
                 return tokenToUse;
             }
             String msg = formatErrorLogMessage("get the pending token",
-                "the updating thread fails to update the token");
+                    "the updating thread fails to update the token");
             LOGGER.error(msg);
             throw new RuntimeException(msg);
         }
@@ -235,7 +244,11 @@ class TokenSupplier implements Supplier<OauthToken>
      */
     private OauthToken setTokenUpdateTime(OauthToken token)
     {
-        token.setTimeUpdated(System.currentTimeMillis());
+        Long timeUpdated = getTokenUpdatedTime();
+        if(timeUpdated == null){
+            timeUpdated = System.currentTimeMillis();
+        }
+        token.setTimeUpdated(timeUpdated);
         return token;
     }
 
@@ -269,8 +282,8 @@ class TokenSupplier implements Supplier<OauthToken>
         private OauthToken doGet(Future<OauthToken> realTokenFuture)
         {
             return isUpdatingThread() ?
-                doUpdatingThreadGet(realTokenFuture) :
-                doOtherThreadGet(realTokenFuture);
+                    doUpdatingThreadGet(realTokenFuture) :
+                    doOtherThreadGet(realTokenFuture);
         }
 
         private boolean isUpdatingThread()
@@ -284,12 +297,12 @@ class TokenSupplier implements Supplier<OauthToken>
             OauthToken newToken = null;
             try {
                 LOGGER.info(formatInfoLogMessage("The updating thread is " +
-                    "waiting for the pending token"));
+                        "waiting for the pending token"));
                 newToken = getResultWithTimeout(realTokenFuture,
-                    getTokenRequestTimeout());
+                        getTokenRequestTimeout());
             } catch (Exception e) {
-                LOGGER.error(formatErrorLogMessage("update the pending token ",
-                    "the exception:\n" + ex), ex);
+                LOGGER.error(formatErrorLogMessage("update the pending token",
+                        "the exception:\n" + e), e);
                 ex = e;
             }
             return handleResult(ex, newToken);
@@ -314,19 +327,21 @@ class TokenSupplier implements Supplier<OauthToken>
         {
             String msg;
             try {
+                LOGGER.info(formatInfoLogMessage("Other threads are " +
+                        "waiting for the pending token"));
                 return getResultWithTimeout(realTokenFuture, getPendingTokenTimeout());
             } catch (Exception e) {
                 msg = e instanceof TimeoutException ?
-                    formatErrorLogMessage("get the pending token", "timeout") :
-                    formatErrorLogMessage("get the pending token",
-                        "the exception:\n" + e);
+                        formatErrorLogMessage("get the pending token", "timeout") :
+                        formatErrorLogMessage("get the pending token",
+                                "the exception:\n" + e);
                 LOGGER.error(msg);
                 throw new RuntimeException(msg);
             }
         }
 
         private OauthToken getResultWithTimeout(Future<OauthToken> tokenFuture, long timeout)
-            throws Exception
+                throws Exception
         {
             return tokenFuture.get(timeout, TimeUnit.SECONDS);
         }
