@@ -12,7 +12,7 @@
   5)当进入sync块的线程创建完TokenFuture后会释放sync块的锁，
     然后和其他等待sync块的线程一起通过TokenFuture来获取token
   
-  6)在TokenFuture的doUpdatingThreadGet方法中会去更新token和TokenFuture
+  6)在TokenFuture的doUpdatingThreadGet方法(handleResult方法)中会去更新token和TokenFuture
     这就会和sync块中读取token和TokenFuture造成竞争，当没有采取加锁措施时，会出现以下问题: 
     <1> This thread checks currToken on line 93, finds it null.
     <2> this thread acquires try block lock on this on line 94.
