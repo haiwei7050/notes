@@ -1,3 +1,15 @@
-1. 参考文档
-  https://www.jianshu.com/p/afc3759e75b9
- Datadog, metrics
+1.微服务性能监控的步骤
+  1) 收集指标 
+     指标(metric): 接口调用的时间,接口调用的次数等等
+     库: Spring Boot Actuator, dropwizard/metrics
+  2) 监控系统
+     作用: 抓取指标, 图形化显示指标
+     库: Spring Boot Admin,Prometheus
+  3) 指标数据格式转换
+     因为每个监控系统都有自己metric的格式, 所以需要一个转换框架
+     库:Micrometer
+参考文档: 
+1) 介绍springboot actuator
+   https://bigjar.github.io/2018/08/19/Spring-Boot-Actuator-%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5%E3%80%81%E5%AE%A1%E8%AE%A1%E3%80%81%E7%BB%9F%E8%AE%A1%E5%92%8C%E7%9B%91%E6%8E%A7/
+2) 介绍监控系统Prometheus&Grafana
+   https://bigjar.github.io/2018/08/19/Spring-Boot-Metrics%E7%9B%91%E6%8E%A7%E4%B9%8BPrometheus-Grafana/
