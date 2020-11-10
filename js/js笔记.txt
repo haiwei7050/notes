@@ -454,3 +454,17 @@
           地址  0        1               0          1
           数据  0x11     0x22            0x22       0x11
       小端先写高地址,再写低地址
+
+18. postMessage的用法
+    1) 父向子发
+       subWin.postMessage(data, origin);          //  subWin: 子窗口
+                                                  //  origin: 子窗口的源(协议+主机名+端口)
+    2) 子向父发
+       parentWin.postMessage(data, origin);       //  parentWin: 父窗口
+                                                  //  origin:    父窗口的源(协议+主机名+端口)
+    3) 在父窗口监听子窗口的message事件
+      window.addEventListener('message', e => {
+         e.source                                // 子窗口即window对象
+         e.origin                                // 子窗口发送消息时填的origin, 一般为*(或父窗口的地址)否则浏览器就会报错
+                                                 // parentWin.postMessage(data, origin); e.origin就是这里填的origin
+      });
