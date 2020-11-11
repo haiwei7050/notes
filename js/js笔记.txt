@@ -433,6 +433,7 @@
        const xhr = new XMLHttpRequest();
        xhr.open('GET', 'http://192.30.0.231:8080/test');
        const body;
+       xhr.onreadystatechange = callback     // 当xhr.readyState发生变化时, 回调函数会被调用
        xhr.send(body);                       // body的内容将放在请求体中
 
     2) XMLHttpRequest.send(body)的注意事项
@@ -446,16 +447,17 @@
             FormData                   multipart/form-data                 按照multipart/form-data进行编码
             URLSearchParams            application/x-www-form-urlencoded   按照application/x-www-form-urlencoded进行编码
 
-附录1 用google搜索指定网站
-      关键词 site:https://wangdoc.com/
-附录2 大端和小端的区别
-      写入数据  0x1122 (16进制)
-      大端                          小端
-          地址  0        1               0          1
-          数据  0x11     0x22            0x22       0x11
-      小端先写高地址,再写低地址
+18. XMLHttRequest.abort()的原理及应用场景
+    1) 原理
+       重置XMLHttpRequest的 readyState 和 status为0           // 这句参考 https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/abort
+       并且不会触发 xhr.onreadystatechange设置的回调函数的执行   // 这句参考 https://xhr.spec.whatwg.org/#the-abort()-method
+    2) 应用场景
+       当用户连续触发两次请求req1, req2, 且req2的响应快于req1时
+       req2的响应可能被延迟的req1的响应所覆盖(复现请看附录3)
+       此时就应该在发送第二次请req2求前执行req1.abort()
 
-18. postMessage的用法
+
+19. postMessage的用法
     1) 父向子发
        subWin.postMessage(data, origin);          //  subWin: 子窗口
                                                   //  origin: 子窗口的源(协议+主机名+端口)
@@ -468,3 +470,55 @@
          e.origin                                // 子窗口发送消息时填的origin, 一般为*(或父窗口的地址)否则浏览器就会报错
                                                  // 即, parentWin.postMessage(data, origin); e.origin就是这里填的origin
       });
+
+
+附录1 用google搜索指定网站
+      关键词 site:https://wangdoc.com/
+附录2 大端和小端的区别
+      写入数据  0x1122 (16进制)
+      大端                          小端
+          地址  0        1               0          1
+          数据  0x11     0x22            0x22       0x11
+      小端先写高地址,再写低地址
+附录3
+        <p id="content">还未请求</p>
+        <button id="btn1">发送请求1</button>
+        <br>
+        <button id="btn2">发送请求2</button>
+        <br>
+        <script>
+            const btn1 = document.getElementById('btn1');
+            const btn2 = document.getElementById('btn2');
+            const content = document.getElementById('content');
+            const server = 'http://192.30.0.231:8080';
+            let xhr = null;
+            let i = 1;
+            btn1.addEventListener('click', () => {
+                sendRequest(server + '/xh1', updateContent);
+            });
+
+            btn2.addEventListener('click', () => {
+                sendRequest(server + '/xh2', updateContent);
+            });
+            function sendRequest(api, callback, method) {
+                if(xhr){
+                    //xhr.abort() 放开注释就可以解决问题
+                }
+                let methodToUse = method || 'GET';
+                xhr = new XMLHttpRequest();
+                xhr.open(methodToUse, api);
+                xhr.onreadystatechange = createCallback(xhr, callback);
+                xhr.send();
+            }
+            function createCallback(xhr, callback) {
+                return () => {
+                    if (xhr.readyState == 4 && xhr.status == 200) {
+                        const data = xhr.responseText;
+                        callback(data);
+                    }
+                }
+            }
+            function updateContent(data) {
+                content.innerText = data;
+            }
+        </script>
