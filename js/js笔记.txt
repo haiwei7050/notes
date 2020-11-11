@@ -456,6 +456,7 @@
        req2的响应可能被延迟的req1的响应所覆盖(复现请看附录3)
        此时就应该在发送第二次请req2求前执行req1.abort()
 
+    参考文档: https://stackoverflow.com/questions/39157737/what-happens-when-an-xmlhttprequest-is-aborted
 
 19. postMessage的用法
     1) 父向子发
