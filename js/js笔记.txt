@@ -472,6 +472,31 @@
               如果send方法直接修改readyState, 则当程序停到断点处时, readyState由 1 => 2, 进而callback被调用
               反之则证明send方法没有直接修改readyState
             4) 文档 https://xhr.spec.whatwg.org/#the-abort()-method 详细介绍了 open, send, abort的具体步骤
+        2.3) 详解
+        1. constructor()
+           1.1) this.state = UNSET(0)             // 即XMLHttpRequest.readyState, 它是一个getter函数
+
+        2. open()
+           2.1) this.sendFlag = false
+           2.2) this.synchronousFlag = false
+           2.3) this.response = Response.Error;
+           2.4) this.state = OPENED(1)            // 即XMLHttpRequest.readyState, 它是一个getter函数
+           2.5) 触发readystatechange
+
+        3. send()
+           3.1) this.sendFlag = true
+           3.2) if(this.state != OPENED || !this.sendFlag)时,不执行下面的步骤
+           3.3) 放置定时任务(To process response)
+
+        4. send()放置的定时任务
+           4.1) if(this.response == Response.Error)时,不执行下面的步骤
+           4.2) this.state = HEADERS_RECEIVED(2)
+           4.3) 触发readystatechange               // 注意callback可以改变this.state,所以才做下面的检查
+           4.4) if(this.state != HEADERS_RECEIVED)时,不执行下面的步骤
+           4.5) if(this.response == Response.Error)时,不执行下面的步骤
+           4.6) this.state = DONE(2)
+           4.7) this.sendFlag = false
+           4.8) 触发readystatechange
     3) 应用场景
        当用户连续触发两次请求req1, req2, 且req2的响应快于req1时
        req2的响应可能被延迟的req1的响应所覆盖(复现请看附录3)
