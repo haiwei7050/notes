@@ -451,7 +451,28 @@
     1) 原理
        重置XMLHttpRequest的 readyState 和 status为0           // 这句参考 https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/abort
        并且不会触发 xhr.onreadystatechange设置的回调函数的执行   // 这句参考 https://xhr.spec.whatwg.org/#the-abort()-method
-    2) 应用场景
+    2) open, send, abort实现的猜测
+       2.1) XMLHttpRequest.readyState的取值及意义
+           0          表示 XMLHttpRequest 实例已经生成, 但是实例的open()方法还没有被调用
+           1          表示open()方法已经调用, 但是实例的send()方法还没有调用
+           2          send()方法已经调用, *** 并且服务器返回的头信息和状态码已经收到 ***
+           3          表示正在接收服务器传来的数据体
+           4          表示服务器返回的数据已经完全接收, *** 或者本次接收已经失败 ***
+           注意2和4星号括起来的部分
+       2.2) 例子
+            var xhr = new XMLHttpRequest();                              // readyState = 0
+                xhr.onreadystatechange = callback
+                xhr.open('GET', 'http://192.30.0.231:8080/test');       // readyState由 0 => 1, callback会被调用
+                xhr.send();                                             // send方法返回后, readyState的值不会变化, 进而callback也不会调用
+                xhr.abort();                                            // readyState由 1 => 0, 根据规范不会触发callback, 且将status设为0
+           为什么send方法返回后不会改变readyState, 这是因为:
+            1)readyState由 0 => 1, 不仅需要send方法被调用且收到服务器返回的头信息(见2.1的星号部分)
+            2)所以send方法, 应该把发送http请求, 改变readyState, 调用callback, 封装到一个定时任务中
+            3)上面两点可以这么验证, 因为js是单线程所以在xhr.abort()上面打断点, 会导致send方法放置的定时任务无法执行
+              如果send方法直接修改readyState, 则当程序停到断点处时, readyState由 1 => 2, 进而callback被调用
+              反之则证明send方法没有直接修改readyState
+            4) 文档 https://xhr.spec.whatwg.org/#the-abort()-method 详细介绍了 open, send, abort的具体步骤
+    3) 应用场景
        当用户连续触发两次请求req1, req2, 且req2的响应快于req1时
        req2的响应可能被延迟的req1的响应所覆盖(复现请看附录3)
        此时就应该在发送第二次请req2求前执行req1.abort()
