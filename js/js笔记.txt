@@ -428,83 +428,115 @@
     const b2 = new Uint16Array(buffer);     //Uint16Array, 每次可以2个字节的大小读写上面的内存
     console.log(b2[0]);                     // 一次读取2个字节, 0x0201
 
-17. XMLHttpRequest
-    1) 使用
-       const xhr = new XMLHttpRequest();
-       xhr.open('GET', 'http://192.30.0.231:8080/test');
-       const body;
-       xhr.onreadystatechange = callback     // 当xhr.readyState发生变化时, 回调函数会被调用
-       xhr.send(body);                       // body的内容将放在请求体中
+17. XMLHttpRequest的基本用法
+       var xhr = new XMLHttpRequest();
+       var body = null;
+       xhr.onreadystatechange = callback;
+       xhr.open('GET', 'http://localhost:8080/user');
+       xhr.send(body);
 
-    2) XMLHttpRequest.send(body)的注意事项
-       2.1) body 可以是Document,
-                      Blob, BufferSource, FormData, URLSearchParams, USVString.
-                      null
-       2.2)当使用GET或HEAD时, send(body) 等价于 send(null)
+       function callback(){
+         //callback的this默认绑定的是xhr对象
+         if(this.readyState == 4){
+            //请求已完成
+         }
+       }
+      注意: **** callback的this默认绑定的是xhr对象  ****
 
-       2.3) 不同类型的body的content-type
-            body                       content-type                        playload
-            FormData                   multipart/form-data                 按照multipart/form-data进行编码
-            URLSearchParams            application/x-www-form-urlencoded   按照application/x-www-form-urlencoded进行编码
+18. XMLHttpRequest的readyState
+     1) XMLHttpRequest.readyState
+        取值   代码
+        0    var xhr = new XMLHttpRequest()   表示 XMLHttpRequest 实例已经生成, 但是实例的open()方法还没有被调用
+        1    xhr.open()                       表示open()方法已经调用, 但是实例的send()方法还没有调用
+        2    xhr.send()放置的定时任务           send()方法已经调用, *** 并且服务器返回的头信息和状态码已经收到 ***
+        3    xhr.send()放置的定时任务           表示正在接收服务器传来的数据体
+        4    xhr.send()放置的定时任务           表示服务器返回的数据已经完全接收, *** 或者本次接收已经失败 ***
 
-18. XMLHttRequest.abort()的原理及应用场景
-    1) 原理
-       重置XMLHttpRequest的 readyState 和 status为0           // 这句参考 https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/abort
-       并且不会触发 xhr.onreadystatechange设置的回调函数的执行   // 这句参考 https://xhr.spec.whatwg.org/#the-abort()-method
-    2) open, send, abort实现的猜测
-       2.1) XMLHttpRequest.readyState的取值及意义
-           0          表示 XMLHttpRequest 实例已经生成, 但是实例的open()方法还没有被调用
-           1          表示open()方法已经调用, 但是实例的send()方法还没有调用
-           2          send()方法已经调用, *** 并且服务器返回的头信息和状态码已经收到 ***
-           3          表示正在接收服务器传来的数据体
-           4          表示服务器返回的数据已经完全接收, *** 或者本次接收已经失败 ***
-           注意2和4星号括起来的部分
-       2.2) 例子
-            var xhr = new XMLHttpRequest();                              // readyState = 0
-                xhr.onreadystatechange = callback
-                xhr.open('GET', 'http://192.30.0.231:8080/test');       // readyState由 0 => 1, callback会被调用
-                xhr.send();                                             // send方法返回后, readyState的值不会变化, 进而callback也不会调用
-                xhr.abort();                                            // readyState由 1 => 0, 根据规范不会触发callback, 且将status设为0
-           为什么send方法返回后不会改变readyState, 这是因为:
-            1)readyState由 0 => 1, 不仅需要send方法被调用且收到服务器返回的头信息(见2.1的星号部分)
-            2)所以send方法, 应该把发送http请求, 改变readyState, 调用callback, 封装到一个定时任务中
-            3)上面两点可以这么验证, 因为js是单线程所以在xhr.abort()上面打断点, 会导致send方法放置的定时任务无法执行
-              如果send方法直接修改readyState, 则当程序停到断点处时, readyState由 1 => 2, 进而callback被调用
-              反之则证明send方法没有直接修改readyState
-            4) 文档 https://xhr.spec.whatwg.org/#the-abort()-method 详细介绍了 open, send, abort的具体步骤
-        2.3) 详解
-        1. constructor()
-           1.1) this.state = UNSET(0)             // 即XMLHttpRequest.readyState, 它是一个getter函数
+     2) open()与readyState以及xhr.onreadystatechange的关系
+         2.1) 将readyState 从 1 => 0
+         2.2) 直接在方法中调用xhr.onreadystatechange设置的回调函数
 
-        2. open()
-           2.1) this.sendFlag = false
-           2.2) this.synchronousFlag = false
-           2.3) this.response = Response.Error;
-           2.4) this.state = OPENED(1)            // 即XMLHttpRequest.readyState, 它是一个getter函数
-           2.5) 触发readystatechange
+     3) send()与readyState以及xhr.onreadystatechange的关系
+        3.1) send方法中不修改readyState的值, 也不调用xhr.onreadystatechange设置的回调函数
+        3.2) 在send()放置的定时任务, 会修改readyState的值,并调用xhr.onreadystatechange设置的回调函数
+        3.3) 定时任务分为两部分:
+             a) 创建一个HTTP请求, 并交给后台线程执行,
+                    即下面伪代码中的submit(request).
 
-        3. send()
-           3.1) this.sendFlag = true
-           3.2) if(this.state != OPENED || !this.sendFlag)时,不执行下面的步骤
-           3.3) 放置定时任务(To process response)
+             b) 用setTimeout设置一个定时任务, 该定时任务在main线程中运行.
+                    即下面伪代码中的setTimeout(cb, 0).
 
-        4. send()放置的定时任务
-           4.1) if(this.response == Response.Error)时,不执行下面的步骤
-           4.2) this.state = HEADERS_RECEIVED(2)
-           4.3) 触发readystatechange               // 注意callback可以改变this.state,所以才做下面的检查
-           4.4) if(this.state != HEADERS_RECEIVED)时,不执行下面的步骤
-           4.5) if(this.response == Response.Error)时,不执行下面的步骤
-           4.6) this.state = DONE(2)
-           4.7) this.sendFlag = false
-           4.8) 触发readystatechange
-    3) 应用场景
-       当用户连续触发两次请求req1, req2, 且req2的响应快于req1时
-       req2的响应可能被延迟的req1的响应所覆盖(复现请看附录3)
-       此时就应该在发送第二次请req2求前执行req1.abort()
+             注意: a)的HTTP请求,它是在后台线程中运行,
+                  会和各种UI操作并行执行, 比如会和鼠标,键盘的回调函数并行执行
+                  而b)设置的定时任运行在main线程中, 所以它和UI事件
+                  比如鼠标,键盘的回调函数同一时间只有一个能运行
 
-    参考文档: https://stackoverflow.com/questions/39157737/what-happens-when-an-xmlhttprequest-is-aborted
+             注意: b)设置的定时任务负责下面操作
+                  修改readyState的值,并调用xhr.onreadystatechange设置的回调函数
+                   readyState: 1 => 2, 2 => 3, 3 => 4.
+                   readyState修改时, 其他鼠标键盘的回调函数不会被执行
+                   因为在它运行在main线程
 
-19. postMessage的用法
+
+        3.3) send方法放置的定时任务的伪代码如下
+             var request = createRequest();
+             submit(request);  // 可以和UI事件监听函数同时运行
+             var cb = () => {
+                 if(!request.done){
+                   setTimeout(cb, 0)
+                   return;
+                 }
+                 handle(2);
+                 handle(3);
+                 handle(4);
+             };
+             handle(xhr, state){
+                if(xhr.hasErrors()) return;
+                xhr.readyState = state;
+                xhr.onreadystatechange()
+             }
+             setTimeout(cb, 0); // 同一时间, 它和UI事件监听函数只有一个可以运行
+
+     4) abort()与readyState以及xhr.onreadystatechange的关系
+        4.1) a.当readyState != 4 时, 令xhr.readyState = 4, xhr.status = 0
+               并调用xhr.onreadystatechange设置的回调函数
+             b.当readyState == 4 时, 令xhr.readyState = 0, xhr.status = 0
+                此时不会调用回调函数
+
+        4.2) abort调用的时机
+             由上面3可知, send方法其实有两步:
+             a) 发送HTTP请求
+             b) 设置一个定时任务, 该定时任务检查HTTP请求是否完成
+                如果完成就修改readyState, 并调用xhr.onreadystatechange设置的回调函数
+
+             所以在b)之前, 此时xhr.readyState = 1, 调用xhr.abort()会按照4.1)a执行
+             ***  xhr.readyState = 1, 是因为xhr.open()令其等于1
+
+             所以在b)之后, 此时xhr.readyState = 4, 调用xhr.abort()会按照4.1)b执行
+              ***  xhr.readyState = 4, 是因为b)会一口气修改xhr.readyState,
+              从 1 => 2, 2 =>3, 3 => 4
+
+
+参考文档: https://xhr.spec.whatwg.org
+
+19.XMLHttpRequest.send(body)
+   1)当使用HEAD或GET方法请求后台数据时
+      send(body) 等价与  send(null);
+
+   2) body常用类型及对应的content-type
+     body                       content-type                        playload
+     FormData                   multipart/form-data                 按照multipart/form-data进行编码
+     URLSearchParams            application/x-www-form-urlencoded   按照application/x-www-form-urlencoded进行编码
+
+20.XMLHttRequest.abort()的应用
+   1)场景
+      当用户连续触发两次请求req1, req2, 且req2的响应快于req1时
+      req2的响应可能被延迟的req1的响应所覆盖
+      此时就应该在发送第二次请req2求前执行req1.abort()
+    2) 代码请看附录3
+
+   参考文档: https://xhr.spec.whatwg.org/#the-abort()-method
+21. postMessage的用法
     1) 父向子发
        subWin.postMessage(data, origin);          //  subWin: 子窗口
                                                   //  origin: 子窗口的源(协议+主机名+端口)
