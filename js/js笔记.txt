@@ -455,6 +455,10 @@
      2) open()与readyState以及xhr.onreadystatechange的关系
          2.1) 将readyState 从 1 => 0
          2.2) 直接在方法中调用xhr.onreadystatechange设置的回调函数
+         *** 请注意, 重复调用open可以起到终止第一次发出ajax请求
+             xhr.open();
+             xhr.send();
+             xhr.open(); // 这次open会终止掉前面的请求
 
      3) send()与readyState以及xhr.onreadystatechange的关系
         3.1) send方法中不修改readyState的值, 也不调用xhr.onreadystatechange设置的回调函数
@@ -534,6 +538,10 @@
       req2的响应可能被延迟的req1的响应所覆盖
       此时就应该在发送第二次请req2求前执行req1.abort()
     2) 代码请看附录3
+    *** 请注意, 重复调用open可以起到终止第一次发出ajax请求
+    xhr.open();
+    xhr.send();
+    xhr.open(); // 这次open会终止掉前面的请求
 
    参考文档: https://xhr.spec.whatwg.org/#the-abort()-method
 21. postMessage的用法
