@@ -1,0 +1,159 @@
+1. XMLHttpRequest的基本用法
+       var xhr = new XMLHttpRequest();
+       var body = null;
+       xhr.onreadystatechange = callback;
+       xhr.open('GET', 'http://localhost:8080/user');
+       xhr.send(body);
+
+       function callback(){
+         //callback的this默认绑定的是xhr对象
+         if(this.readyState == 4){
+            //请求已完成
+         }
+       }
+      注意: **** callback的this默认绑定的是xhr对象  ****
+
+2. XMLHttpRequest的readyState
+     1) XMLHttpRequest.readyState
+        取值   代码
+        0    var xhr = new XMLHttpRequest()   表示 XMLHttpRequest 实例已经生成, 但是实例的open()方法还没有被调用
+        1    xhr.open()                       表示open()方法已经调用, 但是实例的send()方法还没有调用
+        2    xhr.send()放置的定时任务           send()方法已经调用, *** 并且服务器返回的头信息和状态码已经收到 ***
+        3    xhr.send()放置的定时任务           表示正在接收服务器传来的数据体
+        4    xhr.send()放置的定时任务           表示服务器返回的数据已经完全接收, *** 或者本次接收已经失败 ***
+
+     2) open()与readyState以及xhr.onreadystatechange的关系
+         2.1) 将readyState 从 1 => 0
+         2.2) 直接在方法中调用xhr.onreadystatechange设置的回调函数
+         *** 请注意, 重复调用open可以起到终止第一次发出ajax请求
+             xhr.open();
+             xhr.send();
+             xhr.open(); // 这次open会终止掉前面的请求
+
+     3) send()与readyState以及xhr.onreadystatechange的关系
+        3.1) send方法中不修改readyState的值, 也不调用xhr.onreadystatechange设置的回调函数
+        3.2) 在send()放置的定时任务, 会修改readyState的值,并调用xhr.onreadystatechange设置的回调函数
+        3.3) 定时任务分为两部分:
+             a) 创建一个HTTP请求, 并交给后台线程执行,
+                    即下面伪代码中的submit(request).
+
+             b) 用setTimeout设置一个定时任务, 该定时任务在main线程中运行.
+                    即下面伪代码中的setTimeout(cb, 0).
+
+             注意: a)的HTTP请求,它是在后台线程中运行,
+                  会和各种UI操作并行执行, 比如会和鼠标,键盘的回调函数并行执行
+                  而b)设置的定时任运行在main线程中, 所以它和UI事件
+                  比如鼠标,键盘的回调函数同一时间只有一个能运行
+
+             注意: b)设置的定时任务负责下面操作
+                  修改readyState的值,并调用xhr.onreadystatechange设置的回调函数
+                   readyState: 1 => 2, 2 => 3, 3 => 4.
+                   readyState修改时, 其他鼠标键盘的回调函数不会被执行
+                   因为在它运行在main线程
+
+
+        3.3) send方法放置的定时任务的伪代码如下
+             var request = createRequest();
+             submit(request);  // 可以和UI事件监听函数同时运行
+             var cb = () => {
+                 if(!request.done){
+                   setTimeout(cb, 0)
+                   return;
+                 }
+                 handle(2);
+                 handle(3);
+                 handle(4);
+             };
+             handle(xhr, state){
+                if(xhr.hasErrors()) return;
+                xhr.readyState = state;
+                xhr.onreadystatechange()
+             }
+             setTimeout(cb, 0); // 同一时间, 它和UI事件监听函数只有一个可以运行
+
+     4) abort()与readyState以及xhr.onreadystatechange的关系
+        4.1) a.当readyState != 4 时, 令xhr.readyState = 4, xhr.status = 0
+               并调用xhr.onreadystatechange设置的回调函数
+             b.当readyState == 4 时, 令xhr.readyState = 0, xhr.status = 0
+                此时不会调用回调函数
+
+        4.2) abort调用的时机
+             由上面3可知, send方法其实有两步:
+             a) 发送HTTP请求
+             b) 设置一个定时任务, 该定时任务检查HTTP请求是否完成
+                如果完成就修改readyState, 并调用xhr.onreadystatechange设置的回调函数
+
+             所以在b)之前, 此时xhr.readyState = 1, 调用xhr.abort()会按照4.1)a执行
+             ***  xhr.readyState = 1, 是因为xhr.open()令其等于1
+
+             所以在b)之后, 此时xhr.readyState = 4, 调用xhr.abort()会按照4.1)b执行
+              ***  xhr.readyState = 4, 是因为b)会一口气修改xhr.readyState,
+              从 1 => 2, 2 =>3, 3 => 4
+
+
+参考文档: https://xhr.spec.whatwg.org
+
+3.XMLHttpRequest.send(body)
+   1)当使用HEAD或GET方法请求后台数据时
+      send(body) 等价与  send(null);
+
+   2) body常用类型及对应的content-type
+     body                       content-type                        playload
+     FormData                   multipart/form-data                 按照multipart/form-data进行编码
+     URLSearchParams            application/x-www-form-urlencoded   按照application/x-www-form-urlencoded进行编码
+
+4.XMLHttRequest.abort()的应用
+   1)场景
+      当用户连续触发两次请求req1, req2, 且req2的响应快于req1时
+      req2的响应可能被延迟的req1的响应所覆盖
+      此时就应该在发送第二次请req2求前执行req1.abort()
+    2) 代码请看附录1
+    *** 请注意, 重复调用open可以起到终止第一次发出ajax请求
+    xhr.open();
+    xhr.send();
+    xhr.open(); // 这次open会终止掉前面的请求
+
+   参考文档: https://xhr.spec.whatwg.org/#the-abort()-method
+
+附录1
+           <p id="content">还未请求</p>
+           <button id="btn1">发送请求1</button>
+           <br>
+           <button id="btn2">发送请求2</button>
+           <br>
+           <script>
+               const btn1 = document.getElementById('btn1');
+               const btn2 = document.getElementById('btn2');
+               const content = document.getElementById('content');
+               const server = 'http://192.30.0.231:8080';
+               let xhr = null;
+               let i = 1;
+               btn1.addEventListener('click', () => {
+                   sendRequest(server + '/xh1', updateContent);
+               });
+
+               btn2.addEventListener('click', () => {
+                   sendRequest(server + '/xh2', updateContent);
+               });
+               function sendRequest(api, callback, method) {
+                   if(xhr){
+                       //xhr.abort() 放开注释就可以解决问题
+                   }
+                   let methodToUse = method || 'GET';
+                   xhr = new XMLHttpRequest();
+                   xhr.open(methodToUse, api);
+                   xhr.onreadystatechange = createCallback(xhr, callback);
+                   xhr.send();
+               }
+               function createCallback(xhr, callback) {
+                   return () => {
+                       if (xhr.readyState == 4 && xhr.status == 200) {
+                           const data = xhr.responseText;
+                           callback(data);
+                       }
+                   }
+               }
+               function updateContent(data) {
+                   content.innerText = data;
+               }
+           </script>
