@@ -558,6 +558,63 @@
                                                  // 即, parentWin.postMessage(data, origin); e.origin就是这里填的origin
       });
 
+22.Iterable, Iterator, Generator, async
+   1) Iterator 和 Iterator
+      一个可迭代的js对象,是指它有一个名为Symbol.iterator的属性
+      且该属性是一个函数, 它的返回值是一个Iterator对象.
+      下面就是一个可迭代的js对象
+      let obj = {
+         [Symbol.iterator]: function (){
+            return {value: 1, done: false};  //返回的就是Iterator对象
+         }
+      }
+
+   2) Generator
+      Generator函数返回的是一个可迭代的js对象
+      function* m1(){
+         let a = yield 1;
+         let b = yield 2;
+         console.log(a);
+         console.log(b);
+      }
+      let a = m1();                    // a是一个可迭代的js对象, 即a[Symbol.iterator]是一个函数, 且它的返回值是一个Iterator对象
+      let step1 = a.next();            // 方法m1执行到yield 1, 并返回{value:!, done: false}, 注意还没有执行赋值语句 let a = ?
+      let step2 = a.next(step1.value); // 方法m1执行 let a = step1.value = 1 和 yield 2, 并返回{value:2, done: false}
+      let step3 = a.next(step2.value); // 方法m1执行 let b = step2.value = 2 和 两句打印语句, 并返回 {value:undefined, done: true}
+
+   3) Generator 处理异步请求
+      function* m1(){
+         let a = yield new Promise(res => res(1));
+         let b = yield new Promise(res => res(2));
+         console.log(a);
+         console.log(b);
+      }
+      let a = m1();
+      let step1 = a.next();             // step1 = {value: new Promise(res => res(1)), done: false}
+      step1.value.then(d => {
+            let step2 = a.next(d);       // step2 = {value: new Promise(res => res(2)), done: false}
+             step2.value.then(d => {
+                  let step3 = a.next(d); // step2 = {value: undefined, done: truue}
+             });
+        });
+
+   4) async
+      async是Generator 处理异步请求, 简化处理的语法蜜糖
+
+      async function m1(){
+         let a = await new Promise(res => res(1));
+         let b = await new Promise(res => res(2));
+         return a+ b;
+      }
+      let resultPromise = m1();
+      // 直接调用async方法就等于上面3)做的操作, 下面是详解
+      4.1) 先运行 let a = await new Promise(res => res(1))
+            这里的a等于res方法中传入的值, 这里是1
+      4.2) 再运行 let b = await new Promise(res => res(2));
+           注意4.2和4.1是串行从上到下运行的
+      4.3) async 返回的是Promise对象,
+          它的then方法传入的是async方法最后return返回的值
+   参考文档: https://es6.ruanyifeng.com/#docs/async
 
 附录1 用google搜索指定网站
       关键词 site:https://wangdoc.com/
