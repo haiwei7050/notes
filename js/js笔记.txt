@@ -581,7 +581,7 @@
          console.log(b);
       }
       let a = m1();                    // a是一个可迭代的js对象, 即a[Symbol.iterator]是一个函数, 且它的返回值是一个Iterator对象
-                                       // *** 注意 a[Symbol.iterator] = () => a; 所以可以直接调用a.next();
+                                       // ***注意 a[Symbol.iterator] = () => a; 所以可以直接调用a.next();
 
       let step1 = a.next();            // 方法m1执行到yield 1, 并返回{value:!, done: false}, 注意还没有执行赋值语句 let a = ?
       let step2 = a.next(step1.value); // 方法m1执行 let a = step1.value = 1 和 yield 2, 并返回{value:2, done: false}, 注意还没有执行赋值语句 let b = ?
@@ -614,9 +614,10 @@
       let resultPromise = m1();
       // 直接调用async方法就等于上面3)做的操作, 下面是详解
       4.1) 先运行 let a = await new Promise(res => res(1))
-            这里的a等于res方法中传入的值, 这里是1
+           这里的a等于res方法中传入的值, 这里是1
       4.2) 再运行 let b = await new Promise(res => res(2));
-           注意4.2和4.1是串行从上到下运行的
+           这里的b等于res方法中传入的值, 这里是2
+           ***注意 4.2和4.1是串行从上到下运行的
       4.3) async 返回的是Promise对象,
           它的then方法传入的是async方法最后return返回的值
    参考文档: https://es6.ruanyifeng.com/#docs/async
