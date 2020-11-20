@@ -565,7 +565,10 @@
       下面就是一个可迭代的js对象
       let obj = {
          [Symbol.iterator]: function (){
-            return {value: 1, done: false};  //返回的就是Iterator对象
+            let iterator = {
+               next: () = > {value: 1, done: false};
+            }
+            return iterator; //这里返回的就是Iterator对象, 它必须有个next方法
          }
       }
 
@@ -578,8 +581,10 @@
          console.log(b);
       }
       let a = m1();                    // a是一个可迭代的js对象, 即a[Symbol.iterator]是一个函数, 且它的返回值是一个Iterator对象
+                                       // *** 注意 a[Symbol.iterator] = () => a; 所以可以直接调用a.next();
+
       let step1 = a.next();            // 方法m1执行到yield 1, 并返回{value:!, done: false}, 注意还没有执行赋值语句 let a = ?
-      let step2 = a.next(step1.value); // 方法m1执行 let a = step1.value = 1 和 yield 2, 并返回{value:2, done: false}
+      let step2 = a.next(step1.value); // 方法m1执行 let a = step1.value = 1 和 yield 2, 并返回{value:2, done: false}, 注意还没有执行赋值语句 let b = ?
       let step3 = a.next(step2.value); // 方法m1执行 let b = step2.value = 2 和 两句打印语句, 并返回 {value:undefined, done: true}
 
    3) Generator 处理异步请求
