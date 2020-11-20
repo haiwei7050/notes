@@ -115,6 +115,54 @@
 
    参考文档: https://xhr.spec.whatwg.org/#the-abort()-method
 
+5.XMLHttRequest.response详解
+  1)它是个getter函数, 并且根据xhr.responseType来返回不同的数据, 下面仅列举常用的
+    responseType                      结果
+    text或空串''(''是默认值)            和responseText的值一样
+    blob                              把接收到的byte数据转换为blob
+    arraybuffer                       把接收到的byte数据转换为arraybuffer
+    json                              把接收到的byte数据转换为JSON
+
+  2)例子
+    var xhr = new XMLHttpRequest();
+    text(xhr);
+    //blob(xhr);
+    //arraybuffer(xhr);
+    //json(xhr);
+    xhr.open();
+    xhr.send();
+
+    function text(xhr){
+       //下面两行效果一样, 不设置默认就是 xhr.responseType = ''
+       xhr.responseType = '';
+       xhr.responseType = 'text';
+       xhr.onreadystatechange = () =>{
+           if(this.readyState === 4){
+              // 下面两行都可以调用且其返回值一样
+              this.response
+              this.responseText
+           }
+       }
+    }
+
+    function blob(xhr){
+       xhr.responseType = 'blob'
+       xhr.onreadystatechange = () => {
+          // 不可以调用this.responseText
+          // this.response = new Blob(byte[], {type:'application/json'})
+          // 其中的type由响应头的content-type决定
+          // 且可以被xhr.overrideMimeType()覆盖
+          this.response
+       }
+    }
+
+    function arraybuffer/json(xhr){
+       xhr.responseType = 'arraybuffer';(或者 'json')
+       xhr.onreadystatechange = () => {
+          // 不可以调用this.responseText
+          this.response
+       }
+    }
 附录1
            <p id="content">还未请求</p>
            <button id="btn1">发送请求1</button>
