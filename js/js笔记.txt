@@ -559,7 +559,7 @@
       });
 
 22.Iterable, Iterator, Generator, async
-   1) Iterator 和 Iterator
+   1) Iterable 和 Iterator
       一个可迭代的js对象,是指它有一个名为Symbol.iterator的属性
       且该属性是一个函数, 它的返回值是一个Iterator对象.
       下面就是一个可迭代的js对象
