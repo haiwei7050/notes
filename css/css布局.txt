@@ -84,6 +84,8 @@
          c. width默认等于内容的宽度
    结论: float元素最好设置width
    3) 如果浮动元素前面有一个不浮动的块元素, 它只会在本行浮动，不会浮动到上一行
+      因为前面的块元素会独占一行.
+      结论: float只会对后面的元素产生影响
        <div class="box">
            <div class="ctn1">1</div>
            <div class="ctn2">2</div>
