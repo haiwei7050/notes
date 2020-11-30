@@ -29,7 +29,11 @@
       字体高度 + 上下留白 = height
       即 line-height = height
 
-3. 块级元素居中
+3. padding 和 margin
+   1) padding-left(or right) + 内容的宽度 + border-left(or right) = 盒子的width
+   2) margin是盒子的外边距, 从border外开始算
+
+4. 块级元素居中
   1) 必须是块级元素 display:block,
      display:inline-block也不行
   2) 必须设置width,
@@ -38,3 +42,33 @@
      .box {
         margin: 0 auto;
      }
+
+5. margin 塌陷
+   .p {
+      width: 400px;
+      height: 400px;
+      background-color: black;
+   }
+   .s1 {
+       height: 200px;
+       background-color: red;
+
+   }
+   .s2 {
+       height 100px;
+       background-color: yellow;
+   }
+    <div class="p">
+        <div class="s1"></div>
+        <div class="s2"></div>
+    </div>
+
+    1) 如果同时设置 .p 和 .s1的margin-top,
+       最终表现就是只设置了.p的margin-top,
+       并且其值等于二者最大的一个.
+       解决方法是在.p 中设置 overflow: hidden
+    2) 如果同时设置 .p 和 .s2的margin-top,
+      不会出现margin塌陷的问题
+
+ 6. padding什么时候不撑大盒子宽度
+    只要不要同时设置 width 和 padding即可
