@@ -28,3 +28,13 @@
    3) 要想字体在垂直位置居中, 就需要
       字体高度 + 上下留白 = height
       即 line-height = height
+
+3. 块级元素居中
+  1) 必须是块级元素 display:block,
+     display:inline-block也不行
+  2) 必须设置width,
+     如果不设置width, 即width=100%, 也就是父盒子的宽度, 就没必要居中了, 因为已经占满父盒子了
+  3) 设置margin为
+     .box {
+        margin: 0 auto;
+     }
