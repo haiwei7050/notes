@@ -72,3 +72,14 @@
 
  6. padding什么时候不撑大盒子宽度
     只要不要同时设置 width 和 padding即可
+
+7. float元素的特性
+   1) 行内元素 display:inline
+      a. 自动转成行内块元素(display:inline-block)
+      b. 可以设置width 及 height
+      c. width默认等于内容的宽度
+   2) 块元素 display:block
+         a. 自动转成行内块元素(display:inline-block)
+         b. width默认等于内容的宽度
+   !!! 注意, 块级元素的width默认等于父盒子的宽度 !!!
+   结论: float元素最好设置width
