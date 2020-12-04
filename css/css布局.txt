@@ -28,18 +28,27 @@
    3) 要想字体在垂直位置居中, 就需要
       字体高度 + 上下留白 = height
       即 line-height = height
+      
+   4)证明 当字体居中时, 
+       1/2盒子高度 - 1/2字体高度 = 上留白(或下留白)的高度
+    => 1/2盒子高度 = 1/2字体高度 + 上留白(或下留白)的高度
+    => 盒子高度 = 字体高度 + 2*上留白高度 = line-height
 
 3. padding 和 margin
-   1) padding-left(or right) + 内容的宽度 + border-left(or right) = 盒子的width
-   2) margin是盒子的外边距, 从border外开始算
+   1)padding指的是, 盒子边框到内容之间的距离
+   2) margin是盒子的外边距, 从盒子边框外开始算
 
 4. 块级元素居中
-  1) 必须是块级元素 display:block,
+  1) 必须是块级元素 display:block, 
      display:inline-block也不行
+     
   2) 必须设置width,
      如果不设置width, 即width=100%, 也就是父盒子的宽度, 就没必要居中了, 因为已经占满父盒子了
+     
   3) 设置margin为
      .box {
+        display: block,
+        widht: 960px,
         margin: 0 auto;
      }
 
@@ -67,25 +76,23 @@
        最终表现就是只设置了.p的margin-top,
        并且其值等于二者最大的一个.
        解决方法是在.p 中设置 overflow: hidden
-    2) 如果同时设置 .p 和 .s2的margin-top,
-      不会出现margin塌陷的问题
+       
+    2) 但是同时设置 .p 和 .s2的margin-top,
+       就不会出现margin塌陷的问题
 
  6. padding什么时候不撑大盒子宽度
-    只要不要同时设置 width 和 padding即可
+    1) 不要同时设置 wdith  和 padding-left (或者padding-right)
+    2) 不要同时设置 height 和 padding-top  (或者padding-buttom)
+    
 
 7. float元素的特性
-   1) 行内元素 display:inline
-      a. 自动转成行内块元素(display:inline-block)
-      b. 可以设置width 及 height
-      c. width默认等于内容的宽度
-   2) 块元素 display:block
-         a. 自动转成行内块元素(display:inline-block)
-         !!! 注意, 块级元素的width默认等于父盒子的宽度 !!!
-         c. width默认等于内容的宽度
-   结论: float元素最好设置width
-   3) 如果浮动元素前面有一个不浮动的块元素, 它只会在本行浮动，不会浮动到上一行
-      因为前面的块元素会独占一行.
-      结论: float只会对后面的元素产生影响
+    1) display变为inline-block (行内块元素)
+    
+    2) width默认等于内容的宽度
+    
+    3) 如果浮动元素前面有一个不浮动的块元素, 它只会在本行浮动，不会浮动到上一行
+       因为前面的块元素会独占一行.
+       结论: float只会对后面的元素产生影响
        <div class="box">
            <div class="ctn1">1</div>
            <div class="ctn2">2</div>
