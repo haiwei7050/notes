@@ -553,7 +553,7 @@
                                                   //  origin:    父窗口的源(协议+主机名+端口)
     3) 在父窗口监听子窗口的message事件
       window.addEventListener('message', e => {
-         e.source                                // 子窗口即window对象
+         e.source                                // 子窗口的window对象
          e.origin                                // 子窗口的源
       });
 
