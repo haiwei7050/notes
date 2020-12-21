@@ -1103,6 +1103,9 @@
 38、项目不继承spring boot时,最小的maven配置
    https://javadeveloperzone.com/spring-boot/spring-boot-without-parent-pom
 
+   注意:spring-boot-dependencies里面还有一个spring-framework-bom,
+       1. 它里面包含了spring的其他依赖, 比如spring-context-support
+
 39、org.springframework.core.io.support.SpringFactoriesLoader加载类的配置文件为
    META-INF/spring.factories
 
