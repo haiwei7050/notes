@@ -72,6 +72,19 @@
                      }]
            }
          };
+	 
+      4) webpack中使用import().then()实现懒加载
+         -src
+	   - index.js
+	   - a.js
+	 // index.js
+	 import('./a.js').then(
+	    module => console.dir(module);
+	 );
+        // a.js
+	 module.exports = function p(){
+	     console.log('this is a.js');
+	 }
 备注:
   1. 各种js的模块语法
   
