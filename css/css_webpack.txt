@@ -1,3 +1,6 @@
 1.postcss和它的插件Autoprefixer
   postcss:            https://github.com/postcss/postcss
   Autoprefixer:       https://github.com/postcss/autoprefixer
+
+2.css语法兼容查询网站
+  https://caniuse.com/
