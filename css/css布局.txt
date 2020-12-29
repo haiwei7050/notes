@@ -101,3 +101,17 @@
        如果 .ctn1不浮动而.ctn2浮动
        则.ctn2不会浮动到.ctn1上面
        它只会压住.ctn3
+
+8. background-position
+   1) background-position: x, y
+      x和y都是图像左上角相对与标签的左上角
+   2) background-position: 10px, 0
+         表示把图像向 右=> 平移10px
+      background-position: -10px, 0
+         表示把图像向 左<= 平移10px
+   3) background-position: 0, 10px
+        表示把图像向 下 平移10px
+      background-position: 0, -10px
+        表示把图像向 上 平移10px
+
+注意, 如果 background-position: 10px, 0 和 background-position: -10px, 0 显示一样, 那是忘了设置background-repeat:none
