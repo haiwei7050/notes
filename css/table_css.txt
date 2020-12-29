@@ -1,0 +1,50 @@
+1. 表格样式设置
+        <table>
+            <tr>
+                <th>姓名</th>
+                <th>性别</th>
+                <th>年龄</th>
+            </tr>
+            <tr>
+                <td>张三</td>
+                <td>男</td>
+                <td>11</td>
+            </tr>
+        </table>
+  1) 边框
+    table {
+       border: 2px solid black;          // 如果只设置这里, 表格只有外边框
+       border-collapse: collapse;        // 单元格之间会有间隙, border-spacing控制间隙大小,
+                                            当border-spacing = 0时, 两个单元格的边框会挨在一起
+                                            当border-collapse = collapse时, 单元格之间的空隙及边框会被合并
+
+    }
+
+    th,                                  // th 和 td的区别是, th里的内容会自动 <加粗> 且 <水平居中>
+    td {
+       border: 1px solid red;            // 这里设置单元格的边框
+    }
+
+  2) 固定表格大小
+     table {
+        width: 300px;
+        table-layout: fixed;             // 如果使用默认值auto, 表格的宽度会被内容撑大
+     }
+
+     th,
+     td {
+        overflow: hidden;               // 当内容的宽度大于单元格的宽度时会被隐藏
+        text-overflow: ellipsis;        // 被隐藏的内容会以...显示
+        white-space: nowrap;            // 不允许换行
+     }
+
+   3) js怎么判断单元格内容是否溢出
+      offsetWidth   单元格的实际宽度
+      scrollWidth   内容的实际宽度
+      if(ele.scrollWidth > ele.offsetWidth){
+         console.log('内容的宽度大于单元格的宽度了');
+      }
+
+      参考:
+      offsetWidth   https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/offsetWidth
+      scrollWidth   https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollWidth
