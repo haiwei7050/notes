@@ -15,10 +15,10 @@
     table {
        border: 2px solid black;          // 如果只设置这里, 表格只有外边框
        border-collapse: collapse;        // 单元格之间会有间隙, border-spacing控制间隙大小,
-                                            当border-spacing = 0时, 两个单元格的边框会挨在一起
+       }                                    当border-spacing = 0时, 两个单元格的边框会挨在一起
                                             当border-collapse = collapse时, 单元格之间的空隙及边框会被合并
 
-    }
+
 
     th,                                  // th 和 td的区别是, th里的内容会自动 <加粗> 且 <水平居中>
     td {
