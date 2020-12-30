@@ -6,9 +6,12 @@
             2) <h1>至<h6>以及<p>标签内不能再放其它块级元素
 
   2) 行内元素, display:inline
-     特点: 并行显示, 不能设置 width等属性...
+     特点: 并行显示, 不能设置 width, height等属性...
      常见元素: <a>, <strong>, <span>
      注意点: 1) 默认width等于内容的宽度
+            2) 可以设置padding和margin
+                padding     内容到边框的间距
+                margin      边框到其他元素的间距
 
   3) 行内块元素, display:inline-block
      特点: 并行显示, 可以设置 width, height, line-height...
