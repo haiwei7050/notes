@@ -119,3 +119,9 @@
         表示把图像向 上 平移10px
 
 注意, 如果 background-position: 10px, 0 和 background-position: -10px, 0 显示一样, 那是忘了设置background-repeat:none
+
+9. 多class的覆盖关系
+   <div class="red green"></div>
+   1)如果red在green之后, 则显示red, 因为red层叠掉green
+      .green {background-color: green}
+      .red {background-color: red}
