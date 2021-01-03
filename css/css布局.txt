@@ -89,7 +89,8 @@
     
 
 7. float元素的特性
-    1) display变为inline-block (行内块元素)
+    1) display类似inline-block (行内块元素)
+       !!! 注意inline-block之间会有间隙, float后的元素没有 !!!
     
     2) width默认等于内容的宽度
     
