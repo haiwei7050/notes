@@ -88,13 +88,10 @@
     2) 不要同时设置 height 和 padding-top  (或者padding-buttom)
     
 
-7. float元素的特性
-    1) display类似inline-block (行内块元素)
-       !!! 注意inline-block之间会有间隙, float后的元素没有 !!!
+7. float及定位(absolute, fixed)元素的特性
+    1) width默认等于内容的宽度
     
-    2) width默认等于内容的宽度
-    
-    3) 如果浮动元素前面有一个不浮动的块元素, 它只会在本行浮动，不会浮动到上一行
+    2) 如果浮动元素前面有一个不浮动的块元素, 它只会在本行浮动，不会浮动到上一行
        因为前面的块元素会独占一行.
        结论: float只会对后面的元素产生影响
        <div class="box">
