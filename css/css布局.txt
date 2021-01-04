@@ -122,3 +122,20 @@
    1)如果red在green之后, 则显示red, 因为red层叠掉green
       .green {background-color: green}
       .red {background-color: red}
+
+10. 关于块级元素内容换行
+   1) 内容是连续的英文或数字,  不换行
+      <div>111111111111111111111111111</div>
+      div {
+         height: 30px;
+         width: 30px;
+      }
+
+   2) 内容是连续的汉字,  换行
+           <div>这里是一大段中文肯定会换行</div>
+           div {
+              height: 30px;
+              width: 30px;
+           }
+
+   3) 英文和数字不换行是因为, 它们之间没有空格
