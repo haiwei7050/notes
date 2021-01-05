@@ -1,0 +1,16 @@
+1.用css画三角形
+  <div class="box"></div>
+  .box {
+     width: 0;
+     height: 0;
+     font-size: 0;
+     line-height: 0;
+     border: 10px solid transparent;     // 四条边框必须指定大小, 否则盒子不会被渲染
+     border-bottom-color: red;           // 上三角
+  }
+
+  边框     三角
+  上       下
+  下       上
+  左       右
+  右       左
