@@ -27,3 +27,7 @@
    参考链接:
    居中:      https://www.shejidaren.com/css-center-elements-horizontally.html
    a+a选择器: https://developer.mozilla.org/zh-CN/docs/Web/CSS/CSS_Selectors
+
+2. vertical-align让元素垂直居中
+   1) 只对 inline-block, inline元素有效
+   2) 需要对所有元素设置 vertical-align: middle;
