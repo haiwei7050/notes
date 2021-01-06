@@ -1,0 +1,23 @@
+1. 什么情况下, 子盒子不会撑开父盒子
+   1) 只要父盒子设置了 height(或width),
+      子盒子就不会撑开父子, 也就不会对布局产生影响
+
+2. 子盒子的宽度或margin-left超过父盒子宽度时的例子
+    <div class="box box1">
+       <div class="son"></div>
+    </div>
+    <div class="box box2"></div>
+
+    .box {
+      float: left;
+      width: 100px;
+      height: 100px;
+    }
+    .box1 { background-color: red; }
+    .box2 { background-color: green; }
+    .son {
+      margin: 500px;   // 只要父盒子(.box1)设置了width, 子盒子就不会撑开父盒子, 所以.box2 也不会被挤开
+      width: 400px;
+      height: 100px;
+      background-color: skyblue;
+    }
