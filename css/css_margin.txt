@@ -1,23 +1,81 @@
-1. 什么情况下, 子盒子不会撑开父盒子
-   1) 只要父盒子设置了 height(或width),
-      子盒子就不会撑开父子, 也就不会对布局产生影响
+1. 什么情况下子盒子不会撑开父盒子
+   1) 当父盒子设置了width(或height)时
+   2) 例子
+       <div class="box box1">
+           <div class="son"></div>
+       </div>
+       <div class="box box2"></div>
+       .box1 {background-color: red}
+       .box2 {background-color: green}
+       .box {
+         float: left;
+         // 如果不设置width(或height)时, .son就会撑开.box1, 进而挤开.box2
+         height: 100px;
+         width: 100px;
+       }
+       .son {
+         height: 50px;
+         // margin-right, 是.son的右边框到.box1右边框的距离
+         // 当.box1<没有设置width>时, .son会撑开.box1从而把.box2挤到右边去
+         // 当.box1<设置了width>时, .son不会撑开.box1从而不会挤走.box2
+         width: 100px;
+         margin-right: 300px
+         background-color: skyblue;
+       }
 
-2. 子盒子的宽度或margin-left超过父盒子宽度时的例子
-    <div class="box box1">
-       <div class="son"></div>
-    </div>
-    <div class="box box2"></div>
+2.应用
+  1) 需求
+     做一个, 一行显示两个商品, 的商品列表页面
+  2) 问题
+     当li的width + margin-right > ul的width时, 每行的最后一个li会掉下来,
+  3) 解决方法
+     此时可以把ul的width设大解决问题, 令ul的width = li数量 * (li的width + li的margin-right)
+  4) 原理
+     ul的width设大不会撑大.w, 因为.w设置了width.
+  5) 代码
+      <div class="w">                 // .w负责居中定位
+          <ul class="clearfix">       // .clearfix清除浮动应该放到最近的父亲, ul默认宽度等于.w宽度
+              <li>1</li>
+              <li>2</li>
+              <li>3</li>
+              <li>4</li>
+          </ul>
+      </div>
+        * {
+          margin: 0;
+          padding: 0;
+        }
 
-    .box {
-      float: left;
-      width: 100px;
-      height: 100px;
-    }
-    .box1 { background-color: red; }
-    .box2 { background-color: green; }
-    .son {
-      margin: 500px;   // 只要父盒子(.box1)设置了width, 子盒子就不会撑开父盒子, 所以.box2 也不会被挤开
-      width: 400px;
-      height: 100px;
-      background-color: skyblue;
-    }
+        li {
+          list-style: none;
+        }
+
+        .w {
+          width: 100px;
+          margin: 0 auto;
+        }
+
+        .w ul {
+           width: 116px;         // 此处宽度大于.w的宽度, 116 = 2 * (48 + 10)
+        }                        // 但是ul不会撑破.w, 因为.w设置了width
+
+        .w ul li {
+           float: left;
+           margin-right: 10px;
+           margin-bottom: 10px;
+           width: 48px;
+           height: 60px;
+           background-color: skyblue;
+        }
+        // 下面两个是消除浮动的样式
+        .clearfix:after {
+          display: block;
+          height: 0;
+          content: "";
+          visibility: hidden;
+          clear: both;
+        }
+
+        .clearfix {
+          *zoom: 1;
+        }
