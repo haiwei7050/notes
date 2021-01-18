@@ -455,3 +455,43 @@ mvn exec:exec //输出 hello world
            --A
            --C
            --D(0.9)
+
+13.maven plugin execution的id的作用
+  1)覆盖已有插件的execution
+    <project>
+       <build>
+       ...
+       <executions>
+        <execution>
+            <id>same_id</id>                // 如果在maven profile中写一个同id的execution会覆盖这个
+            <phase>compile</phase>
+            <goals>
+                <goal>exec</goal>
+            </goals>
+            <configuration>
+                <executable>echo</executable>
+                <commandlineArgs>no_profile</commandlineArgs>
+            </configuration>
+        </execution>
+        </executions>
+       </build>
+       <profiles>
+           <profile>
+             <id>tp</id>
+             ...
+               <executions>
+                <execution>
+                    <id>same_id</id>           // 这个同id的execution会覆盖上面的execution
+                    <phase>compile</phase>
+                    <goals>
+                        <goal>exec</goal>
+                    </goals>
+                    <configuration>
+                        <executable>echo</executable>
+                        <commandlineArgs>profile_tp</commandlineArgs>
+                    </configuration>
+                </execution>
+                </executions>
+           </profile>
+       </profiles>
+    </project>
