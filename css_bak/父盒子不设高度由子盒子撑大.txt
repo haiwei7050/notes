@@ -18,7 +18,11 @@
  1. 不设.box的width是因为, 希望其宽度可以由.son撑开
  2. 设.son为inline-block, 是因为可以在.box中使用text-align: center令其居中对齐
  3. 此时希望.box的height 等于 .son高度 10px, 结果并不是
-    .box height == line-height = font-size * 1.125
-    chrome默认的font-size: 16px
-    chrome默认的line-height: 1.125 * 16px
-    且当设置font-size小于12px时, chrome会忽略, 除非设font-size为0
+ 4. 此时.box的height等于浏览器的默认行高18px (line-height = 1.125 * 16px, 16px是chrome默认字体大小)
+ 5. 按下设置不能解决问题
+   .box {
+      line-height: 1;
+      font-size: 10px;             // 因为当font-size小于12px时, chrome会令font-size=12px
+   }
+
+参考链接: https://blog.towavephone.com/css-world-text-processing/  搜索font-size: 0
