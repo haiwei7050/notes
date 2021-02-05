@@ -1,0 +1,33 @@
+1. 利用text-align
+   <div class="nav">
+       <a href="#">秒杀</a>
+       <a href="#">优惠券</a>
+       <a href="#">PLUS会员</a>
+       <a href="#">拍卖</a>
+   </div>
+   .nav {
+     height: 33px;
+     background-color: #E3E4E5;
+     line-height: 33px;
+     text-align: center;            // 让文字水平居中对齐, 从而达到让.nav里面的a居中
+                                       且.nav宽度随着a数量的增加而增加
+
+     a {
+       text-decoration: none;
+       color: #999;
+     }
+
+     a+a {
+       margin-left: 24px;         // 因为a中文字长度不一, 但希望a之间的距离是一样的
+                                     所以这里只设置margin-left(或padding-left)即可
+                                     .cl + .c2选中的是紧跟.c1后面的.c2
+     }
+
+   }
+   参考链接:
+   居中:      https://www.shejidaren.com/css-center-elements-horizontally.html
+   a+a选择器: https://developer.mozilla.org/zh-CN/docs/Web/CSS/CSS_Selectors
+
+2. vertical-align让元素垂直居中
+   1) 只对 inline-block, inline元素有效
+   2) 需要对所有元素设置 vertical-align: middle;

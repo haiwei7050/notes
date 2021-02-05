@@ -1,0 +1,24 @@
+1. 父盒子的高度想由子盒子撑开
+ <div class="box">
+    <div class="son"></div>
+ </div>
+
+ .box {
+    text-align: center;
+    background-color: green;
+    // font-size: 0;
+ }
+ .son {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: yellow;
+ }
+
+ 1. 不设.box的width是因为, 希望其宽度可以由.son撑开
+ 2. 设.son为inline-block, 是因为可以在.box中使用text-align: center令其居中对齐
+ 3. 此时希望.box的height 等于 .son高度 10px, 结果并不是
+    .box height == line-height = font-size * 1.125
+    chrome默认的font-size: 16px
+    chrome默认的line-height: 1.125 * 16px
+    且当设置font-size小于12px时, chrome会忽略, 除非设font-size为0

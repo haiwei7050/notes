@@ -1,0 +1,60 @@
+1. padding 和 margin
+   1) padding, 内边距, 内容到border的间距, 不能设负值
+   2) margin,  外边距, 盒子border的外空间,  可以设负值
+
+2. padding什么时候不撑大盒子宽度
+    1) 不要同时设置 wdith  和 padding-left (或者padding-right)
+    2) 不要同时设置 height 和 padding-top  (或者padding-buttom)
+
+3. padding, 最佳实践_1
+   1) 需求
+      a. 一行显示多个盒子
+      b. 每个盒子的字数不相同
+      c. 需要每个盒子之间的间距一样
+   2) 方案
+      此时若固定盒子的width, 则每个盒子看起来不是等间距的
+      而若使用padding, 则没这个问题
+   3) 代码
+   <ul>
+       <li>移动客户端</li>
+       <li>首页</li>
+       <li>搜索</li>
+       <li>公司团购</li>
+   </ul>
+   li {
+      float: left;
+      height: 30px;
+      line-height: 30px;
+     // width: 80px;
+     // text-align: center
+       padding: 0 15px;               // 放开上面的注释可以看到对比
+   }
+
+4. margin-top塌陷及解决方法
+   1) 问题
+      a.当设置 <子盒子> 的margin-top后, 子盒子会带着父盒子下移margin-top
+
+   2) 解决方法(设置任意一条都可以)
+      a.父盒子设置border
+      b.子盒子浮动
+      c.父盒子设置overflow: hidden
+
+   3) 问题复现的代码
+      <div class="box">
+          <div class="son"></div>
+      </div>
+
+      .box {
+         width: 500px;
+         height: 300px;
+         background-color: red;
+         //border: 1px solid red;     //父盒子设置border或overflow都可以解决该问题
+         // overflow: hidden;
+       }
+      .son {
+        // float: left;              // 子盒子浮动也不会出现该问题
+         margin-top: 50px;
+         width: 100px;
+         height: 100px;
+         background-color: green;
+      }

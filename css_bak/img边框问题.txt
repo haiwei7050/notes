@@ -1,0 +1,8 @@
+1.当img标签不设置src时会出现边框
+2.解决方法, 让img的src指向一个透明的图像, 并设置padding从而显示背景颜色
+<img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
+img {
+   padding: 29.5px
+   margin-left: 300px;
+   background-color: red;
+}

@@ -1,0 +1,135 @@
+1. 行内, 行内块, 块元素
+   1) 行内元素, display: inline
+      a.常见标签
+        <a>, <span>, <strong>
+      b.特殊地方
+        b1. width, height默认等于内容的宽和高
+        b2. 不能设置width, height
+        b3. 可以设置padding, margin
+
+   2) 行内块元素, display: inline-block
+      a.常见标签
+        <img>, <td>, <input>, <button>
+      b.特殊地方
+        b1. width, height默认等于内容的宽和高
+        b2. 可以设置width, height
+        b3. 两个inline-block之间会有间隙
+        b4. inline-block的底部和和盒子会有间隙
+
+   3) 块元素, display: block
+      a.常见标签
+        <h1>至<h6>, <p>, <div> <ul> <li>
+      b.特殊地方
+        b1. width默认等于父盒子宽度
+        b2. height默认等于内容的高度
+        b3. 可以设置width, height
+
+2. vertical-align
+   1) 只能作用于 inline, inline-block元素上
+   2) vertical-align不会被继承, 必须给每个子元素设置
+   3) vertical-align: middle的意义
+      a. 将设置了vertical-align: middle的
+      b. <inline-block的中心> 和父盒子中的 <文本的中心>, 垂直对齐
+      c. 所以如果文本没有在父盒子的中心, 则inline-block也不会在盒子的中心
+
+   4) vertical-align: baseline的意义
+      a. 将设置了vertical-align: baseline的元素的
+      b. <底边> 和父盒子 <文本> 的基线垂直对齐
+
+   5) vertical-align的参考链接
+      https://www.cnblogs.com/hykun/p/3937852.html
+
+3. img, textarea, 会出现的问题
+   1) 底部与父盒子有间隙的问题
+      解决方法: 设置img(或textarea)的vertical-align为middle
+
+   2) 让父盒子的文本和img(或textarea)垂直居中对齐
+      解决方法: a. 设置img(或textarea)的vertical-align为middle
+               b. 将文本用<span>(或其他标签包裹起来),
+                  并设置vertical-align: middle
+
+   3) 清除img, textarea的默认样式
+      img {
+         border: none;
+      }
+      textarea {
+         border: none;
+         outline: none;     // 清除选中时的边框
+         resize: none;      // 禁止文本框的缩放
+         overflow: auto:    // 只在需要滚动条的时候加上滚动条
+      }
+
+   4)代码
+     代码默认都清除了margin, padding
+     4.1)底部空隙 (img在所有浏览器上都有该问题, 而textarea在IE上没有该问题)
+        <div class="box">
+            <img></img>
+        </div>
+        .box {
+          margin: 30px auto;
+          width: 300px;
+          border: 1px solid red;
+          // height: 30px            // 如果.box设置了height该问题也会消失
+        }                            // 这里没有设置height, 让img撑开.box
+
+        img {
+           height: 30px;
+           width: 30px;
+           background-color: gold;
+           // vertical-align: middle  // 放开注释问题就就解决了
+        }
+
+     4.2) 让父盒子的文本和img(或textarea)垂直居中对齐
+        <div class="box">
+            <img>
+            <span>文本</span>
+            文本
+        </div>
+        .box {
+           margin: 30px auto;
+           width: 300px;
+           border: 1px solid red;
+           // line-height: 30px       //这里不能用line-height让文本和img同时垂直居中
+        }
+        img, span {
+           vertical-align: middle;    // 要让文本和img同时垂直居中
+        }                             // 1. 需要将文本用标签包起来(这里用的是span)
+                                      // 2. 同时设置二者的 vertical-align为middle
+        img {
+          height: 60px;
+          width: 30px;
+          background-color: gold;
+        }
+        span {
+          display: inline-block;
+        }
+
+4. input, select, button等表单元素, 会出现的问题
+   1)水平方向, 两个inline-block会出现空白间隙
+      解决方法: 让inline-block都浮动
+   2) 垂直方向, 底部和父盒子会出现空白间隙
+      解决方法: 让所有inline-block的vertical-align为middle
+   3) 水平间隙的代码示例
+       <div class="box">
+           <input type="text">
+           <button>搜索</button>
+       </div>
+       .box {
+         margin: 30px auto;
+         width: 300px;            // input的width + button的width等于.box的width
+         background-color: red;   // 但是二者之间有空隙, 所以button会掉下来
+       }
+       input, button {
+         // float: left;          // 放开注释就可以解决问题, 但是注意要清除浮动
+         border: none;
+         outline: none;           // 清除选中时的边框
+         height: 30px;
+       }
+       input {
+         width: 240px;
+         background-color: skyblue;
+       }
+       button {
+         width: 60px;
+         background-color: gold;
+       }
