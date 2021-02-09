@@ -24,6 +24,7 @@
       line-height: 1;
       font-size: 10px;             // 因为当font-size小于12px时, chrome会令font-size=12px
    }
+6. 只有让.box的font-size: 0 时, 才能解决这个问题
 
 参考链接: https://blog.towavephone.com/css-world-text-processing/  搜索font-size: 0
 浏览器默认line-height https://developer.mozilla.org/en-US/docs/Web/CSS/line-height 搜normal
