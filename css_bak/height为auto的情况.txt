@@ -23,7 +23,7 @@
     .box {
        background-color: red;   // .box的height等于.box的line-height
     }                           // .box没有设line-height, 则继承浏览器的line-height
-                                // 即浏览器的默认line-height = n * 16px
+                                // 即浏览器的默认line-height = n * 20px
                                 // n是行高系数, 20px是.box继承浏览器的font-size
 
 
