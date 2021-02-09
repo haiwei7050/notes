@@ -29,6 +29,18 @@
 
 3. 子元素为inline-block时
    1) 父元素的height = max(父元素的line-height, 子元素的height)
+   2) 上面的条件有个例外, 就是当子元素的height < 浏览器的最小line-height(chrome是12px)时
+       下面.p的height总是等于浏览器的最小line-height
+       解决方法是, 设.p的line-height为0
+       .p{
+          line-height: 8px;
+       }
+       .son {
+          height: 10px;
+       }
+
+   3) 要想让父元素的height = 子元素的height
+      请直接让父元素的line-height = 0
 
    <ul class="dots">
       <li>
@@ -38,7 +50,8 @@
    .dots {
      background-color: red;             // .dots的height = max(.dots的line-height, a的height)
      text-align: center;                // .dots的line-height继承自浏览器, 等于1.15 * 20px = 23px
-   }                                    // 而a的height = 10px, 所以.dots的height=23px
+     line-height: 0;
+   }                                    // 而a的height = 10px小于.dots继承的line-height, 所以.dots的height=23px
    .dots li {                           // 如果设.dots的line-height为0, 则.dots的height则由a的height决定
       display: inline-block;            // 设.dots的font-size为0, 也会导致其line-height为0
       list-style: none;                 // 因为.dots继承的浏览器的line-height = n * .box的font-size
