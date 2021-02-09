@@ -1,0 +1,52 @@
+// 下面是当父盒子不设height(或设height为auto时), 父盒子的height是怎么计算的
+1. 子元素为block元素时
+   1) 父元素的高度等于子元素的高度
+      <div class="box">
+        <div class="son"></div>
+      </div>
+      .box {
+         background-color: red;   // .box的height等于.son的高度
+      }
+      .son {
+         height: 10px;
+      }
+
+2. 子元素为: 文本, inline
+    1) 父元素的height = 父元素的line-height
+    2) 父元素如果没有设置line-height, 则继承祖父元素的line-height, 一直到继承到浏览器的line-height
+    3) 浏览器的line-height一般为一个不带单位的系数,  line-height: n
+       它表示当前元素的line-height = n * 当前元素的font-size
+    <div class="box">
+      x
+      <!--- <span class="son">x</span> --->
+    </div>
+    .box {
+       background-color: red;   // .box的height等于.box的line-height
+    }                           // .box没有设line-height, 则继承浏览器的line-height
+                                // 即浏览器的默认line-height = n * 16px
+                                // n是行高系数, 20px是.box继承浏览器的font-size
+
+
+3. 子元素为inline-block时
+   1) 父元素的height = max(父元素的line-height, 子元素的height)
+
+   <ul class="dots">
+      <li>
+         <a href="#"></a>
+      </li>
+   </ul>
+   .dots {
+     background-color: red;             // .dots的height = max(.dots的line-height, a的height)
+     text-align: center;                // .dots的line-height继承自浏览器, 等于1.15 * 20px = 23px
+   }                                    // 而a的height = 10px, 所以.dots的height=23px
+   .dots li {                           // 如果设.dots的line-height为0, 则.dots的height则由a的height决定
+      display: inline-block;            // 设.dots的font-size为0, 也会导致其line-height为0
+      list-style: none;                 // 因为.dots继承的浏览器的line-height = n * .box的font-size
+   }
+   .dots li a {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 10px;
+      background-color: black;
+   }
