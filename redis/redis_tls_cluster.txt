@@ -1,0 +1,65 @@
+1. TLS
+   1) redis从6才开始支持TLS
+   2) 需要在编译时打开TLS, 并且需要安装openssl
+      cd /path/to/redis && make BUILD_TLS=yes
+   3) 使用gen-test-certs.sh生成三个证书
+       /path/to/redis/utils/gen-test-certs.sh
+      ca.crt                   ---> root certificate
+      redis.crt                ---> redis certificate
+      redis.key                ---> private key
+   4) redis server开启tls
+      redis-server  --protected-mode no                   \          //关闭保护模式
+                    --port 0  --tls-port 7000             \          // port指定的是正常的端口, tls-port指定的是TLS端口, --port 0会禁止redis监听正常的端口
+                    --tls-cert-file    /path/to/redis.crt \          // 指定服务器证书
+                    --tls-key-file     /path/to/redis.key \          // 指定服务器的私钥
+                    --tls-ca-cert-file /path/to/ca.crt    \          // 指定服务器证书redis.crt的根证书, 根证书是签发服务器证书的组织的证书, 这里的根证书是我们自己生成的
+                    --tls-auth-clients no                            //  一般都是服务器向客户端发送证书, 客户端来验证服务器证书的真伪
+                                                                         其实服务器也可以让客户端发送证书, 并验证.
+                                                                         这里设为no意思是服务器不要求客户端发送证书.
+   5) 用redis-cli以TLS方式连接redis-server
+      redis-cli -p 7000 \
+                --tls \
+                --cert  ./redis.crt \                                 // --cert, --key, --cacert这三个选项无论服务器是否开启验证(通过选项--tls-auth-clients)都必须指定
+                --key   ./redis.key \                                    --cert指定客户端的证书, --key 指定客户端的私钥, --cacert指定客户端证书redis.crt的根证书
+                --cacert ./ca.crt                                        这里客户端的所有证书都用的和上面服务器一样的证书
+
+   6) java用TLS和redis-server通信
+      因为TLS通信的一般流程，都是客户端需要验证服务器证书(这里是上面的redis.crt)的真假,
+      所以我们需要把服务器证书redis.crt的根证书ca.crt放到jvm的可信证书中
+      jvm默认的可信证书是{JAVA_HOME}/jre/lib/security/cacerts是jvm默认的truststore, 密码是changeit
+      通过下面命令把ca.crt导入jvm默认的可信证书中去
+      keytool -importcert -trustcacerts -file ./ca.crt -alias redis-ca -keystore ${JAVA_HOME}/jre/lib/security/cacerts
+
+2.cluster
+  1) redis从3开始支持cluster模式
+  2) redis开启cluster模式需要两个步骤: 以cluster模式启动redis server 和 创建redis cluster配置文件
+     redis cluster配置文件只需要生成一次即可重复使用
+     redis cluster配置文件包含以下信息: 1)集群由几个node组成 2)每个node有几个从节点
+  3) redis-server 以cluster模式启动
+     redis-server --port 7000 --protected-mode no \
+                  --cluster-enabled yes           \              //开启cluster模式
+                  --cluster-config-file 7000.conf \              //指定cluster配置文件的位置
+                  --cluster-node-timeout 5000     \
+                  --appendonly yes
+  4) 官网生成redis cluster配置文件的方法
+     redis 5 以上版本
+     redis-cli --cluster create 192.30.0.231:7000 192.30.0.231:7001 192.30.0.231:7002 \   // 指定所有组成cluster的node及它们的slaver的ip端口信息
+                --cluster-replicas 0                                                      // 指定每个node有几个slaver, 这里0表示上面的节点都是master节点
+
+  5) 手动生成redis cluster配置文件的方法
+      // 分配slots
+      redis-cli -c -p 7000  CLUSTER ADDSLOTS {0..2000}
+      redis-cli -c -p 7001  CLUSTER ADDSLOTS {2001..10000}
+      redis-cli -c -p 7002  CLUSTER ADDSLOTS {10001..16383}
+      // 设置epoch
+      redis-cli -c -p 7000  CLUSTER SET-CONFIG-EPOCH 1
+      redis-cli -c -p 7001  CLUSTER SET-CONFIG-EPOCH 2
+      redis-cli -c -p 7002  CLUSTER SET-CONFIG-EPOCH 3
+      //在一个节点上介绍cluster整个拓扑结构
+       redis-cli -c -p 7000 CLUSTER MEET 192.30.0.231 7001
+       redis-cli -c -p 7000 CLUSTER MEET 192.30.0.231 7002
+      // 如果有slave节点
+      redis-cli -c -p slave-port CLUSTER REPLICATE master-node-id  // 通过slave-port连上slave, 通过redis-cli -c -p master-port CLUSTER NODES获得master node id
+
+  6) 连接redis cluster
+     redis-cli -c -p 7000                   // -c表示会自动重定向到正确的节点上
