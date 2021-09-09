@@ -85,6 +85,29 @@
 	 module.exports = function p(){
 	     console.log('this is a.js');
 	 }
+4. es6 模块语法
+   1) 正常import和export
+       -- export.js
+       -- import.js
+       // 下面是export.js的内容
+          export function say(){};
+          const type = 1;
+          export {type}
+
+       // 下面是import.js的内容
+          import {say} from './export.js'; //注意{say},两边必须有大括号且导入的名字必须和导出时一致, 此处为say
+          import {type} from './export.js';
+
+   2) 默认导出和导入
+      -- export.js
+      -- import.js
+      // 下面是export.js的内容
+         class Test{};
+         export default Test;
+
+      // 下面是import.js的内容
+         import Test2 from './export.js'; //注意1)import和export的名字可以不同2)导出时不需要写大括号{}
+
 备注:
   1. 各种js的模块语法
   
