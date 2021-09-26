@@ -1,0 +1,25 @@
+1. 节流 throttle
+   一段时间内只能触发一次
+       function throttle(cb, wait){
+           let start = Date.now();
+           return function(){
+               if(start + wait > Date.now()){
+                   return;
+               }
+                start = Date.now();
+                cb();
+           }
+       }
+
+2. 防抖  debounce
+   在连续触发中,只会触发最后一次
+  let debounce = (function(cb, delay){
+     let timer;
+     function debounce(){
+          if(timer)){
+             clearTimeout(timer);
+          }
+          timer = setTimeout(cb, delay);
+     }
+     return debounce;
+  })()
