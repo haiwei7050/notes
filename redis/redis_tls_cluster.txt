@@ -48,7 +48,7 @@
 
   5) 手动生成redis cluster配置文件的方法
       // 分配slots
-      redis-cli -c -p 7000  CLUSTER ADDSLOTS {0..2000}
+      redis-cli -c -p 7000  CLUSTER ADDSLOTS {0..2000}                                  //注意{0..2000}是给shell用的, shell会将它展开为0 1 2...2000然后传给redis-cli
       redis-cli -c -p 7001  CLUSTER ADDSLOTS {2001..10000}
       redis-cli -c -p 7002  CLUSTER ADDSLOTS {10001..16383}
       // 设置epoch
