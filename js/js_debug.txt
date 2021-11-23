@@ -1,0 +1,7 @@
+1.使用webstorm 且希望进到vue源码中
+   1) 使用javascript debug, 在URL中输入项目地址(如http://192.30.0.231)
+   2) 在project setting 搜 stepping, 把 Do not step into library 选项勾掉, 这样就可以step over和step into vue源码
+
+2. 使用vscode且希望进到vue源码中
+   1) 按照官网配置vscode: https://cn.vuejs.org/v2/cookbook/debugging-in-vscode.html
+   2) 在需要调试的地方输入debugger(注意vscode的断点不起作用)
