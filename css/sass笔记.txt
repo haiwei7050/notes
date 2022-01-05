@@ -1,0 +1,10 @@
+1. 以下划线开头_的sass文件的作用
+   当使用sass编译style文件夹下的scss文件时, sass会忽略以下划线开头的scss文件(此处为_var.scss), 除非是a.scss引用了_var.scss
+   
+   使用sass编译style文件夹会得到以下结果
+   
+   - style               ===>   - style
+     - _var.scss                  - a.css
+     - a.scss
+ 
+ 参考链接: https://stackoverflow.com/questions/34889962/why-put-in-front-of-the-file-name-or-in-scss-css  (搜索52, 答案在比较偏下)
