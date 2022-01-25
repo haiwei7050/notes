@@ -1,0 +1,14 @@
+1. here document操作符 <<
+  1) 定义
+  2) 例子
+     cat > a.txt <<_END_
+     2.1) cat后不接任何参数表示从stdin读取内容并显示到屏幕中
+     2.2) cat > a.txt 表示从stdin读取数据并将数据保存到文件a.txt, 需要按ctrl+d结束输入
+     2.3) cat > a.txt <<_END_ 表示从stdin读取数据并将数据保存到文件a.txt, 需要输入_END_结束输入
+
+  参考文档:https://tldp.org/LDP/abs/html/here-docs.html
+
+2. here string操作符 <<<
+   echo <<< '将引号中的内容重定向到echo的stdin, 所以这段话会被echo显示出来'
+
+   参考文档:https://tldp.org/LDP/abs/html/x17837.html

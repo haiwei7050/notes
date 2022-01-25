@@ -1,0 +1,18 @@
+1.spring-security的核心配置类
+  1.1)  WebSecurity
+  1.2)  HttpSecurity
+  1.3)  AuthenticationManagerBuilder
+
+2. spring-security自动装配的过程
+   1) 注解@SpringApplication上有@EnableAutoConfiguration注解,
+      该注解会从 spring.factories  (spring-boot-autoconfigure.jar里的)
+      拉取一系列需要自动装配的类, 搜索的key是 EnableAutoConfiguration
+
+   2) 在spring.factories有以下配置
+      org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+      ...
+      org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration,\
+      org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration,\
+      org.springframework.boot.autoconfigure.security.servlet.SecurityFilterAutoConfiguration
+      ...
+      上面的三个类就是自动装配的类
