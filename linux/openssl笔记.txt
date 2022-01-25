@@ -1,9 +1,10 @@
 1. openssl怎么使用
    openssl [subCMD] [subCMD-options]
    1) 以下都是常用的subCMD
-      genrsa       生成私钥的子命令
+      genrsa       用RSA算法生成私钥的子命令
       req          生成证书签发请求(Certificate Signing Request)的子命令
       x509         证书转换和查看的工具
+      genpkey     可以指定用哪种, 非对称算法生成私钥的子命令(比如RSA, AES等等)
    2) 如何查看subCMD的参数
       man openssl-subCMD, 比如man openssl-genrsa
 
