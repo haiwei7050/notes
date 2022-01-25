@@ -1,0 +1,37 @@
+1. openssl怎么使用
+   openssl [subCMD] [subCMD-options]
+   1) 以下都是常用的subCMD
+      genrsa       生成私钥的子命令
+      req          生成证书签发请求(Certificate Signing Request)的子命令
+      x509         证书转换和查看的工具
+   2) 如何查看subCMD的参数
+      man openssl-subCMD, 比如man openssl-genrsa
+
+2. 公钥, 私钥, 证书的关系
+   1) 公钥, 从私钥中提取, 公钥加密的内容, 只有私钥可以解密
+   2) 私钥, 私钥的加密可以用公钥解密, 私钥加密又叫数字签名
+   3) 证书, 由 证书拥有者的信息 + 公钥 + 数字签名(用私钥加密 前面两项的内容)
+
+3. 生成私钥
+ openssl genrsa -out my.key 4096
+
+4. 从私钥中抽取公钥
+  openssl rsa -pubout -in my.key
+
+5.生成 证书签名申请 (Certificate Signing Request) (
+  1)有提示
+     openssl req -new -key my.key -out my.csr
+
+  2) 无提示
+     openssl req -new -key my.key -subj '/CN=*.abc/' -out my.csr
+     CN指定证书绑定的网站地址
+
+  3) 查看 证书签名申请的subject
+     openssl req -in my.csr -noout -subject
+     # -noout不输出加密的内容, 可以用man openssl-req查看其他选项的意义
+
+  4)生成 自签根证书(又叫CA证书, Self Signing Root Certificate)
+    openssl req -new -x509 -key my.key -days 365 -subj '/CN=*.abc.com/' -out my.crt
+
+  5) 查看 CA证书的subject, 这里要用x509子命令
+     openssl x509 -in my.crt -noout -subject
