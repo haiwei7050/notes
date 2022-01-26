@@ -1,0 +1,13 @@
+1. export 的作用
+  假设有下面一个脚本test.sh
+  #!/bin/bash
+  export var = 1
+
+  1) export var = 1意思是将变量var暴露给自己的子进程
+  2) 如何在脚本外面读取暴露的变量
+     source ./test.sh (或者 . ./test.sh)
+     echo $var
+  3) source 脚本 和 bash 脚本的区别
+     source 脚本 ==> 会在当前shell中执行脚本中的命令
+     bash   脚本 ==> 会起一个sub shell来执行脚本中的命令
+
