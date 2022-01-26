@@ -1,0 +1,11 @@
+1. find -exec的语法
+  find . -exec grep chrome {} \;
+  or
+  find . -exec grep chrome {} +
+  ;和+结尾的区别是:
+  1);结尾, 会给每个找到的文件执行一次grep命令
+  2)+结尾, 会把多个文件组成一组传递给命令grep
+
+2. find . \! -user zhw
+   1)这句话的意思搜索当前目录下所有用户不是zhw的文件和目录
+   2)感叹号!, 会对后面的条件取反, 此处的条件是-user zhw
