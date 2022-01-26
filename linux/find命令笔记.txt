@@ -5,6 +5,7 @@
   ;和+结尾的区别是:
   1);结尾, 会给每个找到的文件执行一次grep命令
   2)+结尾, 会把多个文件组成一组传递给命令grep
+  参考链接: https://unix.stackexchange.com/questions/12902/how-to-run-find-exec
 
 2. find . \! -user zhw
    1)这句话的意思搜索当前目录下所有用户不是zhw的文件和目录
