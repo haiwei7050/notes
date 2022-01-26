@@ -1,12 +1,12 @@
-1 docker registry¹úÄÚ¾µÏñ
-  1)ĞŞ¸ÄdockerÅäÖÃÎÄ¼ş
+1 docker registryå›½å†…é•œåƒ
+  1)ä¿®æ”¹dockeré…ç½®æ–‡ä»¶
     
     vi /etc/docker/daemon.json
     {
           "registry-mirrors": ["https://dockerhub.azk8s.cn"]
     }
      
-  2) ÖØÆôdocker
+  2) é‡å¯docker
      systemctl restart docker 
 
-²Î¿¼Á´½Ó:https://zhuanlan.zhihu.com/p/73374337
+å‚è€ƒé“¾æ¥:https://zhuanlan.zhihu.com/p/73374337
