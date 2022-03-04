@@ -1,0 +1,93 @@
+1. Makefile的组成
+   Makefile由explicit rules, implicit rules, variable definitions, directives, and comments构成.
+   1) 注意 explicit rules是自己写的rule, 而implicit rules是make命令内置的rule
+   参考链接: https://www.gnu.org/software/make/manual/html_node/Makefile-Contents.html#Makefile-Contents
+
+2. explicit rules的格式如下
+   targets : prerequisites
+        [TAB]recipe
+
+   1) rule的作用, 它告诉make命令, 如何使用recipe写的命令和prerequisites中列出的文件, 制作target文件
+   2) recipe必须以[TAB]键开头, recipe都是shell脚本
+   3) prerequisites中列出的文件以[空格]分割
+   4) make如何执行rule
+      2.1)当 prerequisites中列出的文件 存在时, make会执行recipe中的命令来制作targe文件.
+            (注意: 因为recipe中是shell脚本, 所以其实是shell来执行recipe中的命令)
+      2.2)当 prerequisites中列出的文件 不存在时, make会先通过其他rule来制作 prerequisites中列出的文件
+      2.3) 如果make命令无法制作 prerequisites中列出的文件, 就会报错
+      所以下面的rule的意思是, 我们需要用gcc把a.c和b.c编译为可执行文件edit.
+      edit: a.c b.c
+            gcc -o edit a.o b.o    # gcc的-o选项是指定输出文件的文件名
+
+   5)@在recipe的作用 (https://www.gnu.org/software/make/manual/html_node/Echoing.html)
+     example:
+         echo  "这句话会显示两边"
+         @echo "这句话只会显示一遍"   # 在shell命令前加@就是不让make命令回显这条语句
+
+3. implicit rules
+   1) implicit rule是 make命令内置的一些rule
+      # 下面我们自己写了一个用来创建edit文件的explicit rule, 它的前置条件是需要文件a.o 和 b.o,
+      # 当a.o和b.o不存在时且我们也没有写rule来创建这两个文件时
+      # make会尝试用implicit rule去创建它们
+      edit: a.o b.o
+           echo "当a.o, b.o不存在时, make会尝试用implicit rule去创建它们"
+
+      #这里 implicit rule如下所示 (!!!! 下面的rule并没有写到Makefile, 所以是implicit rule)
+      %.o: %.c
+        ${CC} -o $@ -c $<
+      # 它的执行过程是这样的:
+      1)因为我们的edit rule需要制作两个文件a.o和b.o 2, 所以make命令会分别用a和b去替代上面的%
+      2)这样我们就得到了两个rule
+       a.o: a.c                     b.o: b.c
+         ${CC} -o $@ -c $<              ${CC} -o $@ -c $<
+      3) make会检查a.c和b.c是否存在, 存在就执行recipe, 否则就报错
+      4) 如果我们把上面implicit rule写到Makefile就可以覆盖它
+      5) recipe的的 ${CC}, $@, $<都是make的内置变量
+         ${CC}      cc
+         $@         target(这里是分别是a.o和b.o)
+         $<         prerequisites中的第一个文件(这里分别是a.c和b.c)
+         上述变量会在make把recipe交给shell之前替换掉, 所以shell最终执行的命令如下
+         a.o: a.c                     b.o: b.c
+             cc -o a.o -c a.c            cc -o b.o -c b.c
+         # cc是gcc的链接, -o指定输出文件的名字, -c让gcc只编译不链接
+
+4 pattern rule
+  1) 与普通rule语法的对比
+     a.o: a.c                        %.o: %.c
+            echo "我是普通rule"            echo "我的pattern rule"
+
+  2) 通配符%怎么替换
+     2.1) 要么是在执行make命令时传入
+     2.2) 要么是make在制作其他rule所需的prerequisites时, 用prerequisites中所列的文件进行替换
+     下面两个例子说明问题
+     (1) 当Makefile只有pattern rule时, 在执行make命令时必须传参数,参数会替换%
+         #下面是当前目录的内容
+         -
+           Makefile
+           a.c
+         # 下面是Makefile的内容
+            %.o: %.c
+                 echo "target file is $@, the first file in prerequisites is $<"  # $@和@<都是make的内置变量, $@指带target, $<指带prerequisites中的第一个文件
+
+         > make a
+         < target file is a.o, the first file in prerequisites is a.c
+
+      (2) 当make需要制作其他rule的prerequisites中所列的文件时
+          #下面是当前目录的内容
+          -
+            Makefile
+            a.c
+            b.c
+
+          #下面是Makefile的内容
+            edit: a.o b.o
+                echo "当a.o和b.o制作完后,这句话会被打印"
+            %.o: %.c
+                touch $@         # $@ 是make的内置变量, $@指带target, 这里是%.o
+           当make执行edit rule时, 发现缺少文件a.o和b.o, 它会利用的pattern rule去制作
+           %会被分别替换为a, b, 所以pattern rule会变成
+
+            a.o: a.c
+                touch $@         # $@ 是make的内置变量, $@指带target, 这里是a.o
+            b.o: b.c
+                touch $@         # $@ 是make的内置变量, $@指带target, 这里是a.o
