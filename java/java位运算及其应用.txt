@@ -36,10 +36,10 @@ public class Permission {
     public static void main(String[] args) {
         Permission p = new Permission();  
         p.enable(INSERT | DELETE);
-        System.out.printf("�Ƿ��� INSERT Ȩ��:%s\n", p.isAllow(INSERT));
-        System.out.printf("�Ƿ��� DELETE Ȩ��:%s\n", p.isAllow(DELETE));
-        System.out.printf("�Ƿ��� INSERT �� DELETE Ȩ��:%s\n", p.isAllow(INSERT | DELETE));
-        System.out.printf("�Ƿ��� SELECT �� DELETE Ȩ��:%s\n", p.isAllow(SELECT | DELETE));
+        System.out.printf("是否有 INSERT 权限:%s\n", p.isAllow(INSERT));
+        System.out.printf("是否有 DELETE 权限:%s\n", p.isAllow(DELETE));
+        System.out.printf("是否有 INSERT 和 DELETE 权限:%s\n", p.isAllow(INSERT | DELETE));
+        System.out.printf("是否有 SELECT 和 DELETE 权限:%s\n", p.isAllow(SELECT | DELETE));
     }
 }
 
@@ -49,21 +49,32 @@ public class Permission {
          *  UPDATE 0100
          *  SELECT 1000
          *
-         *  ����
-         *  1) p.enable(INSERT | DELETE) ����
+         *  所以
+         *  1) p.enable(INSERT | DELETE) 等于
          *     this.permission = INSERT | DELETE = 0001 | 0010 = 0011
          *     
-         *  2) p.isAllow(INSERT) ����
+         *  2) p.isAllow(INSERT) 等于
          *     this.permission & INSERT == INSERT
          *     0011            & 0001   == 0001
          *     
-         *  3) p.isAllow(SELECT | DELETE) ����
+         *  3) p.isAllow(SELECT | DELETE) 等于
          *     this.permission & SELECT | DELETE == SELECT | DELETE
          *     0011            & (1000  | 0010)  == (1000  | 0010)
          *     0011            &  1010           == 1010
          *     0010 & 1010 = 0010 
          */
 
-�ο����Ӽ������ؼ���
+参考链接及搜索关键词
 https://www.geeksforgeeks.org/bitwise-algorithms/
 bitwise-algorithms
+
+2.0x00ff 的作用
+    byte i  = (byte)128; //-128
+    int a = i;//-128
+     byte一个字节且是有符号的，范围-128~127，想将超出byte范围的值赋给byte就会导致溢出，及时这时将byte的值赋给int，也会得到溢出的值（即int的符号位也成1），正确做法如下
+    byte i = (byte)128; //-128 
+    int a = i&0x00ff; // 128
+    i&0x00ff的作用是
+    i=-128   1000 0000 1111 1111(第一位是符号位) 
+    0x00ff    0000 0000 1111 1111
+    将符号位由1改为0，符号位为1时显示负数，0显示正数 
