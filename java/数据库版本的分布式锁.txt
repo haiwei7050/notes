@@ -1,0 +1,479 @@
+/**
+ CREATE TABLE qrtz_lock_opt
+(
+  sched_name            NVARCHAR(120)     NOT NUll,
+  lock_name             NVARCHAR(120)     NOT NUll,
+  client_id             NVARCHAR(255)     NOT NULL,
+  version_number        BIGINT            NOT NUll,
+  is_lock               TINYINT           NOT NUll,
+  lock_time             BIGINT            NOT NULL,
+  PRIMARY KEY (sched_name, lock_name)
+);
+ * Created by Wallace on 04/21/21.
+ * 1. The class OptimisticDBSemaphore uses optimistic locking strategy to
+ *    implement interface org.quartz.impl.jdbcjobstore.Semaphore.
+ * <p>
+ * 2. The lock strategies of OptimisticDBSemaphore are as follows:
+ *    2.1)Using <code>selectLockSql</code> to query the version number of the lock.
+ *        If the version number returned is null go to step 2.2, otherwise go to step 2.3
+ *<p>
+ *    2.2) Using <code>insertLockSql</code> to insert an optimistic lock record into the DB.
+ *         If successful, the version number of the newly inserted lock will be cached
+ *         and the optimistic lock will be held by the current thread for up to 30 seconds,
+ *         otherwise go to step 2.4.
+ * <p>
+ *   2.3) Using <code>updateLockSql</code> to update the state of optimistic lock.
+ *       If successful, the updated version number will be cached and
+ *       the optimistic lock will be held by the current thread for up to 30 seconds,
+ *       otherwise go to step 2.4.
+ * <p>
+ * 2.4) If the total number of contention attempts of the current thread is
+ *      less than <code>MAX_TRY - 1</code>, then the current thread
+ *      will sleep randomly T seconds.( DEFAULT_RETRY_PERIOD <= T <= 2 * DEFAULT_RETRY_PERIOD)
+ *      Otherwise, a LockException will be thrown, according to quartz framework design
+ *      which indicates that the current thread fail to obtain lock.
+ * <p>
+ * 3. The unlock strategy of OptimisticDBSemaphore is that using <code>releaseLockSql</code>
+ *    to release the optimistic lock hold by current thread.
+ * <p>
+ * 4. How OptimisticDBSemaphore ensures thread safety are shown as follow:
+ *    4.1) When the lock does not exist in the DB, the threads competing for the lock need to
+ *         insert a new lock record into the DB to hold the lock.
+ *        However, due to the primary key constraint of the database,
+ *        only one thread can successfully insert a new lock record.
+ * <p>
+ *    4.2) When the lock exists in the database, the threads competing for the lock need to
+ *         update the status and version number of the lock record to hold the lock.
+ *         However, only when the version number of the lock record in the DB is same as
+ *         the version number obtained by the current thread through selectLockSql,
+ *         can the current thread successfully update the status of the lock record.
+ * <p>
+ * 5. The reasons why the lock strategies of OptimisticDBSemaphore
+ *    will not block DB operation are shown as follow:
+ *    1) selectLockSql, insertLockSql and updateLockSql do not use
+ *       the locking syntax of the DB.
+ * <p>
+ *    2) We turned on DB transaction auto commit by conn.setAutoCommit(true),
+ *       so the DB session will release the write lock of the current record
+ *       after the insert or update statement is executed
+ *       (whether it is successfully executed or not).
+ */
+public class OptimisticDBSemaphore implements Semaphore, TablePrefixAware
+{
+    private static final Logger LOG = LogManager.getLogger(OptimisticDBSemaphore.class);
+    /**
+     * 1.The CACHE_REF is used by current thread to cache lock and
+     * JDBC connection passed by quartz framework.
+     * <p>
+     * 2. When releasing the lock, the current thread will use
+     * the JDBC Connection cached in CACHE_REF to execute releaseLockSql.
+     * <p>
+     * 3. When releasing the lock, the current thread will compare
+     * lock version number cached in CACHE_REF with the version number of
+     * the lock record in DB.
+     */
+    private static final ThreadLocal<Map<String, LockCache>> CACHE_REF = new ThreadLocal<>();
+    /**
+     * Maximum lock contention attempts per thread.
+     */
+    private static final int MAX_TRY = 3;
+    /**
+     * Sleep time after failure of competition lock
+     */
+    private static final long RETRY_PERIOD = 1000L;
+
+    /**
+     * The maximum time a thread can hold the lock,
+     * after which other threads can preempt the lock.
+     */
+    private static final long MAX_LOCK_TIME = TimeUnit.SECONDS.toMillis(30);
+
+    /**
+     * SQL used to query whether there are lock records in DB.
+     */
+    private String selectLockSql = "SELECT version_number, lock_time, is_lock, client_id " +
+        "FROM qrtz_lock_opt WHERE sched_name = ? AND lock_name = ?";
+
+    /**
+     * SQL used to update the status and version number of lock records in DB.
+     */
+    private String updateLockSql = "UPDATE qrtz_lock_opt " +
+            "SET client_id = ?, version_number = ?, lock_time = ?, is_lock = 1 " +
+            "WHERE sched_name = ? AND lock_name = ? AND version_number = ? AND " +
+            "(is_lock = 0 OR lock_time < ?)";
+
+    /**
+     * SQL used to insert a new lock record into the DB.
+     */
+    private String insertLockSql = "INSERT INTO qrtz_lock_opt" +
+        "(sched_name, client_id, lock_name, version_number, is_lock, lock_time)" +
+            "VALUES(?, ?, ?, ?, 1, ?)";
+
+    /**
+     * SQL used to release the lock recorded in DB.
+     */
+    private String releaseLockSql = "UPDATE qrtz_lock_opt SET is_lock = 0 " +
+            "WHERE sched_name = ? AND lock_name = ? AND version_number = ?";
+
+    /**
+     * clientId is the identification of the client holding the lock.
+     * 1. clientId consists of two parts: clientIdPrefix (the host name) and
+     * the name of current thread.
+     * 2. The form of clientId is hostname(thread name)
+     */
+    private String clientIdPrefix;
+    private String schedName;
+
+    /**
+     * the constructor of class OptimisticDBSemaphore.
+     */
+    public OptimisticDBSemaphore() throws SchedulerException
+    {
+        try {
+            clientIdPrefix = InetAddress.getLocalHost().getHostName();
+        } catch (Exception e) {
+            throw new SchedulerException("OptimisticDBSemaphore: " +
+                "Can not create OptimisticDBSemaphore due to " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * The lock strategies of OptimisticDBSemaphore are as follows:
+     * 1)Use <code>selectLockSql</code> to query the version number of the lock.
+     * If the version number returned is null go to step 2, otherwise go to step 3
+     * <p>
+     * 2) Use <code>insertLockSql</code> to insert an optimistic lock record into the DB.
+     * If successful, the version number of the newly inserted lock will be cached
+     * and the optimistic lock will be held by the current thread for up to 30 seconds,
+     * otherwise go to step 4.
+     * <p>
+     * 3) Using <code>updateLockSql</code> to update the state of optimistic lock.
+     * If successful, the updated version number will be cached and
+     * the optimistic lock will be held by the current thread for up to 30 seconds,
+     * otherwise go to step 4.
+     * <p>
+     * 4) If the total number of contention attempts of the current thread is
+     * less than <code>MAX_TRY - 1</code>, then the current thread
+     * will sleep randomly T seconds.( DEFAULT_RETRY_PERIOD <= T <= 2 * DEFAULT_RETRY_PERIOD)
+     * Otherwise, a LockException will be thrown, according to quartz framework design
+     * which indicates that the current thread fail to obtain lock.
+     *
+     * @param originalConn passed by quartz framework.
+     * @param lockName     passed by quartz framework.
+     * @return true if the current thread successfully holds the lock
+     * @throws LockException will be thrown if the current thread cannot acquire the lock.
+     */
+    @Override
+    public boolean obtainLock(Connection originalConn, String lockName) throws LockException
+    {
+        Connection connToUse = null;
+        Lock lock;
+        String clientId = null;
+        try {
+            clientId = clientIdPrefix + "(" + Thread.currentThread().getName() + ")";
+            connToUse = createCommitStatusRestorableConnection(originalConn);
+            /**
+             * We turned on DB transaction auto commit by conn.setAutoCommit(true),
+             * so the DB session will release the write lock of the current record
+             * after the insert or update statement is executed
+             * (whether it is successfully executed or not).
+             */
+            connToUse.setAutoCommit(true);
+            for (int count = 0; count < MAX_TRY; count++) {
+                lock = getCurrLock(connToUse, selectLockSql, schedName, lockName);
+                if (insertLock(lock, connToUse, insertLockSql, schedName, lockName, clientId) ||
+                    updateLock(lock, connToUse, updateLockSql, schedName, lockName, clientId)) {
+                    return true;
+                }
+                if (count + 1 < MAX_TRY) {
+                    long timeToSleep = RETRY_PERIOD +
+                        (long) (Math.random() * RETRY_PERIOD + 1);
+                    Thread.sleep(timeToSleep);
+                }
+            }
+        } catch (Exception e) {
+            String msg = "OptimisticDBSemaphore: Failure obtaining db optimistic lock '"
+                + lockName + "', due to: " + e.getMessage();
+            if(clientId != null){
+                msg = "OptimisticDBSemaphore: client '" + clientId
+                    + "' failed to acquire db optimistic lock '"
+                    + lockName + "', due to: " + e.getMessage();
+            }
+            LOG.error(msg, e);
+            throw new LockException(msg, e);
+        } finally {
+            restoreCommitStatus(connToUse);
+        }
+        throw new LockException("OptimisticDBSemaphore: Failure db optimistic lock, " +
+            "reached maximum number of attempts.");
+    }
+
+    private Connection createCommitStatusRestorableConnection(Connection originalConn)
+    {
+        Connection connToUse = (Connection) Proxy.newProxyInstance(
+            Thread.currentThread().getContextClassLoader(),
+            new Class[]{CommitStatusRestorableConnection.class},
+            new CommitStatusRestorableConnectionInvocationHandler(originalConn));
+        return connToUse;
+    }
+
+    private Lock getCurrLock(Connection conn, String selectLockSql,
+                             String schedName, String lockName)
+    {
+        PreparedStatement pst = null;
+        ResultSet rs = null;
+        Lock lock = null;
+        try {
+            pst = conn.prepareStatement(selectLockSql);
+            pst.setString(NumberUtil.ONE, schedName);
+            pst.setString(NumberUtil.TWO, lockName);
+            rs = pst.executeQuery();
+            if (rs.next()) {
+                lock = new Lock();
+                lock.versionNumber = rs.getLong(NumberUtil.ONE);
+                lock.lockTime = rs.getLong(NumberUtil.TWO);
+                lock.isLocked = rs.getInt(NumberUtil.THREE) == 1;
+                lock.clientId = rs.getString(NumberUtil.FOUR);
+            }
+        } catch (Exception e) {
+            LOG.error("OptimisticDBSemaphore: Failure fetching lock from DB", e);
+        } finally {
+            close(rs, pst);
+        }
+        return lock;
+    }
+
+    private boolean insertLock(Lock prevLock, Connection conn, String insertLockSql,
+                               String schedName, String lockName, String clientId)
+    {
+        if (prevLock != null) {
+            return false;
+        }
+        Lock newLock = new Lock(clientId, 0L, System.currentTimeMillis());
+        PreparedStatement pst = null;
+        boolean isOk = false;
+        try {
+            pst = conn.prepareStatement(insertLockSql);
+            pst.setString(NumberUtil.ONE, schedName);
+            pst.setString(NumberUtil.TWO, newLock.clientId);
+            pst.setString(NumberUtil.THREE, lockName);
+            pst.setLong(NumberUtil.FOUR, newLock.versionNumber);
+            pst.setLong(NumberUtil.FIVE, newLock.lockTime);
+            isOk = pst.executeUpdate() == 1;
+            if (isOk) {
+                LOG.debug("'{}' obtains '{}' lock successfully via insert", clientId, lockName);
+                addCache(lockName, conn, newLock);
+            }
+        } catch (Exception e) {
+            LOG.error("OptimisticDBSemaphore: client '" + clientId + "' failed to obtain '" +
+                lockName + "' lock via insert, due to : "  + e.getMessage(), e);
+        } finally {
+            close(null, pst);
+        }
+        return isOk;
+    }
+
+    private boolean updateLock(Lock prevLock, Connection conn, String updateLockSql,
+                               String schedName, String lockName, String clientId)
+    {
+        if (prevLock == null) {
+            return false;
+        }
+        long newVersion = prevLock.versionNumber == Long.MAX_VALUE ? 0: prevLock.versionNumber + 1;
+        Lock newLock = new Lock(clientId, newVersion, System.currentTimeMillis());
+        boolean canSteal = prevLock.isLocked && prevLock.isOverTime(newLock.lockTime);
+        PreparedStatement pst = null;
+        boolean isOk = false;
+        try {
+            pst = conn.prepareStatement(updateLockSql);
+            pst.setString(NumberUtil.ONE, newLock.clientId);
+            pst.setLong(NumberUtil.TWO, newLock.versionNumber);
+            pst.setLong(NumberUtil.THREE, newLock.lockTime);
+            pst.setString(NumberUtil.FOUR, schedName);
+            pst.setString(NumberUtil.FIVE, lockName);
+            pst.setLong(NumberUtil.SIX, prevLock.versionNumber);
+            pst.setLong(NumberUtil.SEVEN, newLock.lockTime - MAX_LOCK_TIME);
+            isOk = pst.executeUpdate() == 1;
+            if (isOk) {
+                if(canSteal){
+                    LOG.warn("The '" + lockName + "' lock held by '" + prevLock.clientId +
+                        "' has timed out, and now '"
+                        + newLock.clientId + "' has successfully held the lock");
+                }
+                LOG.debug("'{}' obtains '{}' lock successfully via update",
+                    newLock.clientId, lockName);
+                addCache(lockName, conn, newLock);
+            }
+        } catch (Exception e) {
+            LOG.error("OptimisticDBSemaphore: client '" + clientId + "' failed to obtain '" +
+                lockName + "' lock via update, due to : "  + e.getMessage(), e);
+        } finally {
+            close(null, pst);
+        }
+        return isOk;
+    }
+
+    /**
+     * restore the value of commit status of JDBC connection.
+     *
+     * @param conn
+     * @see CommitStatusRestorableConnection
+     * @see CommitStatusRestorableConnectionInvocationHandler
+     */
+    private void restoreCommitStatus(Connection conn)
+    {
+        if (conn != null) {
+            ((CommitStatusRestorableConnection) conn).restoreCommitStatus();
+        }
+    }
+
+    /**
+     * The unlock strategy of OptimisticDBSemaphore is that using <code>releaseLockSql</code>
+     * to release the optimistic lock hold by current thread.
+     *
+     * @param lockName passed by quartz framework.
+     * @throws LockException will be thrown if the current thread fail to release the lock.
+     */
+    @Override
+    public void releaseLock(String lockName) throws LockException
+    {
+        Connection conn = null;
+        PreparedStatement pst = null;
+        Lock currLock;
+        try {
+            /**
+             * 1. When successfully holding the lock, the current thread will
+             *    cache JDBC connection and the new version number in CACHE_REF.
+             *
+             * 2. We turned on DB transaction auto commit by conn.setAutoCommit(true),
+             *    so the DB session will release the write lock of the current record
+             *    after the update statement is executed
+             *    (whether it is successfully executed or not).
+             */
+            currLock = getLockFromCache(lockName);
+            conn = getConnectionFromCache(lockName);
+            conn.setAutoCommit(true);
+            pst = conn.prepareStatement(releaseLockSql);
+            pst.setString(NumberUtil.ONE, schedName);
+            pst.setString(NumberUtil.TWO, lockName);
+            pst.setLong(NumberUtil.THREE, currLock.versionNumber);
+            if (pst.executeUpdate() == 0) {
+                LOG.warn("OptimisticDBSemaphore: It seems that our lock has been taken by others.");
+            }
+        } catch (Exception e) {
+            String msg = "OptimisticDBSemaphore: Failure release db optimistic lock: "
+                + e.getMessage();
+            LOG.error(msg, e);
+            throw new LockException(msg, e);
+        } finally {
+            try {
+                clearCache(lockName);
+                close(null, pst);
+            } finally {
+                restoreCommitStatus(conn);
+            }
+        }
+    }
+
+    private Lock getLockFromCache(String lockName)
+    {
+        LockCache cache = cache(lockName);
+        return cache.lock;
+    }
+
+    private Connection getConnectionFromCache(String lockName)
+    {
+        LockCache cache = cache(lockName);
+        return cache.conn;
+    }
+
+    @Override
+    public boolean requiresConnection()
+    {
+        return true;
+    }
+
+    private void addCache(String lockName, Connection conn, Lock lock)
+    {
+        LockCache lockCache = cache(lockName);
+        lockCache.conn = conn;
+        lockCache.lock = lock;
+    }
+
+    private void clearCache(String lockName)
+    {
+        Map<String, LockCache> cache = CACHE_REF.get();
+        LockCache lockCache = cache.remove(lockName);
+        lockCache.conn = null;
+        lockCache.lock = null;
+    }
+
+    private LockCache cache(String key)
+    {
+        Map<String, LockCache> cache = CACHE_REF.get();
+        if (cache == null) {
+            cache = new HashMap<>(2);
+            CACHE_REF.set(cache);
+        }
+        LockCache lockCache = cache.computeIfAbsent(key, k -> new LockCache());
+        return lockCache;
+    }
+
+    private void close(ResultSet rs, PreparedStatement pst)
+    {
+        try {
+            if (rs != null) {
+                rs.close();
+            }
+        } catch (SQLException e) {
+            LOG.error("OptimisticDBSemaphore: " +
+                "Failure closing ResultSet: " + e.getMessage(), e);
+        }
+        if (pst != null) {
+            try {
+                pst.close();
+            } catch (SQLException e) {
+                LOG.error("OptimisticDBSemaphore: " +
+                    "Failure closing PrepareStatement: " + e.getMessage(), e);
+            }
+        }
+    }
+    @Override
+    public void setTablePrefix(String tablePrefix)
+    {
+    }
+
+    @Override
+    public void setSchedName(String schedName)
+    {
+        this.schedName = schedName;
+    }
+
+    private class LockCache
+    {
+        Lock lock;
+        Connection conn;
+    }
+
+    private class Lock
+    {
+        public String clientId;
+        long versionNumber;
+        long lockTime;
+        boolean isLocked;
+
+        Lock(){}
+
+        Lock(String clientId, long versionNumber, long lockTime)
+        {
+            this.clientId = clientId;
+            this.versionNumber = versionNumber;
+            this.lockTime = lockTime;
+        }
+
+        boolean isOverTime(long now)
+        {
+            return (now - lockTime) >= MAX_LOCK_TIME;
+        }
+    }
+}
