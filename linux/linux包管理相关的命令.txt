@@ -1,0 +1,7 @@
+1.Ubunt
+  1) 查看哪个文件属于哪个包
+     dpkg-query -S /path/to/file
+  2) 查看包都安装了那些文件
+     dpkg-query -L package name
+  3) 查看了都安装了哪些软件
+     apt list --installed | grep 关键字
