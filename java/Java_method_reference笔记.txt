@@ -1,0 +1,17 @@
+1.什么是method_reference
+  这个就是: Consumer<String> c = System.out::println;
+2. instance method reference 和 class method reference 的区别
+   1) instance method
+      Consumer<String> c = System.out::println;
+
+   2) class method reference
+      Consumer<String> c = PrintStream::println;    // 这是个错误示范, 编译不过的
+      请注意上面这段代码是编译不过的, 原因如下:
+      2.1) 当调用 c.accept(String)时, 其实是编译器去调用PrintStream.println(String);
+      2.2) 但是编译不知道应该在哪个PrintStream的实例上调用println();
+      2.3) 所以上面语句编译不过
+
+      BiConsumer<PrintStream, String> c = PrintStream::println; // 这个可以编译并且运行
+      因为编译器会在 BiConsumer<PrintStream, String>的第一个参数上调用println();
+
+参考文档: https://stackoverflow.com/questions/51322724/java-8-method-reference-how-to-determine-which-method-to-take
