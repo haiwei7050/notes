@@ -24,6 +24,8 @@ mysql配置
       可以用 SHOW STATUS LIKE "";
    c、option
       写在配置文件和命令行上的上面两种
+   请注意 SHOW VARIABLES LIKE 可以用SELECT @@[GLOBAL|SESSION].VARIABLES 代替, 具体可以看mysql 关于 SHOW VARIABLES的介绍
+
    参考 https://dev.mysql.com/doc/refman/5.7/en/server-option-variable-reference.html
 
 6、着重看下，注意页面最左侧的列表，可以看5的介绍
