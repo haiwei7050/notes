@@ -1,0 +1,61 @@
+1.mysql间隙锁(gap lock)
+  1) 间隙锁是为了防止出现幻读而设计的
+  2) 所以只有在事务隔离级别是REPEATABLE READ才会出现
+  3) 当手动将事物隔离级别设为READ COMMITTED 时就会禁用gap lock
+  4) !!!! 间隙锁是加在 <索引>上的
+
+2.mysql间隙锁例子
+  1) 事物隔离级别是 REPEATABLE READ, 只有REPEATABLE READ才有间隙锁
+  2) 间隙锁锁的是索引
+  3) 聚合索引是指, 和数据存储在一个文件的索引
+     当一个表存在主键索引, 聚合索引为主键索引
+     当一个表存在唯一索引, 聚合索引为唯一索引
+     当一个表不存在主键索引和唯一索引, mysql会创建一个隐式的索引为该表的聚合索引
+
+  例子1
+    CREATE TABLE t_test
+    (
+        id  INT     NOT NULL PRIMARY KEY AUTO_INCREMENT,
+        age TINYINT NOT NULL,
+        KEY(age)
+    );
+    INSERT INTO t_test(age)VALUES(10),(20);
+    1) 创建一个表t_test, 它有两个索引, 聚合索引id和非聚合索引(二级索引)age和两条数据
+       id    age
+       1     10
+       2     20
+    2) client A                                                    client B
+       START TRANSACTION;
+       SELECT * FROM t_test WHERE age > 15 FOR UPDATE;             START TRANSACTION;
+                                                                   INSERT INTO t_test(age)VALUES(9);  -- 不会阻塞
+                                                                   INSERT INTO t_test(age)VALUES(14); -- 被间隙锁阻塞
+                                                                   INSERT INTO t_test(age)VALUES(20); -- 被间隙锁阻塞
+       间隙锁加锁过程:
+       1) 间隙锁是加在索引上的, age列有索引所以我们需要在age中找间隙
+       2) 总共有4个间隙 (-∞,10],[10, 20] (20,+∞)
+       3) 为了保证 client A在多次执行查询后不会出现幻读, 即第一次读返1条记录(因为在事物开启时只有一条数据满足要求), 第二至第n次读时都应该只返回1条数据
+          所以我们需要在[10, 20] (20,+∞)间隙加锁, 这是因为age>15的数据可以在这两个间隙中被插入
+       4) 最后总结,
+          4.1) 只有在事物隔离级别是REPEATABLE READ下且进行加锁读, 如SELECT FOR UPDATE, DELETE, UPDATE下, mysql才会使用间隙锁
+          4.2) 而且间隙锁是锁在索引上的，所以要在使用到的索引上找间隙
+
+  例子2 age没有索引的情况下如何加间隙锁
+  CREATE TABLE t_test
+  (
+      id  INT     NOT NULL PRIMARY KEY AUTO_INCREMENT,
+      age TINYINT NOT NULL
+  );
+  INSERT INTO t_test(age)VALUES(10, 20);
+  1) 创建一个表t_test, 它仅有一个聚合索引id, 并且有两行数据
+     id    age
+     1     10
+     2     20
+  2) client A                                                          client B
+     START TRANSACTION;
+     SELECT * FROM t_test WHERE age > 15                               START TRANSACTION;
+                                                                       INSERT INTO t_test(age)VALUES(9);  -- 会被间隙锁阻塞
+     1) 间隙锁是加在索引上的, age列没有索引所以我们需要在id中找间隙
+     2) 总共有2个间隙 (-∞,1],[2,+∞)
+     3) 为了保证 client A在多次执行查询后不会出现幻读, 即第一次读返1条记录(因为在事物开启时只有一条数据满足要求), 第二至第n次读时都应该只返回1条数据
+               所以我们需要在(2,+∞)间隙加锁, 这是因为age>15的数据可以在这间隙中被插入,
+     4) 注意我们是在id索引上加锁, id索引是自增的所以下一条数据只可能在(2, 20)之后被插入
