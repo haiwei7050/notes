@@ -1,0 +1,35 @@
+1. 幻读(phantom read) 和不可重复读
+   1) 幻读, 同一次事物中执行两次相同的查询,
+      1.1) 第一次查询到的数据不会在第二次查询中发生改变
+      1.2) 但是第二次查询返回了第一次查询中没有出现的行
+
+   2) 不可重复读, 同一次事物中执行两次相同的查询
+      2.1) 第一次查询到的数据, 在第二次查询中发生了改变
+
+   参考文档: https://stackoverflow.com/questions/11043712/what-is-the-difference-between-non-repeatable-read-and-phantom-read
+
+2. mysql的事物隔离级别
+   1) 从弱到强,  READ UNCOMMITTED, READ COMMITTED, REPEATABLE READ, and SERIALIZABLE
+      1.1) 其中 READ COMMITTED 不会发生脏读
+      1.2) REPEATABLE READ 不会发生 脏读, 不可重复读 和 幻读
+           不会出现幻读是因为: https://blog.pythian.com/understanding-mysql-isolation-levels-repeatable-read/
+
+   2) READ COMMITTED 和 REPEATABLE READ的加锁情况
+      2.1) 对于不加锁的读(比如普通的SELECT),  READ COMMITTED 和 REPEATABLE READ都不会加锁
+           READ COMMITTED会在每次读时都新生成快照, 这样就可以看到其他事物已提交的改变
+           REPEATABLE READ只会在第一次读时生成快照, 所以以后每次读都会得到一样的结果
+
+      2.2) 对于加锁的读(比如 SELECT .. FOR UPDATE, UPDATE, DELETE)
+           READ COMMITTED 在索引上加锁, 并且只会对符合条件的记录加 行锁(record lock)
+           REPEATABLE READ 1) 当使用unique index进行查询时, 和 READ COMMITTED 表现一样
+                           2) 其他情况会加间隙锁
+           使用unique index进行查询的sql是什么?
+           1) 就是执行 EXPLAIN sql后, 得到的结果中的type为const的结果
+              比如 EXPLAIN SELECT * FROM t_test WHERE age = 1;
+              其中age是unique列, 查询条件为等于查询
+              CREATE TABLE t_test
+              (
+                  id  INT     NOT NULL PRIMARY KEY, -- AUTO_INCREMENT,
+                  age TINYINT NOT NULL,
+                  CONSTRAINT UNIQUE key(age)
+              );
