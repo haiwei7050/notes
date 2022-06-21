@@ -23,13 +23,17 @@
            READ COMMITTED 在索引上加锁, 并且只会对符合条件的记录加 行锁(record lock)
            REPEATABLE READ 1) 当使用unique index进行查询时, 和 READ COMMITTED 表现一样
                            2) 其他情况会加间隙锁
-           使用unique index进行查询的sql是什么?
-           1) 就是执行 EXPLAIN sql后, 得到的结果中的type为const的结果
-              比如 EXPLAIN SELECT * FROM t_test WHERE age = 1;
-              其中age是unique列, 查询条件为等于查询
-              CREATE TABLE t_test
-              (
-                  id  INT     NOT NULL PRIMARY KEY, -- AUTO_INCREMENT,
-                  age TINYINT NOT NULL,
-                  CONSTRAINT UNIQUE key(age)
-              );
+
+   参考文档: https://dev.mysql.com/doc/refman/8.0/en/innodb-transaction-isolation-levels.html
+
+3.使用unique index进行查询的sql是什么?
+  1) 就是执行 EXPLAIN sql后, 得到的结果中的type为const的结果
+     比如 EXPLAIN SELECT * FROM t_test WHERE age = 1;
+     其中age是unique列, 查询条件为等于查询
+  CREATE TABLE t_test
+  (
+      id  INT     NOT NULL PRIMARY KEY, -- AUTO_INCREMENT,
+      age TINYINT NOT NULL,
+      CONSTRAINT UNIQUE key(age)
+  );
+
