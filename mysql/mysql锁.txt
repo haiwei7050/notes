@@ -3,6 +3,8 @@
   2) 所以只有在事务隔离级别是REPEATABLE READ才会出现
   3) 当手动将事物隔离级别设为READ COMMITTED 时就会禁用gap lock
   4) !!!! 间隙锁是加在 <索引>上的
+  
+参考文档: https://stackoverflow.com/questions/42545523/mysql-gap-lock-reasoning
 
 2.mysql间隙锁例子
   1) 事物隔离级别是 REPEATABLE READ, 只有REPEATABLE READ才有间隙锁
