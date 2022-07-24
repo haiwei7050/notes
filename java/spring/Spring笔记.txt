@@ -1043,6 +1043,7 @@
     注意: spring boot通过下面两个类来实现上面事务的类的自动加载的
     DataSourceTransactionManagerAutoConfiguration
     TransactionAutoConfiguration
+    AopAutoConfiguration
 
 37、spring boot tomcat启动流程
    1) 几个重要的接口
