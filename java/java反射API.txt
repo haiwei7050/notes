@@ -1,0 +1,277 @@
+1. 如何在动态代理中使用反射执行接口的默认方法
+   public interface A{
+      default void m1(){
+          // do something
+      }
+      void m2(int a);
+   }
+
+   1) 假设我们有一个实现了接口A的实例, 那么我们就可通过该实例来调用接口的默认方法
+       public class Main{
+          public static void main(String[] args){
+             final A wrapper = a -> {}
+             InvocationHandler h = (proxy, method, methodArgs) -> {
+                // proxy 就是Proxy.newProxyInstance()生成的代理对象
+                if(method.isDefault()){
+                   method.invoke(wrapper, methodArgs);
+                }
+             };
+             A proxy = Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), new Class[]{A.class}, h);
+             proxy.m1();
+          }
+       }
+
+   2) 没有A的实例, 可以使用MethodHandler来实现
+      public class Main{
+        public static void main(String[] args){
+           InvocationHandler h = (proxy, method, methodArgs) -> {
+              if(method.isDefault()){
+                  // proxy 就是Proxy.newProxyInstance()生成的代理对象
+                  // proxy 实现了接口的A的所有方法, 包括接口A的默认方法
+                  // 所以 method.invoke(proxy, methodArgs)会执行proxy定义的方法,
+                  // 就是执行当前方法, 所以会形成死循环
+
+                  /**
+                    1.具体步骤是, 我们需要先创建一个MethodHandles.Lookup, 然后使用它来创建一个MethodHandle
+                      最后通过MethodHandle.bindTo(proxy).invokeWithArguments(args)来执行接口的默认方法.
+                    2.这里我们先通过反射拿到MethodHandles.Lookup的私有构造函数MethodHandles.Lookup(Class<?>, int)
+                      然后通过它来创建MethodHandles.Lookup, 这是因为我们需要将MethodHandles.Lookup的两个属性
+                      lookupClass和allowedModes分别设置为, method.getDeclaringClass() 和 ALL_MODES
+                      否则方法lookup.unreflectSpecial(method, declaringClass)就会报错.
+                    3.请注意
+                      MethodHandles.lookup()                                     lookupClass: Main.class,                     allowedModes: ALL_MODES
+                      MethodHandles.lookup().in(method.getDeclaringClass())      lookupClass: method.getDeclaringClass(),     allowedModes: 不符合要求
+                      MethodHandles.publicLookup()                               lookupClass: Object.class                    allowedModes: 不符合要求
+                      都无法创建符合我们条件的Lookup,
+                      因为方法MethodHandles.Lookup.unreflectSpecial()会检查
+                      lookupClass是否和declaringClass一样, 且可以访问私有方法
+                    4.MethodHandles.Lookup.unreflectSpecial返回的MethodHandle会忽视子类对父类方法的覆盖, 进而回去执行父类的方法
+                    5.MethodHandle.bindTo的作用是设置方法在哪个实例对象上执行
+                  */
+                  Class<?> declaringClass = method.getDeclaringClass();
+                  final int ALLOWED_MODES = MethodHandles.Lookup.PRIVATE | MethodHandles.Lookup.PROTECTED
+                                      | MethodHandles.Lookup.PACKAGE | MethodHandles.Lookup.PUBLIC;
+                  Constructor<MethodHandles.Lookup> ctor = MethodHandles.Lookup.class.getDeclaredConstructor(Class.class, int.class);
+                  ctor.setAccessible(true);
+                  MethodHandles.Lookup lookup = ctor.newInstance(declaringClass, ALLOWED_MODES);
+                  MethodHandle mh = lookup.unreflectSpecial(method, declaringClass);
+                  mh.bindTo(proxy).invokeWithArguments(args);
+              }
+           }
+           A proxy = Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), new Class[]{A.class}, h);
+           proxy.m1();
+        }
+      }
+
+2. MethodHandle 怎么用
+      public class B{
+          private String msg;
+          public B(String msg){
+             this.msg = msg;
+          }
+
+          public void publicMethod(){
+            System.out.println(this.msg);
+          }
+
+          private void privateMethod(){
+            System.out.println(this.msg);
+          }
+          public static MethodHandle createMH(){
+             MethodHandles.Lookup lookup = MethodHandles.lookup();
+             MethodType mt = MethodType.methodType(void.class);
+             return lookup.findVirtual(B.class, "privateMethod", mt);
+          }
+      }
+   1. 对于公共方法来说, 我们可以在任何地方创建MethodHandle, 并使用
+     1) 将反射的Method转换为MethodHandle
+        Method publicMethod = B.class.getMethod("publicMethod");
+        MethodHandles.Lookup lookup = MethodHandles.publicLookup();
+        MethodHandle mh = lookup.unreflect(publicMethod);
+        //第一个参数target对象, 即方法在哪个target上执行, 后面的参数为方法调用时的参数
+        mh.invoke(new B("提示信息"));
+
+     2) 直接创建MethodHandle
+        MethodHandles.Lookup lookup = MethodHandles.publicLookup();
+        // MethodType是方法参数信息的描述, 第一个参数为方法的返回值类型
+        MethodType mt = MethodType.methodType(void.class);
+        MethodHandle mh = lookup.findVirtual(B.class, "publicMethod", mt);
+        // invoke将第一个参数作为方法调用的target对象, 即方法在哪个target上执行,
+        // 第一个参数后面的参数都为方法的调用参数
+        mh.invoke(new B("提示信息"));
+
+   2. 对于私有方法, 我们要么使用在当前类中创建的MethodHandle, 或者使用反射的方式来创建MethodHandle
+      0) 原因
+         MethodHandles.Lookup有一个lookupClass的属性
+         使用MethodHandles.lookup()创建Lookup时, 会将lookupClass设为调用MethodHandles.lookup()方法的对象的class
+         使用MethodHandles.publicLookup()创建Lookup时, 会将lookupClass设为Object.class
+         当我们使用Lookup.findVirtual()去创建类B私有方法的MethodHandle就会报错,
+         这是因为lookupClass所指向的类无法访问B的私有方法或属性, 除非lookupClass指向的是B.class
+
+      1) 将反射的Method转换为MethodHandle
+         Method privateMethod = B.class.getDeclaredMethod("privateMethod");
+         // 必须打开privateMethod的访问控制, 否则下面的调用会报错
+         privateMethod.setAccessible(true);
+         MethodHandles.Lookup lookup = MethodHandles.lookup();
+         MethodHandle mh = lookup.unreflect(publicMethod);
+         // invoke将第一个参数作为方法调用的target对象, 即方法在哪个target上执行,
+         // 第一个参数后面的参数都为方法的调用参数
+         mh.invoke(new B("提示信息"));
+
+      2) 在类B中创建MethodHandle
+         MethodHandle mh = B.createMH(); //代码在上面
+         // invoke将第一个参数作为方法调用的target对象, 即方法在哪个target上执行,
+         // 第一个参数后面的参数都为方法的调用参数
+         mh.invoke(new B("提示信息"));
+
+      3) 私有方法的终极解决方法, 参考mybatis的MybatisMapperProxy
+         针对1)的好处是, 我们不需要手动设置privateMethod.setAccessible(true);
+         针对2)的好处是, 我们可以在任何地方创建MethodHandle
+         //获取类Lookup的私有构造函数
+          final int ALLOWED_MODES = MethodHandles.Lookup.PRIVATE   |
+                                    MethodHandles.Lookup.PROTECTED |
+                                    MethodHandles.Lookup.PACKAGE   |
+                                    MethodHandles.Lookup.PUBLIC;
+          // 获取类Lookup的私有构造函数
+          Constructor<MethodHandles.Lookup> ctor = MethodHandles.Lookup.class
+                                                   .getDeclaredConstructor(Class.class, int.class);
+          ctor.setAccessible(true);
+          MethodHandles.Lookup lookup = ctor.newInstance(B.class, ALLOWED_MODES);
+          MethodType mt = MethodType.methodType(void.class);
+          MethodHandle mh = lookup.findVirtual(B.class, "sayA", mt);
+          mh.invoke(new B(1));
+
+3. MethodHandles.lookup() 和 MethodHandles.publicLookup()的区别
+   1) MethodHandles.Lookup有一个lookupClass的属性
+   2) 使用MethodHandles.lookup()创建Lookup时, 会将lookupClass设为调用MethodHandles.lookup()方法的对象的class
+   3) 使用MethodHandles.publicLookup()创建Lookup时, 会将lookupClass设为Object.class
+   4) 当我们使用Lookup.findVirtual()去创建类B私有方法的MethodHandle就会报错,
+      这是因为lookupClass所指向的类无法访问B的私有方法或属性, 除非lookupClass指向的是B.class
+
+4. MethodHandles.Lookup.findVirtual() 和 MethodHandles.Lookup.unreflect()的区别
+   1) MethodHandles.Lookup.findVirtual通过MethodType来创建MethodHandle
+   2) MethodHandles.Lookup.unreflect()则可以将Method转换为MethodHandle
+
+5. MethodHandle.invoke(), MethodHandle.invokeExact() and MethodHandle.invokeWithArguments()的区别
+   参考链接: https://stackoverflow.com/questions/16005824/some-basic-questions-about-methodhandle-api
+
+   public class MethodHandleTest {
+
+       public static class TestClass{
+           public int test(int a, Integer b){
+               return a+b;
+           }
+       }
+
+       public static void main(String[] args) throws Throwable{
+           Method method = TestClass.class.getMethod("test", int.class, Integer.class);
+           MethodHandle handle = MethodHandles.lookup().unreflect(method).bindTo(new TestClass());
+
+           int arg_int = 1;
+           Integer argInteger = 1;
+
+           Object[] argArray = {1,1};
+
+           //----------------------------
+           // MethodHandle#invokeExact()
+           //----------------------------
+
+           // ONLY an exact invocation is allowed for invokeExact:
+           int result = (int) handle.invokeExact(arg_int, argInteger);
+
+           // inexact first argument type -> throws WrongMethodTypeException - "expected (int,Integer)int but found (Integer,Integer)int"
+           Exception e = null;
+           try {
+               result = (int) handle.invokeExact(argInteger,argInteger);
+           } catch (WrongMethodTypeException ex) {
+               e = ex;
+           }
+           assert e != null;
+           e = null;
+
+           // inexact return type -> throws WrongMethodTypeException - "expected (int,Integer)int but found (int,Integer)Integer"
+           try {
+               result = (Integer) handle.invokeExact(arg_int,argInteger);
+           } catch (WrongMethodTypeException ex) {
+               e = ex;
+           }
+           assert e != null;
+           e = null;
+
+           // inexact return type -> throws WrongMethodTypeException - "expected (int,Integer)int but found (int,Integer)Object"
+           try {
+               Object o = handle.invokeExact(arg_int,argInteger);
+           } catch (WrongMethodTypeException ex) {
+               e = ex;
+           }
+           assert e != null;
+           e = null;
+
+           // "argObject" is ALSO NOT OK! - the compile time type of the argument must be of class Integer, not the runtime instance!
+           // -> throws WrongMethodTypeException - "expected (int,Integer)int but found (int,Object)int"
+           Object argObject = argInteger;
+           try {
+               result = (int) handle.invokeExact(arg_int,argObject);
+           } catch (WrongMethodTypeException ex) {
+               e = ex;
+           }
+           assert e != null;
+           e = null;
+
+           // Array of the arguments NOT allowed -> throws WrongMethodTypeException - "expected (int,Integer)int but found (Object[])int"
+           try {
+               result = (int) handle.invokeExact(argArray);
+           } catch (WrongMethodTypeException ex) {
+               e = ex;
+           }
+           assert e != null;
+           e = null;
+
+           // But explicit cast of first or second argument is OK
+           result = (int) handle.invokeExact((int)argInteger,argInteger);
+           result = (int) handle.invokeExact(arg_int,(Integer)arg_int);
+
+           //-----------------------
+           // MethodHandle#invoke()
+           //-----------------------
+
+           // invoke() with exact types - OK -> actually calls invokeExact() behind the scenes
+           result = (int) handle.invoke(arg_int, argInteger);
+
+           // implicit conversion of inexact arguments and return type -> OK!
+           result = (Integer) handle.invoke(argInteger,argInteger);
+
+           // Object arguments or return type is OK!
+           Object o = handle.invoke(argObject,argObject);
+
+           // Array of the arguments NOT allowed -> throws WrongMethodTypeException - "cannot convert MethodHandle(int,Integer)int to (Object[])int"
+           try {
+               result = (int) handle.invoke(argArray);
+           } catch (WrongMethodTypeException ex) {
+               e = ex;
+           }
+           assert e != null;
+           e = null;
+
+           //------------------------------------
+           // MethodHandle#invokeWithArguments()
+           //------------------------------------
+
+           // invoke() with exact types - OK
+           result = (int) handle.invokeWithArguments(arg_int,arg_int);
+
+           // implicit conversion of inexact arguments and return type -> OK
+           result = (Integer) handle.invokeWithArguments(argInteger,argInteger);
+
+           // Object arguments or return type is OK!
+           o = handle.invoke(argObject,argObject);
+
+           // Array of the arguments -> OK
+           result = (int) handle.invokeWithArguments(argArray);
+
+           // List of arguments possible -> same as calling invokeWithArguments(list.toArray())
+           result = (int) handle.invokeWithArguments(Arrays.asList(argArray));
+
+
+       }
+   }
