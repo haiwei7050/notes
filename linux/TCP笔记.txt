@@ -4,7 +4,8 @@
       且会被放到由 net.ipv4.tcp_max_syn_backlog 指定大小的SYN 队列中
    3) client在接到SYN ACK报文后, 再发送一个SYN ACK ACK报文, 此时client的SOCKET处于SYN SENT状态ESTABLISHED.
    4) service在接收到client的SYN ACK ACK报文后,   会将自己的SOCKET的状态改为ESTABLISHED
-            并放到由 net.core.somaxconn 指定大小的ACCEPT队列中
-
+            并放到由 net.core.somaxconn指定大小的ACCEPT队列中
+   注意ACCEPT队列的大小由 net.core.somaxconn 和 创建的socket指定的backlog参数共同决定
+   当backlog大于net.core.somaxconn, 取net.core.somaxconn的值
 
 参考文档:http://veithen.io/2014/01/01/how-tcp-backlog-works-in-linux.html
