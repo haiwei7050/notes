@@ -196,9 +196,10 @@ fs.file-max=100000000                  #这个可有可无
 fs.nr_open=100000000
 net.ipv4.tcp_tw_reuse = 1
 net.ipv4.tcp_tw_recycle = 1
-net.ipv4.tcp_max_syn_backlog=32768     #这个是 <为完成三步握手的队列> 的大小
+net.ipv4.tcp_max_syn_backlog=32768     #这个是 <未完成三步握手的队列> 的大小
 net.core.somaxconn=32768               #这个是 <已建立连接但未accept的队列>的大小
 net.core.netdev_max_backlog = 2000000
+
 
     vi /usr/lib/systemd/system/mysqld.service  # 一定要看下原来有没有LimitNOFILE
     LimitNOFILE=100000000
