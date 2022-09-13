@@ -15,4 +15,5 @@
 
    will fail because now sed interprets the first s/foo/bar as a filename. Hence, to make life easier for future you, you can already start using the -e flag today. That way future you can just append the command with an extra script by using -e <script>.
 
+   上面的回答来自第7个答案
    参考文档: https://unix.stackexchange.com/questions/33157/what-is-the-purpose-of-e-in-sed-command
