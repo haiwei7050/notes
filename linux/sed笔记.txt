@@ -1,0 +1,18 @@
+1. sed -e的作用
+   In the help for sed you will find that -e flag stands for:
+
+    -e script, --expression=script
+                    add the script to the commands to be executed
+   But you are not the first to be confused after encountering -e. In your example sed 's/foo/bar/' and sed -e 's/foo/bar/' are equivalent. In both cases s/foo/bar/ is the script that is executed by sed. The second option is more explicit, but that is probably not the reason that you often see -e used. The reason for that is that -e makes it possible to use more than one script with the same invocation of sed. That still leaves the question why use it if you are using only one script? The following example might explain that:
+
+   echo "foo" | sed -e 's/foo/bar/' -e 's/bar/foo'
+
+   Will output "foo".
+
+   However,
+
+   echo "foo" | sed 's/foo/bar/' -e 's/bar/foo'
+
+   will fail because now sed interprets the first s/foo/bar as a filename. Hence, to make life easier for future you, you can already start using the -e flag today. That way future you can just append the command with an extra script by using -e <script>.
+
+   参考文档: https://unix.stackexchange.com/questions/33157/what-is-the-purpose-of-e-in-sed-command
