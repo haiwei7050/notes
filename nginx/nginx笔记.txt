@@ -407,3 +407,7 @@ http {
         }
     }
 }
+
+12、nginx 集群
+   DNS将多个域名解析到不同的ip上, 每个ip部署LVS, 然后通过LVS负载到nginx
+   https://maimai.cn/article/detail?fid=933985329&efid=gN3kL53FFXerHbR8Lc6slw
