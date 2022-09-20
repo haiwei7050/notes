@@ -380,4 +380,30 @@ http {
    https://nginx.org/en/docs/varindex.html
 
 
+11、 nginx 负载均衡
 
+worker_processes  1;
+events {
+    worker_connections  1024;
+}
+
+http {
+    include       mime.types;
+    error_log /usr/local/nginx/log/error.log debug;  # 开启debug模式的日志
+    upstream hobbit_chat {                           #定义了一组服务器, 默认是轮询的方式进行负载均衡
+       server 192.30.0.231:8080 max_conns=1000;      # max_conns指定被代理的服务器最大接收的链接数
+       server 192.30.0.231:8081 max_conns=1000;
+    }
+
+    server {
+        listen       80;
+        server_name  192.30.0.232;
+
+        location / {
+            proxy_set_header Host $http_host;
+            proxy_pass http://hobbit_chat;       # proxy_pass 会将请求头的Host属性设置为hobbit_chat,
+                                                 # 所以需要使用上面的语句重设一下Host属性
+                                                 # 这个过程可以通过error.log查看(需要打开debug模式)
+        }
+    }
+}
