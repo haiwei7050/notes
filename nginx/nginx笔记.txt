@@ -9,6 +9,46 @@
 	     --with-http_ssl_module    
    make && make install
 
+  1) 下载nginx依赖的lib
+     pcre, zlib, openssl, g++
+     其中pcre需要使用g++(c++编译器)来编译
+     当需要支持https协议时, 才需要安装openssl
+
+  2) 下载nginx源码并解压
+      mkdir /usr/local/nginx
+      wget https://nginx.org/download/nginx-1.18.0.tar.gz
+      tar -zxf nginx-1.18.0.tar.gz
+      mv nginx-1.18.0 nginx
+      cd /usr/local/nginx/nginx
+
+  3) 使用 /usr/local/nginx/nginx/configure来生成nginx的Makefile
+      ./configure \
+      --with-debug \                                          # 可以开启nginx log的 debug level
+      --sbin-path=/usr/bin/nginx \                            # 安装完成后我们可以使用, /usr/bin/nginx来启动nginx
+      --prefix=/usr/local/nginx \                             # nginx的根目录, 其它路径都是相对于它
+      --error-log-path=/usr/local/nginx/logs/error.log \      # 指定nginx的error log的文件名以及目录
+      --http-log-path=/usr/local/nginx/logs/access.log \      # 指定nginx的access log的文件名以及目录
+      --conf-path=/usr/local/nginx/config/nginx.conf \        # 指定nginx的配置文件的文件名以及目录
+      --pid-path=/usr/local/nginx/nginx.pid \                 # 指定nginx的存储pid的文件的文件名以及目录
+      --with-pcre=../pcre  \                                  # 指定pcre源码包的位置
+      --with-zlib=../zlib \                                   # 指定zlib源码包的位置
+      --with-openssl=../openssl \                             # 指定openssl源码包的位置
+      --with-http_ssl_module \
+      --with-stream           \
+      --user=nginx                                            # 指定nginx的worker进程使用哪个用户执行
+
+      --with-pcre 和 --with-pcre=/path/to/pcre的区别是,
+      通过--with-pcre=/path/to/pcre, 我们会在编译nginx的同时编译pcre
+      但是如果我们已经安装了pcre, 我们就只需要通过--with-pcre来告诉nginx
+
+  4) 编译, 安装和使用
+     make                      # 编译
+     sudo make install         # 将运行程序安装到 --sbin-path指定的位置
+
+     sudo nginx                # nginx需要以root用户来启动, 然后nginx在启动worker进程时会用--user指定的用户来启动
+     sudo nginx -s reload      # 不重启nginx并重新加载配置文件
+     sudo nginx -t             # 不启动nginx的情况下, 检查配置文件语法是否正确
+
 2、nginx配置文件的最小配置
    events {}
    http {
