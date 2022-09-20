@@ -331,7 +331,7 @@ location /a { #2
 #1 返回的是 $prefix/html/a/1/png 而
 #2 返回的是 $prefix/html/1.png    =====> 用 $prefix/html/ 替换 /a
 
-9 nginx利用上面讲的实现本地http代理，只实现了http协议
+9、nginx利用上面讲的实现本地http代理，只实现了http协议
   
 worker_processes  1;
 
@@ -375,7 +375,9 @@ http {
 
   }
 
-
+10、nginx指令和内置变量的页面
+   https://nginx.org/en/docs/dirindex.html
+   https://nginx.org/en/docs/varindex.html
 
 
 
