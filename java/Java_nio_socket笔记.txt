@@ -1,0 +1,120 @@
+1. NIO socket 例子
+   //NIOServer.java
+  public class NIOServer {
+      public static void main(String[] args) throws Exception {
+          ServerSocketChannel ssc = null;
+          Selector selector = null;
+          try {
+              ssc = ServerSocketChannel.open();
+              ssc.configureBlocking(false);
+              ssc.bind(new InetSocketAddress(80), 2000);
+              selector = Selector.open();
+              ssc.register(selector, SelectionKey.OP_ACCEPT);
+              System.out.println("服务器启动完成");
+              while (!Thread.interrupted()) {
+                  int count = selector.select(1000);
+                  if (count == 0) continue;
+                  Iterator<SelectionKey> keyIterator = selector.selectedKeys().iterator();
+                  while (keyIterator.hasNext()) {
+                      SelectionKey key = keyIterator.next();
+                      keyIterator.remove();
+                      if (key.isAcceptable()) {
+                          System.out.println("服务器收到连接");
+                          ServerSocketChannel serverSocketChannel = (ServerSocketChannel) key.channel();
+                          SocketChannel sc = serverSocketChannel.accept();
+                          sc.configureBlocking(false);
+                          sc.register(selector, SelectionKey.OP_READ, sc);
+                      } else if (key.isReadable()) {
+                          System.out.println("服务器收到数据");
+                          SocketChannel socketChannel = (SocketChannel) key.channel();
+                          key.interestOps(SelectionKey.OP_WRITE);
+                          ByteBuffer buffer = ByteBuffer.allocate(1024);
+                          int bytes = socketChannel.read(buffer);
+                          buffer.flip();
+                          System.out.println(new String(buffer.array(), 0, bytes));
+                      } else if (key.isWritable()) {
+                          System.out.println("服务器发送数据");
+                          SocketChannel socketChannel = (SocketChannel) key.channel();
+                          key.interestOps(SelectionKey.OP_READ);
+                          ByteBuffer buffer = ByteBuffer.wrap("你好".getBytes(StandardCharsets.UTF_8));
+                          socketChannel.write(buffer);
+                      }
+                  }
+
+              }
+          } finally {
+              try {
+                  if (ssc != null) {
+                      ssc.close();
+                  }
+              } finally {
+                  if (selector != null) {
+                      selector.close();
+                  }
+              }
+          }
+      }
+  }
+
+   //NIOClient.java
+   public class NIOClient {
+       public static void main(String[] args) throws Exception {
+           SocketChannel sc = null;
+           Selector selector = null;
+           Scanner scanner = null;
+           try {
+               selector = Selector.open();
+               sc = SocketChannel.open();
+               sc.configureBlocking(false);
+               sc.register(selector, SelectionKey.OP_CONNECT);
+               System.out.println("客户端准备就绪");
+               scanner = new Scanner(System.in);
+               while (!Thread.interrupted()) {
+                   int count = selector.select(1000);
+                   if (count == 0) continue;
+                   Iterator<SelectionKey> keyIterator = selector.selectedKeys().iterator();
+                   while (keyIterator.hasNext()) {
+                       SelectionKey key = keyIterator.next();
+                       if (key.isConnectable()) {
+                           System.out.println("客户端准备连接服务器");
+                           sc.connect(new InetSocketAddress(Inet4Address.getByName("192.30.0.231"), 80));
+                           sc.finishConnect();
+                           sc.write(ByteBuffer.wrap("客户端初始化".getBytes(StandardCharsets.UTF_8)));
+                           key.interestOps(SelectionKey.OP_WRITE);
+                       } else if (key.isWritable()) {
+                           System.out.printf("> ");
+                           String content = scanner.next();
+                           sc.write(ByteBuffer.wrap(content.getBytes(StandardCharsets.UTF_8)));
+                           key.interestOps(SelectionKey.OP_READ);
+                       } else if (key.isReadable()) {
+                           ByteBuffer buffer = ByteBuffer.allocate(1024);
+                           int bytes = sc.read(buffer);
+                           buffer.flip();
+                           System.out.printf("< %s\n", new String(buffer.array(), 0, bytes));
+                           key.interestOps(SelectionKey.OP_WRITE);
+                       }
+                   }
+               }
+           } finally {
+               try {
+                   if (sc != null) {
+                       sc.close();
+                   }
+               } finally {
+                   try {
+                       if (selector != null) {
+                           selector.close();
+                       }
+                   } finally {
+                       if (scanner != null) {
+                           scanner.close();
+                       }
+                   }
+               }
+           }
+       }
+   }
+
+2. SelectionKey.OP_ACCEPT 和 SelectionKey.OP_CONNECT的区别
+   1) OP_ACCEPT 用于服务器端, 当调用ServerSocketChannel.accept()不会被阻塞时返回
+   2) OP_CONNECT 用于客户端, 当调用SocketChannel.connect()不会被阻塞时返回
