@@ -1,5 +1,5 @@
 1. java内存模型
-  java内存由下面几个部分组成 heap, stack, native stack, metaspace
+  java内存由下面几个部分组成 heap, stack, native stack, metaspace, code cache, pc register
   1) heap
      -Xmx 设置heap的最大值
      -Xms 设置heap的初始值
@@ -22,12 +22,20 @@
      2.4) 可以通过-Xss指定stack的大小, stack越大jvm能创建的线程数就越小
   3) native stack
      当线程调用native method时, jvm会为其分配native stack
-  4) metaspace
+  4) metaspace(java规范叫做method area, oracle使用metaspace来实现)
      4.1) jvm把加载过的类的信息, 字符串常量池等信息都存储在此
      4.2) 分配在native method, 即直接使用OS内存, 其大小由OS剩余内存决定
      4.3) -XX:MetaspaceSize 设置metaspace的初始值
      4.4) -XX:MaxMetaspaceSize 设置metaspace的最大值
-
+  5) code cache
+     5.1) jvm会把java方法编译为本地代码, 并存放在code cache
+           当code cache没有空间时, jvm会停止优化将java方法编译为本地代码
+     5.2) -XX:ReservedCodeCacheSize 设置code cache的最大值
+     5.3) -XX:UseCodeCacheFlushing 当设为true时会在code cache满时进行清理, 默认为false
+     5.4) –XX:+PrintCodeCache 打印code cache使用的情况
+  6) pc register
+     6.1) jvm每创建一个线程就会为其分配一个pc register
+     6.2) 存放者当前线程将要执行的指令
  例子: java -Xmx1g -Xms1g \                  # 设置heap的初始值和最大值为1g
            -Xmn512m -XX:SurvivorRatio=100 \ # 设置heap中的young generation大小为512m, 并设置young generation中的edge大小为 (100/(100 + 2)) * 512MB
            -XX:MetaspaceSize=256m -XX:MaxMetaspaceSize=256m \ # 设置MetaspaceSize的初始值和最大值为256m
