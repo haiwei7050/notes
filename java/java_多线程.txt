@@ -85,3 +85,38 @@ public class ReadWrite
         }
     }
 }
+
+4.jdk自带的线程池, ThreadPoolExecutor,的实现原理
+  1) 创建一个新的线程池
+     new ThreadPoolExecutor(
+       corePoolSize,            # 指定核心线程(core worker)的数量, 所谓核心线程即它们不会在执行完当前任务后被销毁的线程
+       maximumPoolSize,         # 指定线程池最大能创建的线程数量, 当线程池中线程数量大于corePoolSize时,
+                                  就会创建非核心线程, 这些线程会在没有任务时且空闲了keepAliveTime长时间后被销毁,
+                                  所谓销毁就是Thread.run方法返回, Thread被GC回收
+       keepAliveTime,           # 非核心线程最长的空闲时间
+       TimeUnit,
+       BlockingQueue            # 阻塞队列, 当线程池中的线程数量小于corePoolSize时, 会新建一个核心线程来执行任务
+     );                           否则就会尝试把任务添加到该队列中, 如果添加失败就会尝试创建一个非核心线程来执行任务,
+                                  如果还失败就拒绝该任务
+  2) 我们可以通过下面4个方法向线程池中提交一个任务
+     Executor.execute(Runnable);
+     // 下面三个方法都会将参数转换为FutureTask(它实现了Runnable),
+     // 然后再调用Executor.execute(Runnable)(即ThreadPoolExecutor.execute(Runnable)), 向线程池提交一个新的任务
+     ExecutorService.submit(Runnable);
+     ExecutorService.submit(Runnable, T result);
+     ExecutorService.submit(Callable<T>);
+  3) 当ThreadPoolExecutor收到一个新任务时, 它会按下面算法来执行新任务(即ThreadPoolExecutor.execute(Runnable)的实现逻辑)
+     a. 如果线程池中的线程数量少于corePoolSize时, 就会新创建一个新的Worker(即一个新Thread)
+        并将该任务作为新Worker的第一个任务进行执行.
+        当worker执行完该任务后,它会从ThreadPoolExecutor的全局队列workQueue中拉取新的任务进行执行.
+        请注意当前步骤创建的worker, 被称为core worker, 它执行完手头的任务后不会被销毁,
+        而是把自己阻塞在拉取新任务的这个动作中(workQueue.take())直到有新任务被添加到队列中去.
+     b. 否则就尝试将新任务添加到ThreadPoolExecutor的全局队列中workQueue.
+     c. 如果添加失败就会尝试创建一个非核心线程来执行任务.
+     d. 如果还失败就拒绝该任务.
+
+  4) 3 << 29 怎表示为二进制
+     3是int, 占4Byte, 即32位, 32个0
+     3写成二进制为11, 共2位, 所以它前面共32 - 2 = 30个0
+     3 << 29 表示将3的最高位向前移动29位, 则此时3最高位应该有 30 - 29 = 2个0
+     故 3 << 29 的二进制表示为 0011 0000 ... 0000
