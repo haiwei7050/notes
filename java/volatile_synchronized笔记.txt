@@ -28,3 +28,128 @@ public class Test{
 }
 参考链接:
 https://www.cs.umd.edu/~pugh/java/memoryModel/DoubleCheckedLocking.html
+
+3. synchronized的有序性和可见性
+   1) 有序性
+                           // #1 synchronized之前的代码
+      x = 6; // #1.1
+      a = 2; // #1.2
+      synchronized(mute){ //#2 lock mute
+                          //#3 synchronized代码块中的代码
+         b = 3;//#3.1
+         c = 4;//#3.2
+      }                    //#4 unlock mute
+      e = 5;               //#5 synchronized之后的代码
+
+      1.1) synchronized块内的代码, 一定是在获得锁之后, 并且在释放锁之前被执行
+           即#2, #3, #4必须被顺序执行
+
+      1.2) synchronized块内的代码可以被乱序执行, 即#3.1和#3.2可以被乱序执行
+
+      1.3) synchronized块之前的代码和之后的代码可以被移进到synchronized块之内执行,
+           此时被移进到synchronized块的代码遵循上面两条规则(即遵循1.1和1.2).
+           即#1和#5可以被移进到synchronized块内执行, 若被移进synchronized块内
+           则#1和#5都必须在#2之后#4之前执行, 且可以和#3.1, #3.2进行乱序执行
+
+   2) 可见性
+       2.1) 所有unlock之前的, 写操作, 都会被刷新到内存中去
+            所有lock之后的, 读操作, 都会直接从内存中读取
+
+       2.2) 当一个写线程和一个读线程, 在同一个对象上加锁, 且写线程先获得锁时,
+            当读线程获得锁之时, 一定可以看到写线程在释放锁之前做的一切操作.
+            这是因为当写线程在释放锁之前, 会将所有操作都会写入内存,
+            并且读写程只有在锁线程释放锁之后才能加锁.
+
+            只有读写线程在同一个对象上加锁时,上述内容才成立, 这是因为在不同对象上加锁,
+            读写线程可以并发的执行, 而java只保证在锁释放之前, 一定会将所有操作同步到内存中去
+            所以当读线程读数据时, 写线程还没有释放完锁, 也就是说还没有把所有操作同步到内存中去
+            进而读线程就无法读到所有写线程的操作
+
+            假设所有变量初始值为0, 且线程t1先获得锁
+            t1                        t2                              t3
+            x = 1
+            synchronized(mute){      synchronized(mute){
+                y = 2;                   print(x);                    print(x);
+                                         print(y);                    print(y);
+            }                          }
+
+            a. 根据2.1, 线程t2在synchronized内读到x和y 一定是1和2, 即使它之前读取过x和y的值
+               只是因为线程t1会在释放锁之前将, x和y的值更新到内存中, 线程t2只有在t1释放完锁,
+               也就是等线程t1更新完x和y的值之后, 才能获得锁进而读取x和y的值, 且线程t2在
+               synchronized内读值时是直接从内存中读取.
+
+            b. 线程t3可以和线程t1并发执行, 当t1释放完成锁, t3之前未读取过x和y, 则x = 1, y =2
+            c. 线程t3可以和线程t1并发执行, 当t1释放完成锁, t3之前读取过x和y,   则x = 0, y =0
+            d. 线程t3可以和线程t1并发执行, 当t1未释放完成锁但将x的值更新到内存了, t3之前未读取过x和y,   则x = 1, y =0
+            e. 线程t3可以和线程t1并发执行, 当t1未释放完成锁但将x的值更新到内存了, t3之前读取过x和y,   则x = 0, y =0
+            f. 线程t3可以和线程t1并发执行, 当t1未释放完成锁但将y的值更新到内存了, t3之前未读取过x和y,   则x = 0, y =2
+            g. 线程t3可以和线程t1并发执行, 当t1未释放完成锁但将y的值更新到内存了, t3之前读取过x和y,   则x = 0, y =0
+
+       2.3) 从synchronized的有序性和可见性来分析, 为什么下面的单例模式会出现问题
+                public class T{
+                    private static T instance;
+                    private int a;
+                    private T(){
+                       this.a = 3;
+                    };
+                    public static T getInstance(){
+                        if(instance == null){         #1
+                            synchronized(T.class){    #2  lock
+                              if(instance == null){   #3
+                                // instance = new T(); 会被分解为下面几行代码, 且假设它们是被乱序执行的
+                                instance = allocate mem // 让instance指向新分配的内存     写操作 #4
+                                call T()                // 调用构造函数也就是给属性a进行赋值 写操作 #5
+                               }
+                            }                           #4 unlock
+                        }
+                        return instance; #6
+                    }
+                }
+                假设有三个线程t1, t2, t3,
+                a. t1准备执行#4来释放锁但还未释放锁, t2正在等待t1释放锁, t3等待进入方法getInstance().
+                b. t1在释放锁之前, 会依次将#4, #5的结果写入到内存中去.
+                c. 假设t1已经将#4的结果写到内存, 但还未将#5的结果写入到内存中去
+                d. 此时切换到线程t3, t3会看到 instance != null 且 instance.a = 0, 然后将结果缓存到自己的缓存中去
+                   从而返回一个未初始化完的instance. instance != null的原因是它从内存中读到了#4的结果,
+                   instance.a = 0的原因是, #5的结果还没有被线程t1写到内存中去
+                e. 现在切换会t1, 它会在将#5的结果写回到内存中去, 之后才会去释放锁
+                f. 线程t2在获得锁之后, 它在执行#3时,会重新从内存中读取instance的值,
+                   尽管它在获得锁之前已经读取过一遍#1
+                   此时t2将会看到线程t1在释放锁之前做的所有操作, 线程t2不会拿到未初始化完的instance.
+参考文档:
+       https://www.cs.umd.edu/~pugh/java/memoryModel/BidirectionalMemoryBarrier.html (有序性, 上面1.4的出处)
+       https://stackoverflow.com/questions/38994749/cache-flush-on-synchronized-entry-exit-and-volatile-read-and-write (可见性)
+
+
+
+
+ 1.4) 所有在锁释放之前的操作都会被直接写回到内存中去, 以便其他线程可以看到被修改后的结果
+           即#1, #3的结果一定会在#4被执行之前, 写回到内存中去
+
+           !!! 请注意当#1, #3, #5被乱序执行后, 它们的结果也会以乱序的方式写回到内存中去
+           下面举个例子说明1.4
+      public class T{
+          private static T instance;
+          private int a;
+          private T(){
+             this.a = 3;
+          };
+          public static T getInstance(){
+              if(instance == null){  #1
+                  synchronized(T.class){
+                    if(instance == null){ #2
+                      // instance = new T(); 会被分解为下面几行代码, 且假设它们是被乱序执行的
+                      instance = allocate mem // 让instance指向新分配的内存     写操作 #4
+                      call T()                // 调用构造函数也就是给属性a进行赋值 写操作 #5
+                     }
+                  } #3
+              }
+              return instance;
+          }
+      }
+
+      假设有三个线程t1, t2, t3
+      a. 当t1执行到完#3之后, #4和#5的结果将会依次写会到主内存.
+      b. 假设当t1刚写完#4的结果到主内存中时,
+
+
