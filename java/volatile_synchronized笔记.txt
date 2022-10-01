@@ -1,0 +1,30 @@
+1.java内存模型的意义
+  参考链接:
+  https://www.cs.umd.edu/~pugh/java/memoryModel/jsr-133-faq.html
+
+2. singleton中使用volatile的意义
+public class Test{
+   private static volatile Test instance;
+
+   public static Test getInstance(){
+       Test instanceToUse = instance;
+       if(instanceToUse == null){
+           synchronized(Test.class){
+               instanceToUse = instance;
+               if(instanceToUse == null){
+                  /**
+                   * instanceToUse = new Test();
+                   * 会被编译为多步, 比如1)先分配内存, 2)然后调用Test的构造方法3)最后让instanceToUse指向初始化好的Test实例
+                   * 但是指令重排会打乱上面的步骤, 假如重排后按1)3)2)执行, 则其他线程有可能得到没有初始化的Test实例
+                   * 而volatile会禁止指令重排, 所以这里才需要使用volatile
+                  */
+                  instanceToUse = new Test();
+                  instance = instanceToUse;
+               }
+           }
+       }
+       return instanceToUse;
+   }
+}
+参考链接:
+https://www.cs.umd.edu/~pugh/java/memoryModel/DoubleCheckedLocking.html
