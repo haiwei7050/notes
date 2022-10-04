@@ -1,0 +1,14 @@
+1. 如何导入, 编译, debug jdk
+   1) 我们需要为jdk生成compilation database, 它就类似maven的pom文件, idea通过它可以为jdk创建索引
+   2) jdk8以上版本适用下面教程, 因为Makefile自带生成Compilation Database的target, make compile-commands
+      https://blog.jetbrains.com/clion/2020/03/openjdk-with-clion/   (IDEA自己的教程)
+      https://jiawanggjia.github.io/post/openjdk-bian-yi-zhi-nan/
+   3) jdk8 以下的版本
+      https://developer.jdcloud.com/article/1628
+
+2. 如何导入, 编译, debug其他开源c/c++项目
+   1) 最重要的还是为它们生成Compilation Database, 即compile_commands.json
+   2) 我们可以通过下面工具来生成Compilation Database
+      apt-get install bear     # 下载工具 bear
+      bear make all            # 通过 make all来编译项目, 注意在它前面使用bear
+                               # 最后导入生成的compile_commands.json
