@@ -20,3 +20,103 @@
 4. 红黑树
    1) 一种特殊的AVL树, 它不会在每次插入时对整棵树进行平衡, 只会做部分平衡
    2) 所以它的插入性能优于AVL, 又不会出现二叉搜索树退化的问题
+
+5. B树
+   1) AVL, 红黑树都是二叉树, 即任意一个节点至多有两个分支
+   2) B树, 是一种特殊的AVL, 但是任意节点可以有n个分支(即一个节点可以最多包含n-1个数据)
+   3) 一个节点由多个元素组成(key + data),
+      节点内的元素按key从小到大进行排序
+      节点的元素即保存索引key, 又保存数据
+   4) 当节点的元素大于n-1个时, 进行分裂
+     4.1) 假设有三个节点 n1, n2, n3, 其中n1是分裂前的节点, n2和n3是新创建的节点
+          则节点n1保存的是之前n-1个元素的中间元素n1m,
+          左节点n2, 保存的是比中间元素n1m, 小的元素,
+          右节点n3, 保存的是比中间结点n1m, 大的元素
+     4.2) 当有新元素(key + data)插入时,
+          将新元素的key与节点n1保存的中间元素n1m的key进行比较,
+          小, 就插入到左节点n2,
+          大, 就插入到右节点n3,
+     4.3) 当节点n2(或节点n3)被插满时, 再将进行分裂
+          n2的中间元素n2m将保存到节点n1, 此时节点n1共有两个元素并按从小到大的顺序存放为n2m, n1m
+          左节点n4, 保存的是比中间元素n2m, 小的元素,
+          右节点n5, 保存的是比中间元素n2m, 大的元素,
+     4.4) 当有新元素(key + data)插入时, 节点n1按顺序保存者 n2m, n1m
+          如果新元素的key < n2m, 则插入到, 节点n2的左节点n4
+          如果新元素的n2m < key < n1m, 则插入到, 节点n2的右节点n5
+          如果新元素的key > n1m, 则插入到, 节点n1的右节点n3
+     4.5) 依次类推
+  算法可视化链接: https://www.cs.usfca.edu/~galles/visualization/BTree.html
+6. B+树
+   1)B树, 所有节点既存索引, 又存数据
+     B+树, 非叶子节点只存索引, 叶子节点即存索引又存数据
+6. mysql page
+   1) page是mysql用来保存数据和索引的结构, 其默认大小为16kB
+   2) page的结构,  File Header, Page Header, Page Body, Page Trailer
+      其中Page Body是Page用来保存数据的区域, 它由分为User Record, Free Space, Page Dictionary
+   3) Free Space
+      3.1) 它是一个连续的大数组, 每个数组元素保存一行数据
+      3.2) Free Space保存的数据是无序的, 因为它是按插入顺序保存的
+      row结构: 索引key + column1 + ... + columnN
+      row[] FreeSpace = row[];
+
+   4) User Record
+      4.1) 一个User Record代表一行插入的数据, 但它不存储数据的内容,
+            数据, 按插入顺序, 存储在Free Space, User Record只保存数据在Free Space的地址
+      4.2) User Record 保存三个东西: 当前行的索引值, 当前行的地址, 下一行数据的User Record
+     *4.3) User Record使用链表方式保存, 而且是按照索引值排序
+           链表保存的好处是易于插入删除,
+           但无法使用二分查找法进行查找,
+           所以才需要另外一个数据结构Page Dictionary
+      4.4) User Record组成的, 按索引排序的, 有序链表的
+           头指针head是, Infimum Record,
+           尾指针tail是, Supremum Record
+
+     User Record结构:  索引值key + Free Space指针 + 下个user_record指针
+
+
+   5) Page Dictionary
+      5.1) 它是一个连续的数组, 数组的每个元素为slot
+      5.2) mysql将6个User Record归为一个slot
+      5.3) slot记录 索引值和一个指向保存该索引值的user record的指针
+      5.4) slot记录的是索引值是, 6个User Record保存的索引值最小的那个索引值
+      5.5) slot是按索引值大小进行排序的
+      5.6) Page Dictionary是有序数组所以可以按照, 二分查找法进行查找
+
+      slot结构: 索引值key + user_record指针
+      slot[] PageDictionary = new slot[];
+
+   6) Page内的查找过程为
+      6.1) 现拿索引key1值在数组Page Dictionary中, 用二分法进行查找, 找到对应的slot1
+      6.2) 如果key1 > slot1.key, 再通过slot.user_record开始遍历User Record链表
+
+   7) 当Page插满数据后, mysql会按照B+树的方式进行分裂
+      7.1) 非叶子节点的Page的Free Space保存的是
+         索引值 + page的地址
+
+      7.2) 叶子节点的Page的Free Space保存的是
+         一行数据: 索引key + column1 + ... + columnN
+
+      7.3) 所有叶子节点的Page, 又都用双向链表保存, 以便进行全表扫描
+
+   8) 索引查找的过程
+      8.1) 先用第6)步的方式在root page中找到索引所对应的user_record,
+      8.2) 若root page是, 叶子节点, 则user_record指向Free Space的地址保存的就是要找的数据, 搜索结束
+      8.3) 若root page是, 非叶子节点, 则user_record指向Free Space的地址保存的就是, 包含该索引的page的地址
+      8.4) 则在新的page中使用8.1, 8.2, 8.3只到找到数据为止
+
+   9) 索引的范围查找
+       9.1) key > value(或key < value), 先通过步骤8)找到保存key=value的叶子page,
+       9.2) 因为所有叶子page, 还使用双向链表保存
+            该叶子page, 前的叶子page保存的都是key < value的数据
+            该叶子page, 后的叶子page保存的都是key > value的数据
+
+   参考链接:
+           https://dev.mysql.com/doc/internals/en/innodb-page-overview.html (官方文档, 讲Page结构的)
+           https://bbs.huaweicloud.com/blogs/114252 (Page怎么存储User record)
+           https://dev.mysql.com/doc/internals/en/innodb-user-records.html (Page怎么存储User record)
+           https://stackoverflow.com/questions/52941537/how-does-innodb-know-whether-a-page-is-leaf-page-or-non-leaf-page
+           // 上面链接讲,Index Page和 Data Page的区别的内容
+           The PRIMARY index is a B+ tree.
+           The key of the index is the primary key fields.
+           In non-leaf pages the key is the key, the value - is page id of a page below.
+           In the leaf pages the key is the key again, but the value is the rest of table fields
