@@ -36,6 +36,17 @@
   6) pc register
      6.1) jvm每创建一个线程就会为其分配一个pc register
      6.2) 存放者当前线程将要执行的指令
+
+  7) direct memory
+     7.1) 通过ByteBuffer.allocateDirect(), 可以在jvm外的系统内存上分配内存
+     7.2) 怎么GC, jvm不会自己直接GC这块内存
+          具体 看这个 https://stackoverflow.com/questions/36077641/java-when-does-direct-buffer-released
+     7.3) PhantomReference的作用是用来代替jvm的析构函数, 当PhantomReference引用的对象不可用时, 会被jvm放到ReferenceQueue
+          看PhantomReference的jdk文档
+          看https://stackoverflow.com/questions/1599069/have-you-ever-used-phantomreference-in-any-project
+     7.4) ReferenceQueue 怎么用请看下面
+          https://www.cnblogs.com/dreamroute/p/5029899.html
+
  例子: java -Xmx1g -Xms1g \                  # 设置heap的初始值和最大值为1g
            -Xmn512m -XX:SurvivorRatio=100 \ # 设置heap中的young generation大小为512m, 并设置young generation中的edge大小为 (100/(100 + 2)) * 512MB
            -XX:MetaspaceSize=256m -XX:MaxMetaspaceSize=256m \ # 设置MetaspaceSize的初始值和最大值为256m
@@ -82,3 +93,4 @@
 
  参考文档:
     https://plumbr.io/handbook/garbage-collection-algorithms
+
