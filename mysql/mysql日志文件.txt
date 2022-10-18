@@ -1,0 +1,25 @@
+1. redo log
+   1) 作用
+      用来实现ACID中的duration(持久化功能), 当mysql奔溃时可以通过redo log将数据库恢复到最后一次事务提交的状态
+   2) 实现
+      a. redo log中记录的是sql对page进行的修改
+      b. sql更新的过程是, 先加载数据所在的page, 然后对page中的数据进行修改, 最后通过将这些page刷回到磁盘中来实现数据的更新
+      c. 因为数据可能分散在好几个不连续的page中, 对这些不连续的page进行刷盘就是执行随机IO, 此时性能会比较差
+         所以我们可以将这些修改的信息写入到redo log中去, 然后保证在事务提交前将redo log刷回磁盘则可以保证事务的持久性
+      d. 写redo log是顺序IO.
+      e. redo log 刷盘机制:
+         1)后台线程每隔1s将redo log刷新回到磁盘去
+         2)通过设置参数 innodb_flush_log_at_trx_commit = 1(默认值),
+           在事务提交前将redo log刷新回磁盘
+
+
+2. undo log
+   1) 作用
+      实现ACID中的atomic(原子性), 和MVCC(多版本控制访问)
+
+   2) 实现
+      a. undo log记录的是事务中每条事务的反操作sql, 所以我们可以使用undo log对事务进行回滚, 进而实现事务的原子性
+
+参考链接:
+     https://blog.51cto.com/u_3664660/3212550
+     https://juejin.cn/post/6989837603776233486
