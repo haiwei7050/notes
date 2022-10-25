@@ -1,2 +1,91 @@
 1. 什么是DDD?
-https://zhuanlan.zhihu.com/p/356518017
+   1) 分层
+      a. 业务层: Entity + Domain Primitive + EntityService + EntityServiceImpl + ExternalService + Repository
+      b. 应用层: ApplicationService + ApplicationServiceImpl + DTO + DTOAssembler + CQE对象
+      c. 接口层: Controller + Response + Request
+      d. 基础设施层: RepositoryImpl + DO + ExternalServiceImpl
+
+   2)职责:
+     a. 接口层, 暴露REST API给外部调用
+        a1. 将Request对象转换为CQE对象(Command, Query, Event), 即将请求参数填入到CQE对象
+        a2. 将应用层返回的DTO对象(或抛出的异常)转换为Response对象并返回给调用者
+        a3. 接口层负责捕捉所有异常, 其它层理论上可以不处理异常, 只需向外抛出异常
+     b. 应用层. 定义整个业务的流程, 每一个方法都是一个业务用例
+        b1. 将CQE对象转换为Entity对象
+        b2. 使用Repository(或ExternalService)和Entity来获取额外的Entity
+        b3. 修改单个Entity的状态, 可以通过调用Entity封装的业务方法来实现
+            修改多个Entity的状态, 则需要通过EntityService来实现.
+        b4. 通过Repository来保存Entity
+     c. 业务层, 具体业务逻辑的实现需要写在这层
+        c1. Entity 具有Id, 需要被持久化, 它封装了业务的各种状态和修改这些状态的业务逻辑
+        c2. 一个Entity 对应一个Repository, 一个Entity只能保存另一个Entity的Id
+        c3. Repository定义如何持久化Entity, 具体的实现放在, 基础设施层
+        c4. ExternalService定义调用外部服务的接口, 如RPC, MQ, redis
+     d. 基础设施层, 业务层的具体实现
+        d1. DO和数据库表一一对应
+        d2. Repository的实现放在这层
+        d3. ExternalService外部调用接口的实现也放到这层
+     e.例子
+        public class Account{            // Entity, 需要被持久化
+           private AccountId accountId;  // 拥有自己的Id,
+           private UserId    userId;     // 引用其他entity时只保留Id
+           private Money     balance;    //  并且可以修改自身的状态
+
+           public void withdraw(Money m){
+              this.balance = this.balance.add(m);
+           }
+        }
+
+        public class User{                  // Entity, 因为有Id
+           private UserId    userId;
+           private AccountId accountId;     // 引用其他entity时只保留Id
+        }
+
+         public class AccountId{            // Domain Primitive, 无自己的id, 创建好后状态不可变
+            private Long id;
+         }
+
+         public class Money{                 // Domain Primitive, 无自己的id, 创建好后状态不可变
+            private BigDecimal amount;
+            private Currency currency;
+            public Money(BigDecimal amount, Currency currency) {
+                   this.amount = amount;
+                   this.currency = currency;
+            }
+            public Money add(BigDecimal amount){
+               return new Money(this.amount + amount, this.currency);
+            }
+         }
+
+   参考链接:
+           https://zhuanlan.zhihu.com/p/366395817 (原理)
+           https://github.com/Heroicai0101/seckill (一个参考的例子)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
