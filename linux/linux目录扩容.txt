@@ -15,11 +15,11 @@
       而第二条, 是直接将根木目录/ 挂载到LVM(logical volume name)上, LVM可以由好多个硬盘组成
       所以我们可以通过向LVM添加新的硬盘, 来扩充目录的容量
 
-2. LVM, VG和PV
+2. LV, VG和PV
    1) PV代表的是一个硬盘(或硬盘分区)
    2) 通过向VG中添加PV, 可以让VG管理多个硬盘, 所以VG感觉是由多个硬盘组成的一块大硬盘
-   3) 我们通过LVM来使用VG管理的这块大硬盘, 一个VG可以创建多个LVM
-   4) 可以通过下面命令来分别查看管理 LVM, VG, PG
+   3) 我们通过LV来使用VG管理的这块大硬盘, 一个VG可以创建多个LV
+   4) 可以通过下面命令来分别查看管理 LV, VG, PG
       lvdisplay, vgdisplay, pvdisplay
    5)通过添加新硬盘来扩容已有LVM的容量, 从而扩容挂载到它上面的目录的容量
      a. 当新添加一块硬盘到系统时, linux会自动生成一个/dev/sd*文件来代表这块硬盘
@@ -31,6 +31,10 @@
         lvextend -L +50G /dev/centos_c7a/root
      e. 让它生效
         resize2fs /dev/centos_c7a/root
+
+     注意: b中的/dev/sdb1为, linux给新加硬盘分配的文件,而c中创建好的pv名默认和它相同
+          /dev/centos_c7a中的, centos_c7a是VG的名字
+          /dev/centos_c7a/root中的, root是lv的名字
 
 
 参考文档:
