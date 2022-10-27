@@ -1,0 +1,39 @@
+1. 目录扩容
+   1) 我们需要把目录挂载到某个硬盘的某个分区
+      mount  /dev/sda1   /directory
+      a. sda, 代表的一块stata硬盘, 如果还有其它硬盘则为sdb, sdc等等
+      b. sda1, 代表在stata硬盘上的第一个分区
+      c. 所以上面这条语句的意思是让目录/directory挂载到磁盘a的第一个分区上
+   2) 开机自动挂载
+      a. 我们不可能每次重启机器的时候, 手动执行上面的命令进行磁盘-目录挂载
+      b. 所以我们会将挂载信息放到 /etc/fstab
+      c. /etc/fstab的格式
+      <file system>                 <dir>         <type>    <options>   <dump> <pass>
+      /dev/sda1                     /usr          先不用管    先不用管     先不用管 先不用管
+      /dev/mapper/centos_c7a-root   /             先不用管    先不用管     先不用管 先不用管
+      上面第一条, 是直接将目录/usr 挂载到磁盘sda的第1个分区
+      而第二条, 是直接将根木目录/ 挂载到LVM(logical volume name)上, LVM可以由好多个硬盘组成
+      所以我们可以通过向LVM添加新的硬盘, 来扩充目录的容量
+
+2. LVM, VG和PV
+   1) PV代表的是一个硬盘(或硬盘分区)
+   2) 通过向VG中添加PV, 可以让VG管理多个硬盘, 所以VG感觉是由多个硬盘组成的一块大硬盘
+   3) 我们通过LVM来使用VG管理的这块大硬盘, 一个VG可以创建多个LVM
+   4) 可以通过下面命令来分别查看管理 LVM, VG, PG
+      lvdisplay, vgdisplay, pvdisplay
+   5)通过添加新硬盘来扩容已有LVM的容量, 从而扩容挂载到它上面的目录的容量
+     a. 当新添加一块硬盘到系统时, linux会自动生成一个/dev/sd*文件来代表这块硬盘
+     b. 一个PV代表一块硬盘(或该硬盘上的某个分区), 通过命令来创建PV
+        pvcreate /dev/sdb1
+     c. 通过下面的命令, 将新的硬盘添加到已经存在的VG中
+        vgextend /dev/centos_c7a /dev/sd1
+     d. 通过下面的命令, 让已经存在的lvm使用新添加的硬盘的容量
+        lvextend -L +50G /dev/centos_c7a/root
+     e. 让它生效
+        resize2fs /dev/centos_c7a/root
+
+
+参考文档:
+    https://opensource.com/business/16/9/linux-users-guide-lvm  (如何扩容)
+    https://www.linuxquestions.org/questions/linux-server-73/dev-mapper-devices-and-how-to-use-4175582538/ (lv, gv, pv的命令)
+    https://wiki.debian.org/fstab                               (fstab文件)
