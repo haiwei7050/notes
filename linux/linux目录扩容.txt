@@ -42,3 +42,4 @@
     https://opensource.com/business/16/9/linux-users-guide-lvm  (如何扩容)
     https://www.linuxquestions.org/questions/linux-server-73/dev-mapper-devices-and-how-to-use-4175582538/ (lv, gv, pv的命令)
     https://wiki.debian.org/fstab                               (fstab文件)
+    https://stackoverflow.com/questions/26305376/resize2fs-bad-magic-number-in-super-block-while-trying-to-open    (xfs_growfs的出处)
