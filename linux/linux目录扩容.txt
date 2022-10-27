@@ -23,14 +23,15 @@
       lvdisplay, vgdisplay, pvdisplay
    5)通过添加新硬盘来扩容已有LVM的容量, 从而扩容挂载到它上面的目录的容量
      a. 当新添加一块硬盘到系统时, linux会自动生成一个/dev/sd*文件来代表这块硬盘
+        可能需要使用fdisk对新的硬盘进行分区
      b. 一个PV代表一块硬盘(或该硬盘上的某个分区), 通过命令来创建PV
-        pvcreate /dev/sdb1
+        pvcreate /dev/sdb
      c. 通过下面的命令, 将新的硬盘添加到已经存在的VG中
-        vgextend /dev/centos_c7a /dev/sd1
+        vgextend /dev/centos_c7a /dev/sdb
      d. 通过下面的命令, 让已经存在的lvm使用新添加的硬盘的容量
-        lvextend -L +50G /dev/centos_c7a/root
+        lvextend -L +20G /dev/centos_c7a/root
      e. 让它生效
-        resize2fs /dev/centos_c7a/root
+        xfs_growfs /dev/centos_c7a/root
 
      注意: b中的/dev/sdb1为, linux给新加硬盘分配的文件,而c中创建好的pv名默认和它相同
           /dev/centos_c7a中的, centos_c7a是VG的名字
