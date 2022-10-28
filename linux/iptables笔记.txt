@@ -26,3 +26,6 @@
          iptables -t table -L
       2) 永久保存iptables的值
          https://serverfault.com/questions/626521/centos-7-save-iptables-settings
+
+   6) iptables实现原理
+      https://www.digitalocean.com/community/tutorials/a-deep-dive-into-iptables-and-netfilter-architecture
