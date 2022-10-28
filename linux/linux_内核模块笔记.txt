@@ -1,0 +1,14 @@
+1. 查看已加载的内核模块
+   lsmod | grep "关键字"
+
+2. 加载内核模块
+   modprobe "模块名称"
+
+3. 开机自动加载模块
+   1) 检查systemd-modules-load.service服务的运行状态
+      systemctl status systemd-modules-load.service
+   2) 启动上述服务, 如果没有启动的话
+      systemctl enable systemd-modules-load.service   # enable代表开机自动启动该服务, start代表现在启动该服务
+   3) 在目录 /etc/modules-load.d 下新建配置文件, 文件名为 module名 + 后缀.conf
+     vi br_netfilter.conf     # module 为 br_netfilter
+     br_netfilter             # 文件内容为 br_netfilter
