@@ -12,3 +12,28 @@
    echo <<< '将引号中的内容重定向到echo的stdin, 所以这段话会被echo显示出来'
 
    参考文档:https://tldp.org/LDP/abs/html/x17837.html
+
+3. here document操作符 <<, 保证shell不会展开变量
+   1)给EOF两边加上单引号'',     就能阻止 shell 将下面脚本的 $img和${images[@]}提前展开
+   2)如果不给EOF两边加上单引号'',
+      for img in "${images[@]}"; do
+      就会变成了
+      for img in ""; do
+      因为shell提前将变量$img和${images[@]}展开了
+   3) 例子
+          cat > ~/kubeadm_pull_images.sh << 'EOF'
+          images=(
+                   kube-apiserver:v1.17.4
+                   kube-controller-manager:v1.17.4
+                   kube-scheduler:v1.17.4
+                   kube-proxy:v1.17.4
+                   kube-pause:3.1
+                   etcd:3.4.3-0
+                   coredns:1.6.5
+          )
+          for img in "${images[@]}"; do
+              docker pull registry.cn-hangzhou.aliyuncs.com/google_containers/"$img"
+              docker tag registry.cn-hangzhou.aliyuncs.com/google_containers/"$img" k8s.gcr.io/"$img"
+              docker rmi registry.cn-hangzhou.aliyuncs.com/google_containers/"$img"
+          done
+EOF
