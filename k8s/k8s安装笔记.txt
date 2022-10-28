@@ -1,0 +1,128 @@
+
+1. 添加yum repo
+   cd  /etc/yum.repos.d
+   yum clean all
+   rm -rf /var/cache/yum
+   yum makecache
+    
+2. 内核参数
+cat > /etc/sysctl.d/k8s.conf << EOF
+net.bridge.bridge-nf-call-ip6tables=1
+net.bridge.bridge-nf-call-iptables=1
+net.ipv4.ip_forward=1
+EOF
+
+3. 安装ipvsadm ipset
+   yum install -y ipvsadm ipset
+
+4. 开机加载内核模块
+   
+   cat > /etc/modules-load.d/k8s.conf  << EOF
+net.bridge.bridge-nf-call-ip6tables=1
+net.bridge.bridge-nf-call-iptables=1
+net.ipv4.ip_forward=1
+EOF
+
+systemctl enable systemd-modules-load.service
+
+5. 禁用swap分区、selinux、防火墙
+   vi /etc/fstab              搜索swap并加上注释
+   vi /etc/selinux/config     SELINUX=disabled
+   systemctl disable firewalld
+
+
+6、安装docker并配置
+   yum install -y docker-ce-18.06.3.ce-3.el7
+   mkdir /etc/docker
+   cat > /etc/sysctl.d/daemon.json << EOF
+    {
+          "exec-opts": ["native.cgroupdriver=systemd"],
+          "registry-mirrors": ["https://dockerhub.azk8s.cn"]
+    }
+EOF
+    systemctl enabled docker
+
+7. 安装k8s
+   1) 组件介绍 
+     kubeadm   ----> 安装k8s集群的脚手架
+     kubelet   ----> 安装到worker node上, 用来控制docker，运行pod
+     kubectl   ----> 安装到master node上, 命令行控制工具
+
+   2) 安装
+      yum install -y kubeadm-1.17.4-0 kubelet-1.17.4-0 kubectl-1.17.4-0
+   
+   3) 配置
+      cat > /etc/sysconfig/kubelet << EOF
+KUBELET_CGROUP_ARGS="--cgroup-driver=systemd"
+KUBE_PROXY_MODE="ipvs"
+EOF
+    4) 开机自启
+       systemctl enable kubelet 
+
+8.在本地构建, k8s组件所需的docker镜像
+   1) 原因
+      a. 如下面所示, docker定位镜像是通过: library + image的方式 
+         docker image pull library/image
+
+      b. 所以我们可以在不同的library下放两个相同image
+         docker image pull lib1/image
+         docker image pull lib2/image
+      
+      c. kubeadm 默认会去k8s官方仓库k8s.gcr.io中,下载 k8s组件所需的docker镜像
+
+      d. 但是, 阿里的docker源(其实只是官网的一个镜像), 没有同步k8s官方的仓库的镜像
+         而是把k8s的组件放到了下面的仓库
+         registry.cn-hangzhou.aliyuncs.com/google_containers
+         所以当kubeadm去下k8s.gcr.io/kube-apiserver时就会直接去连k8s官网
+         所以会失败
+
+    2) 解决办法
+       1) 查看kubeadm所需的k8s组件镜像
+          kubeadm config images list
+ 
+       2) 从下面仓库下载k8s组件的docker镜像
+          registry.cn-hangzhou.aliyuncs.com/google_containers
+
+       3) 将第1步下到本地的k8s组件的docker镜像改名, 为k8s.gcr.io/镜像名
+
+       4) docker下镜像的时候首先会去本地仓库查看, 没有才到远程仓库
+
+       5) 最后删除第1步下好的组件
+       
+     3) 通过脚本完成
+       cat > ~/kubeadm_pull_images.sh << 'EOF'
+       images=(
+                kube-apiserver:v1.17.4
+                kube-controller-manager:v1.17.4
+                kube-scheduler:v1.17.4
+                kube-proxy:v1.17.4
+                pause:3.1
+                etcd:3.4.3-0
+                coredns:1.6.5
+       )
+       for img in "${images[@]}"; do
+           docker pull registry.cn-hangzhou.aliyuncs.com/google_containers/"$img"
+           docker tag registry.cn-hangzhou.aliyuncs.com/google_containers/"$img" k8s.gcr.io/"$img"
+           docker rmi registry.cn-hangzhou.aliyuncs.com/google_containers/"$img"
+       done
+EOF
+
+       chmod +x ~/kubeadm_pull_images.sh && ~/kubeadm_pull_images.sh && rm -rf ~/kubeadm_pull_images.sh
+       
+      
+
+9. 集群配置 (只在master执行)
+    1) 利用kubeadm进行集群的初始化
+    kubeadm init \
+            --kubernetes-version=v1.17.4 \
+            --pod-network-cidr=172.30.0.0/16 \
+            --service-cidr=192.20.0.0/16 \
+            --apiserver-advertise-address=192.30.0.100 \
+            > kubeadm.log
+    2) 第1步的输出有许多重要的内容
+       a. 如何配置kubectl, 如果不按它说的配置就无法使用kubectl
+       b. 如何让worker node 加入到k8s集群中
+       c. kubectl get nodes 查看k8s是否安好
+
+10. 安装k8s网路插件
+    kubectl apply -f flannel.yaml
