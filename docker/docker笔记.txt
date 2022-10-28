@@ -8,5 +8,11 @@
      
   2) 重启docker
      systemctl restart docker 
+2. k8s下docker的配置文件
+    vi /etc/docker/daemon.json
+    {
+          "exec-opts": ["native.cgroupdriver=systemd"],
+          "registry-mirrors": ["https://dockerhub.azk8s.cn"]
+    }
 
 参考链接:https://zhuanlan.zhihu.com/p/73374337
