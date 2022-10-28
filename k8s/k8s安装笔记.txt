@@ -1,6 +1,7 @@
 
 1. 添加yum repo
    cd  /etc/yum.repos.d
+   // 所有yum repo在该笔记同级目录下
    yum clean all
    rm -rf /var/cache/yum
    yum makecache
