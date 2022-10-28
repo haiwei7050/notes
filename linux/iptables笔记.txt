@@ -1,0 +1,28 @@
+1. iptables
+   1) iptables是一个集成到linux内核的防护墙
+   2) 当主机收到一个数据包时, 会利用iptables中定义好的rule来对数据包进行过滤
+   3) iptables由table, chain和rule组成, 而table由chain组成, chain中才最终包含rule(系统默认或我们定义的)
+      其中filter, nat, mangle, raw, security都是table, 而INPUT, FORWARD等都是chain
+      filter: INPUT --> FORWARD --> OUTPUT (for locally-generated packets).
+      nat: PREROUTING -->  OUTPUT  --> POSTROUTING
+      mangle: PREROUTING --> OUTPUT --> FORWARD --> POSTROUTING
+      raw: PREROUTING --> OUTPUT
+      security:  INPUT --> OUTPUT --> FORWARD.
+
+   过滤顺序为:
+            https://unix.stackexchange.com/questions/189905/how-iptables-tables-and-chains-are-traversed
+            https://rlworkman.net/howtos/iptables/chunkyhtml/c962.html
+            https://stuffphilwrites.com/2014/09/iptables-processing-flowchart/
+
+   4) 如何给iptables添加rule
+      语法: iptables -t table {增删改查的命令} chain (过滤包的条件) -j target
+      命令: iptables -t nat -A PREROUTING -p tcp -d 192.168.1.110 --dport 3306 -j REDIRECT --to-ports 3306
+      4.1) 该命令的作用是向nat(这个table)的PREROUTING(这个chain), 添加(通过参数-A), 一个rule
+      4.2) 这个rule就是将满足 "-p tcp -d 192.168.1.110 --dport 3306" 条件的包 转发到本机的3306端口
+      4.3) "-p tcp -d 192.168.1.110 --dport 3306" 这个条件是, 数据包的ip目的地址是192.168.1.110, 且目的端口是tcp端口3306
+
+   5) iptables的其他操作
+      1) 查看某个table的下定义的rule
+         iptables -t table -L
+      2) 永久保存iptables的值
+         https://serverfault.com/questions/626521/centos-7-save-iptables-settings
