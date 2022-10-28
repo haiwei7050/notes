@@ -44,7 +44,7 @@ systemctl enable systemd-modules-load.service
           "registry-mirrors": ["https://dockerhub.azk8s.cn"]
     }
 EOF
-    systemctl enabled docker
+    systemctl enable docker
 
 7. 安装k8s
    1) 组件介绍 
@@ -122,11 +122,11 @@ EOF
             --pod-network-cidr=172.30.0.0/16 \
             --service-cidr=192.20.0.0/16 \
             --apiserver-advertise-address=192.30.0.100 \
-            > kubeadm.log
-    2) 第1步的输出有许多重要的内容
+            >& kubeadm.log
+    2) 第1步的输出有许多重要的内容 (都保存在文件kubeadm.log)
        a. 如何配置kubectl, 如果不按它说的配置就无法使用kubectl
        b. 如何让worker node 加入到k8s集群中
        c. kubectl get nodes 查看k8s是否安好
 
 10. 安装k8s网路插件
-    kubectl apply -f flannel.yaml
+    kubectl apply -f flannel.yaml # 文件在该笔记同一个目录下
