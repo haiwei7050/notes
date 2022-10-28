@@ -12,3 +12,5 @@
    3) 在目录 /etc/modules-load.d 下新建配置文件, 文件名为 module名 + 后缀.conf
      vi br_netfilter.conf     # module 为 br_netfilter
      br_netfilter             # 文件内容为 br_netfilter
+
+参考链接: https://unix.stackexchange.com/questions/71064/systemd-automate-modprobe-command-at-boot-time
