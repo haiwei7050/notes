@@ -8,4 +8,10 @@
    注意ACCEPT队列的大小由 net.core.somaxconn 和 创建的socket指定的backlog参数共同决定
    当backlog大于net.core.somaxconn, 取net.core.somaxconn的值
 
+2. net.ipv4.ip_forward的作用
+   1) net.ipv4.ip_forward默认为0, 如果设为1的话, linux会作为路由器对ip数据包进行转发
+   2) 路由器转发规则看<<计算机网络>>P126, ip层转发分组流程
+   3) 交换机(或者说网桥)转发规则看<<计算机网络>>P92, 在数据链路层扩展以太网
+   4) 路由器是在ip层(第3层, 网络层)对ip包进行转发, 而交换机(或者说网桥)是在mac层(第2层,数据链路层) 对以太帧进行转发
+
 参考文档:http://veithen.io/2014/01/01/how-tcp-backlog-works-in-linux.html
