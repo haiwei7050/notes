@@ -71,6 +71,11 @@
 
    . /etc/bashrc
 
+   1) 关闭ssh server的useDNS选项加快ssh登录速度
+      vi /etc/ssh/sshd_config
+      UseDNS no                #配置文件中这行是默认被注释掉, 但是sshd server默认会将其设为yes, 所以需要放开注释并设置为no
+      sshd -T | grep "UseDNS"  # 可以查看sshd所有选项的默认值
+
 5、更换yum源为阿里
    cd /etc/yum.repos.d
    mv CentOS-Base.repo CentOS-Base.repo.bak
