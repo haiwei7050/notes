@@ -6,3 +6,6 @@
 
   只显示分支wallace_bak_SM-9520，C5281409的commit
   git log master..wallace_bak_SM-9520 --author=C5281409
+
+3. 图形化显示所有分支
+  git log --oneline --decorate --graph --all
