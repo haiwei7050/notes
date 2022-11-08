@@ -1,0 +1,32 @@
+1. git合并分支有两种策略
+   1) fast forward
+   2) a three-way merge
+
+2. git什么时候使用fast forward方式合并分支
+   1) 假设有两个分支b1, b2, 现将b1合并到b2  (b1 ----> b2)
+   2) 仅当在b1和b2分开之后, b2再无其它提交时, git会使用fast forward的方式将b1合并到b2分支
+   3) 即将b2的向前挪动, 挪动到b1所在的位置
+
+   合并前               合并后            b1, b2代表的是分支名,也是指向提交对象(c0,...,c3)的指针
+        b2                      b2
+        |                       |
+   c0-> c1-> c2      c0-> c1-> c2
+              |                 |
+              b1                b1
+
+
+3. git什么时候使用a three-way merge方式合并分支
+   1) 假设有两个分支b1, b2, 现将b1合并到b2  (b1 ----> b2)
+   2) 当在b1和b2分开之后, b2有其它提交时, git会使用a three-way merge的方式将b1合并到b2分支
+   3) 即现在b2分支上新建一个提交对象c4, 并让这个提交对象分别指向b1和b2上的最后一个提交对象c2和c3
+
+   合并前                    合并后
+              b2                            b2
+              |                             |
+   c0-> c1-> c3            c0-> c1-> c3 -> c4
+         |                            |/
+    b1- c2                         b1-c2
+参考链接:
+   https://blog.mergify.com/what-is-a-git-merge-fast-forward/ (什么情况下会使用fast forward)
+   https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell  (搜"Branches in a Nutshell", 讲git提交时保存的是什么)
+   https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging (分支如何合并)
