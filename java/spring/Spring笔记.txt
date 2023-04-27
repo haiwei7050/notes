@@ -1027,23 +1027,57 @@
 36、spring 事务的核心组件
     BeanPostProcessor         InfrastructureAdvisorAutoProxyCreator
 
+            pointcut                  --->     在Advisor内部定义
+    Advisor                           --->     BeanFactoryTransactionAttributeSourceAdvisor
+            advice                    --->     TransactionInterceptor
 
+    TransactionAttributeSource        --->     AnnotationTransactionAttributeSource
+                                               1) Advisor和advice用它来解析注解@Transactional
+                                               2) 如果想让@Transactional在protected方法上生效, 需要通过下面方法新建一个TransactionAttributeSource
+                                                  boolean onlyAllowPublicMethod = false;
+                                                  new  AnnotationTransactionAttributeSource(onlyAllowPublicMethod);
 
-            pointcut --->     在Advisor内部定义
-    Advisor          --->     BeanFactoryTransactionAttributeSourceAdvisor
-            advice   --->     TransactionInterceptor
-
+    1. Advisor, Advice, Pointcut的作用代码示例
     Object beanToReturn = originalBean;
     Pointcut pc = Advisor.getPointcut();
     Advice ae = Advisor.getAdvice();
     if(pc.match(originalBean)){
-	  beanToReturn = proxy(ae);
+     beanToReturn = proxy(ae);
     }
 
-    注意: spring boot通过下面两个类来实现上面事务的类的自动加载的
-    DataSourceTransactionManagerAutoConfiguration  --->   TransactionManager
-    TransactionAutoConfiguration                   --->   BeanFactoryTransactionAttributeSourceAdvisor
-    AopAutoConfiguration                           --->   InfrastructureAdvisorAutoProxyCreator         (它是一个BeanPostProcessor)
+    2. spring生成@Transactional代理的流程
+    1) 通过InfrastructureAdvisorAutoProxyCreator#wrapIfNecessary(), 为标注了@Transactional注解的bean生成cglib代理对象
+    2) 调用cglib代理的所有方法(除了private方法), 都会被转发到DynamicAdvisedInterceptor,它是一个cglib的Callback.
+       每一个cglib代理对象都会有一个新的DynamicAdvisedInterceptor, 它包含了可以应用到该bean的所有Spring Advice,
+       比如一个标注了@Transactional的bean, 它的DynamicAdvisedInterceptor就会包含spring事务advice(TransactionInterceptor)
+    3) DynamicAdvisedInterceptor会捞取所有可以应用到该方法的spring Advice, 将它们封装成CglibMethodInvocation, 然后进行执行
+    4) 整个调用流程
+       cglib代理对象 ---> DynamicAdvisedInterceptor --> CglibMethodInvocation --> TransactionInterceptor
+
+     cglib   ---> Callback(接口)   ----> MethodInterceptor(接口) ---> DynamicAdvisedInterceptor(实现)
+     spring  ---> Advice(接口)     ----> MethodInterceptor(接口) ---> TransactionInterceptor(实现)
+
+
+    3. cglib知识补充:
+       spring在生成cglib代理时会生成很多cglib的Callback, 那些方法会被那些Callback处理, cglib是根据ProxyCallbackFilter#accept方法的返回值来决定的
+       ProxyCallbackFilter, 它是一个cglib的CallbackFilter, 它的accept方法的返回值对应callback在注册到cglib时的数组下标
+           Enhancer enhancer = new Enhancer();
+           enhancer.setSuperclass(User.class);
+           Callback[] callbacks = {callback1, callback2}
+           enhancer.setCallbacks(callbacks);
+           enhancer.setCallbackFilter(method -> 0); // 永远返回数组下标0, 所以代理的所有方法都由callback1来处理, 反之如果返回的是1则由callback2来处理
+
+    4. spring声明事务的自动装配过程
+    1) springboot, 版本2.1.4-RELEASE
+    2) 注意: spring boot通过下面配置类来实现上面事务的类的自动加载的, *标注的是spring声明事务的核心组件
+    DataSourceTransactionManagerAutoConfiguration  --->   *TransactionManager
+    TransactionAutoConfiguration                   --->   @EnableTransactionManagement
+      @EnableTransactionManagement                 --->   TransactionManagementConfigurationSelector
+      TransactionManagementConfigurationSelector   --->   AutoProxyRegistrar 和 ProxyTransactionManagementConfiguration
+      AutoProxyRegistrar                           --->   *InfrastructureAdvisorAutoProxyCreator   (它是一个BeanPostProcessor)
+      ProxyTransactionManagementConfiguration      --->   *BeanFactoryTransactionAttributeSourceAdvisor
+      ProxyTransactionManagementConfiguration      --->   *TransactionInterceptor
+      ProxyTransactionManagementConfiguration      --->   *AnnotationTransactionAttributeSource
 
 37、spring boot tomcat启动流程
    1) 几个重要的接口
