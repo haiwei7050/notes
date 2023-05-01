@@ -1232,3 +1232,36 @@ public class A{
       2.2) 对于标注了@ComponentScan的Bean, 根据@ComponentScan中的路径找出其所有符合第1步条件的 <内部类> 并递归执行第2步
       2.3) 对于标注了@Import的Bean,  将@Import指定的class做成ConfigurationClass
    3) 将ConfigurationClass及其@Bean方法都注册为BeanDefinition
+
+43、@RefreshScope如何起作用
+    @RefreshScope
+    @Component
+    @Data
+    public class UserServiceConfig {
+      @Value("userListToNotice")
+      private String userListToNotice;
+    }
+    1) Spring在解析标注了@Scope注解的bean时, 会创建两个BeanDefinition(详见ScopedProxyUtils.createScopedProxy())
+                    name                                           beanClass                scope                 targetBeanName
+      proxy         userServiceConfig                              ScopedProxyFactoryBean   singleton             "scopedTarget." + "userServiceConfig"
+      original      "scopedTarget." + "userServiceConfig"          UserServiceConfig        refresh                N/A
+    2) 注解@RefreshScope本身被注解@Scope标注, 所以被它标注的bean, 相当于被@Scope标注
+    3) @RefreshScope的实现类RefreshScope, 它在RefreshScope.postProcessBeanDefinitionRegistry()中
+       将上面proxy的beanClass, 由 ScopedProxyFactoryBean 改为了 LockedScopedProxyFactoryBean
+    4) @RefreshScope的实现类RefreshScope, 它在RefreshScope.postProcessBeanFactory()中, 把自己, 这种"refreshScope"的scope注册到了Spring容器中
+    5) 我们在其它bean中注入的UserServiceConfig, 其实是由LockedScopedProxyFactoryBean生成的代理对象
+       在代理对象上调用方法的路径如下:
+       proxy.getUserLIstToNotice()
+       ---> LockedScopedProxyFactoryBean.invoke()   // 它会先将被代理对象从Spring容器中加载出来, 然后再在其上调用真正的方法
+       ---> SimpleBeanTargetSource.getTarget()
+       ---> BeanFactory.getBean(this.targetName)    // targetName这里是"scopedTarget." + "userServiceConfig", 它是在生成代理的BeanDefinition时设置的, 见1)
+       ---> RefreshScope.get()                      // 因为原对象的scope不是默认的scope(singleton或prototype), Spring会委托Scope.get()来创建该对象
+       ---> BeanLifecycleWrapper.getBean()          // RefreshScope由通过BeanLifecycleWrapper来从spring获取被代理对象, 并缓存
+
+    6) 配置文件被刷新时, @RefreshScope的bean如何被处理呢
+       config服务器通知config客户端配置文件发生变更
+       ----> config客户端发布Spring事件
+       ----> applicationContext.publishEvent(new RefreshEvent())
+       ----> RefreshEventListener.onApplicationEvent()
+       ----> ContextRefresher.refresh()                         // 它会拉取配置文件, 并更新Environment, 然后让RefreshScope删除所有被代理对象的缓存
+                                                                    这样下次调用时, Spring容器又会根据Environment重新初始化被代理对象
