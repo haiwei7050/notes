@@ -1,0 +1,22 @@
+1. 为什么computeIfAbsent方法要在一个本地对象上进行加锁
+    // ConcurrentHashMap.computeIfAbsent() 1653行
+    Node<K,V> r = new ReservationNode<K,V>();
+    synchronized (r) {  // ------------------------------> 这行的作用是什么
+        if (casTabAt(tab, i, null, r)) {
+            binCount = 1;
+            Node<K,V> node = null;
+            try {
+                if ((val = mappingFunction.apply(key)) != null)
+                    node = new Node<K,V>(h, key, val, null);
+            } finally {
+                setTabAt(tab, i, node);
+            }
+        }
+    }
+  1) 看似r是个本地变量, 但当它被插入全局数组tab时, 它就可以被其它线程看到
+  2) 比如在ConcurrentHashMap的扩容方法(transfer)中就有可能和这里的synchronized产生竞争关系
+     // ConcurrentHashMap.transfer()的第2419行从tab中获取node
+        else if ((f = tabAt(tab, i)) == null)
+     // ConcurrentHashMap.transfer()的第2424行, 在2419行获得的node上进行加锁,
+     // 然后进行后续的迁移操作, 这步就可能和上面操作产生竞争关系
+        synchronized (f) {}
