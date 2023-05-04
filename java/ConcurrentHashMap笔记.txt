@@ -22,3 +22,27 @@
         synchronized (f) {}
 
 参考链接: https://stackoverflow.com/questions/26482149/synchronizing-on-local-variable
+
+2. ConcurrentHashMap读写并发规则
+   1) 完全不阻塞
+   2) 只有二者操作的是同一个位置, 才会阻塞
+         get      put      compute      remove      clear
+get      1        1        1            1           1
+put      1        2        2            2           2
+compute  1        2        2            2           2
+remove   1        2        2            2           2
+clear    1        2        2            2           2
+
+3. ConcurrentHashMap扩容机制
+   1)什么时候会扩容 (tab是ConcurrentHashMap保存内容的数组)
+     a.当tab[i]的链表长度超8时, 会触发将链表转换为红黑树, 此时如果tab数组的长度小于64就会进行扩容
+     b. 每次向map添加元素时, 会检测当前容量是否已达到tab长度0.75, 如果已经大于等于就进行扩容
+   2) 扩容的简易流程
+      a. 会新建一个内容数组nt, 它的大小为当前tab的2倍
+      b. 如果当前数组tab的大小小于16, 则后续的操作由当前一个线程进行,
+         否则当前线程只对[bound, n-1]的数据进行下面迁移操作
+         当它完成自己的工作后, 如果没有其它线程帮忙则它继续对剩下的数据进行迁移操作
+      c. 迁移操作是不断把tab的所有节点换成new ForwardingNode<K,V>(nextTab),
+         它的hash是MOVE(=-1), 且它的nextTable指向的是步骤生成的新的内容数组nt
+      d. 当扩容进行时, 有其它线程对map进行写操作时, 且发现要操作的节点存放的node
+         是ForwardingNode时, 它会尝试帮助进行扩容
