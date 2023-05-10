@@ -48,7 +48,8 @@
    1) 删掉ibus
       apt -y purge ibus
    2) 安装 fcitx
-      apt -y install fcitx-table-wbpy fcitx-config-gtk
+      apt -y install fcitx-table-wbpy fcitx-config-gtk 
+      apt -y install libqt5qml5 libqt5quick5 libqt5quickwidgets5 qml-module-qtquick2 libgsettings-qt1
    3) 启动 fcitx
       im-config -n fcitx
    4) 安装中文语言包
