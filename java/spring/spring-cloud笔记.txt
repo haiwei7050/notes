@@ -1,0 +1,25 @@
+1. 怎么搭建openfeign
+  1) 需要的依赖
+     spring-cloud-starter-netflix-eureka-client   // eureka客户端, 向eureka注册自己,并且获取提供服务的地址
+     spring-cloud-starter-openfeign               // openfeign
+
+  2) 配置
+    spring.application.name=hobbit-eshop
+    eureka.client.service-url.defaultZone=http://192.30.0.232:8761/eureka/   // eureka服务器的地址
+
+  3) 注解
+    @EnableFeignClients      ----> FeignClientsRegistrar    // 用来解析所有标注了@Feign注解的interface, 该类会为每个interface生成一个FeignClientFactoryBean
+
+  4) 通过spring.factory自动装配的类
+                                                                          该依赖feign-httpclient在classpath    ---> ApacheHttpClient
+     FeignRibbonClientAutoConfiguration   ---> 注册openFeign的核心类Client  该依赖feign-okhttp在classpath         ---> OkHttpClient         它们外面都会包一层LoadBalancerFeignClient负责负载均衡
+                                                                          上面都存在的话回归jdk                  ---> Client.Default
+
+                                          ---> FeignContext    // 它会给每个Feign生成一个Spring context，并且注入配置类 FeignClientsConfiguration
+     FeignAutoConfiguration
+                                          ---> HystrixTargeter
+
+     FeignClientsConfiguration            ---> HystrixFeign.builder() // 它是一个Feign.Builder, 用来为每个标注了@Feign注解的interface生成代理
+
+
+
