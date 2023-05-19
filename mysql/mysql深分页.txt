@@ -1,0 +1,31 @@
+1.mysql 深分页问题
+  CREATE TABLE message(
+     id            BIGINT         NOT NULL  PRIMARY KEY,
+     sender_id     BIGINT         NOT NULL,
+     receiver_id   BIGINT         NOT NULL,
+     content       VARCHAR(500)   NOT NULL,
+     state         INT            NOT NULL,
+     sent_time     DATETIME       NOT NULL,
+     INDEX (sender_id),
+     INDEX (receiver_id),
+     INDEX (sent_time)
+  );
+  下面查询较后面的分页SQL会比较慢
+  SELECT id, sender_id, receiver_id, content, sent_time FROM message WHERE sender_id > 15 ORDER BY sent_time DESC LIMIT 10万, 10
+
+  1) 导致慢的原因有两个
+     a. 该sql需要回表查询, 且因为有分页条件(LIMIT语句), 会回表查询10万零10次，然后抛弃前10万条数据，只留最后10条数据
+     b. 因为sender_id有索引, 所以我们可以在o(logn)时间内找到第一个sender_id > 15的数据, 然后再向后数10万才能找到我们需要的数据
+        所以在索引条件下, 分页查询的最终效率为 o(logn) + o(n),
+        o(logn)是因为我们通过b+数查找到sender_id > 15的叶子节点
+        而o(n)是我们通过链表向后数n个分页条数而得
+
+  2) 解决方法
+     a. 避免回表，尤其避免分页limit导致的无效回表   (这个是通用解决方法)
+         SELECT
+            id, sender_id, receiver_id, content, sent_time
+         FROM message
+         WHERE id IN (SELECT id FROM message WHERE sender_id > 15 ORDER BY sent_time LIMIT 10万, 10)
+
+     解析: 首先通过子查询, 定位符合条件sender_id > 15的叶子节点, 然后再向后数10万零10个，返回最后10个数据的id
+          然后对这10个数据进行回表查询
