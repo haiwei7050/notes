@@ -26,8 +26,13 @@
             m1.id, m1.sender_id, m1.receiver_id, m1.content, m1.sent_time
          FROM
               message m1,
-             (SELECT id FROM message WHERE sender_id > 15 ORDER BY sent_time LIMIT 10万, 10) m2
+             (SELECT id FROM message FORCE INDEX (idx_sentTime_senderId) WHERE sender_id > 15 ORDER BY sent_time LIMIT 10万, 10) m2
          WHERE m1.id = m2.id
 
-     解析: 首先通过子查询, 定位符合条件sender_id > 15的叶子节点, 然后再向后数10万零10个，返回最后10个数据的id
-          然后对这10个数据进行回表查询
+     解析:
+     1) 子查询, SELECT id FROM message FORCE INDEX (idx_sentTime_senderId) WHERE sender_id > 15 ORDER BY sent_time LIMIT 10万, 10
+        仅会返回，符合条件并排好序的10条记录
+     2) 外层查询只需要针对这10条数据在主键上进行查询, 不需要额外进行回表查询，这样就会大大提供查询的效率
+     3) 注意到子查询使用了组合索引(sentTime, senderId), 这是因为
+        我们可以通过直接遍历整个索引的叶子节点(它们都是按sentTime排序的)来实现排序需求
+        然后再根据索引包含的列senderId进行过滤，这样就可以大大提供子查询的效率
