@@ -23,9 +23,11 @@
   2) 解决方法
      a. 避免回表，尤其避免分页limit导致的无效回表   (这个是通用解决方法)
          SELECT
-            id, sender_id, receiver_id, content, sent_time
-         FROM message
-         WHERE id IN (SELECT id FROM message WHERE sender_id > 15 ORDER BY sent_time LIMIT 10万, 10)
+            m1.id, m1.sender_id, m1.receiver_id, m1.content, m1.sent_time
+         FROM
+              message m1,
+             (SELECT id FROM message WHERE sender_id > 15 ORDER BY sent_time LIMIT 10万, 10) m2
+         WHERE m1.id = m2.id
 
      解析: 首先通过子查询, 定位符合条件sender_id > 15的叶子节点, 然后再向后数10万零10个，返回最后10个数据的id
           然后对这10个数据进行回表查询
