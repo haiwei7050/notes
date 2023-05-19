@@ -120,3 +120,42 @@
            The key of the index is the primary key fields.
            In non-leaf pages the key is the key, the value - is page id of a page below.
            In the leaf pages the key is the key again, but the value is the rest of table fields
+
+7. mysql组合索引和索引下推
+   1) 表结构
+      CREATE TABLE user(
+          id   INT            NOT NULL PRIMARY KEY AUTO_INCREMENT,
+          name VARCHAR(2)     NOT NULL,
+          age  INT            NOT NULL,
+          INDEX (name, age)
+      );
+   2) 表中数据                                  按索引(name, age)存储如下
+      id      name     age                     name          age
+      1       fg       120                     ad            20
+      2       ad       20                      cd            9
+      3       jk       88                      fg            120
+      4       hg       44                      fp            23
+      5       fp       23                      fw            53
+      6       fw       53                      fy            130
+      7       fy       130                     hg            44
+      8       cd       9                       jk            88
+      9       ok       1                       ok            1
+      10      rk       60                      rk            60
+
+   3) 查询
+      SELECT name, age FROM user WHERE name LIKE 'f%' AND age > 30;
+
+   4) mysql < 5.6, 没有索引下推时，该查询的执行过程如下
+      a. 利用组合索引中的name列来匹配第一个查询条件，name LIKE 'f%'
+      b. 将匹配到的4条记录(fg, 120), (fp, 23), (fw, 53)和(fy, 130)返回给mysql服务器
+      c. mysql服务器再根据第二个条件age > 30，筛掉不符合条件的记录(fp, 23)
+      d. 为什么步骤b不继续使用联合索引的age来处理第二个查询条件，
+         这是因为name LIKE 'f%' 不是等值查询, 它匹配了多个name,
+         (fg, 120), (fp, 23), (fw, 53)和(fy, 130)
+         而不同name下的age没顺序关系，进而无法使用联合索引继续查询
+
+   5) 使用索引下推时, 该查询的执行过程如下
+      mysql使用第一个查询条件匹配完后，会继续使用age进行匹配，而不是将所有记录返回给服务器
+
+   6) 联合索引的结论
+      mysql在遇到非等值匹配的查询条件后，会停止使用联合索引进行匹配
