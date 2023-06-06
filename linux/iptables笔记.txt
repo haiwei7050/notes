@@ -34,6 +34,7 @@
       iptables -L                    // 依次输出filter(默认的iptables table)在每个iptables chain中的规则
       iptables -t nat -L             // 依次输出nat(它是一种iptables table)在每个iptables chain中的规则
  **** iptables -t nat -L -v          // -L有时候会漏掉一些比较重要的匹配规则, 比如数据包是从哪个网卡进入的, 所以需要使用-v来显示所有匹配规则
+      iptables-save                  // 可以导出所有iptables规则, 通过它就可以知道现有的iptables规则是如何从命令行中定义的
 
       输出:
       Chain INPUT (policy ACCEPT)    // 1. Chain后面跟的就是iptables chain的名字, 此处是INPUT 2. "(policy ACCEPT)"就是默认rule代表如果没有rule匹配就使用该rule, 该rule对数据包的处理是ACCEPT, 即允许通过
@@ -66,7 +67,9 @@
                                                                                        网桥docker0传出, 其中Gateway 0.0.0.0代表本机和目的机器在同一个网络下,所以直接通过Iface指定的设备
                                                                                        就可以将数据包传递给目的机器
 
-
+    3) 保存和重新加载iptables规则
+       iptables-save > /path/to/iptables.rule
+       iptables-restore < /path/to/iptables.rule
 备注:
    1) iptables是一个集成到linux内核的防护墙
    2) 当主机收到一个数据包时, 会利用iptables中定义好的rule来对数据包进行过滤
