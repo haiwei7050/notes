@@ -1,4 +1,73 @@
-1. iptables
+1. ipchains,iptables,firewall-cmd三者的区别是什么
+   1) 三者都是用来配置系统防火墙的命令行工具
+   2) ipchains是最早被提出的(2.2内核引入的), iptables是其替代者(2.4内核引入的)
+      firewall-cmd, 它是基于iptables构建的
+   3) iptables以及firewall-cmd可以通过防护墙, 实现下面功能
+      NAT功能, 端口映射功能等等
+
+2. 数据包进入linux主机的流程
+   1) 数据包的目的ip是本机时
+      a. 数据包从网卡流入
+      b. 按从左到右的方式途径下面的iptable chains,
+         也会按从左到右的顺序匹配每个iptable chains下的iptables table中定义的规则
+         如果某条rule被匹配上后, 就会执行对应的target
+         如果没有匹配上任意rule, 就执行默认rule, 一般是ACCEPT, 就是通过所有流量
+         iptables chain: PREROUTING ------------> 路由选择----> INPUT -------------------------> OUTPUT -------------------------> 路由选择----> POSTROUTING
+         iptables table: (raw, mangle, nat)                    (mangle, nat, filter)           (raw, mangle, nat, filter)                     (mangle, nat)
+      c. 数据包从网卡流出
+
+   2) 数据包的目的ip不是是本机, 且设置内核参数net.ipv4.ip_forward = 1
+      a. 数据包从网卡流入
+      b. 按从左到右的方式途径下面的iptable chains,
+         也会按从左到右的顺序匹配每个iptable chains下的iptables table中定义的规则
+         如果某条rule被匹配上后, 就会执行对应的target
+         如果没有匹配上任意rule, 就执行默认rule, 一般是ACCEPT, 就是通过所有流量
+         iptables chain: PREROUTING ------------> 路由选择----> FORWARD -------------------------> 路由选择---->POSTROUTING
+         iptables table: (raw, mangle, nat)                   (mangle, filter)                               (mangle, nat)
+      c. 数据包从网卡流出
+
+参考链接: https://www.linuxrumen.com/rmxx/642.html
+
+3. iptables使用
+   1) 查看rule
+      输入:
+      iptables -L                    // 依次输出filter(默认的iptables table)在每个iptables chain中的规则
+      iptables -t nat -L             // 依次输出nat(它是一种iptables table)在每个iptables chain中的规则
+ **** iptables -t nat -L -v          // -L有时候会漏掉一些比较重要的匹配规则, 比如数据包是从哪个网卡进入的, 所以需要使用-v来显示所有匹配规则
+
+      输出:
+      Chain INPUT (policy ACCEPT)    // 1. Chain后面跟的就是iptables chain的名字, 此处是INPUT 2. "(policy ACCEPT)"就是默认rule代表如果没有rule匹配就使用该rule, 该rule对数据包的处理是ACCEPT, 即允许通过
+      target     prot opt source               destination
+
+      Chain FORWARD (policy ACCEPT)
+      target     prot opt source               destination
+
+      Chain OUTPUT (policy ACCEPT)
+      target     prot opt source               destination
+
+   2) 自定义一个iptables chain
+      iptables -N docker            // 创建一个名为docker的iptable chain
+      iptables -t nat -A PREROUTING -m addrtype --dst-type LOCAL -j docker // 1.其中iptables -t nat -A PREROUTING
+                                                                                代表在PREROUTING链nat表中追加(-A)一个规则,
+                                                                              2.-m addrtype --dst-type LOCAL表示使用ip地址匹配规则
+                                                                                --dst-type LOCAL, 代表当数据包的目的ip为本机ip时即匹配该规则
+                                                                              3. -j docker, 代表当rule被匹配后, 请跳转到我们自定义的docker链上
+                                                                                 -j 后面可以跟target或用户自定义的iptables chain
+                                                                              4. 综上所述, 这条规则的意思是, 当数据包的目的地址是本地ip时, 请将数据包转发给docker链做后续的处理
+
+      iptables -A docker -p tcp -dport 80 -j DNAT --to-destination 172.17.0.2:80 // 1. 其中iptables -A docker代表向, docker链追加一条规则
+                                                                                    2. 规则的匹配条件是, 使用tcp协议(-p tcp), 且端口是80(-dport 80)的数据包
+                                                                                    3. -j DNAT --to-destination 172.17.0.2:80 表示, 当规则被匹配上后
+                                                                                       将数据包的目的地址改为172.17.0.2, 将端口改为80, 其中DNAT是iptables的一种target
+                                                                                    4. 因为第3步做了NAT转换,所以linux会根据路由表进行路由选择, 即路由表中必须有一项
+                                                                                       Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+                                                                                       172.17.0.0      0.0.0.0         255.255.0.0     U     0      0        0 docker0
+                                                                                       即将172.17.0.2与掩码255.255.0.0进行与操作, 得到目标网络地址为172.17.0.0, 所以需要交由
+                                                                                       网桥docker0传出, 其中Gateway 0.0.0.0代表本机和目的机器在同一个网络下,所以直接通过Iface指定的设备
+                                                                                       就可以将数据包传递给目的机器
+
+
+备注:
    1) iptables是一个集成到linux内核的防护墙
    2) 当主机收到一个数据包时, 会利用iptables中定义好的rule来对数据包进行过滤
    3) iptables由table, chain和rule组成, 而table由chain组成, chain中才最终包含rule(系统默认或我们定义的)
