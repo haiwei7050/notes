@@ -26,7 +26,7 @@
          iptables table: (raw, mangle, nat)                   (mangle, filter)                               (mangle, nat)
       c. 数据包从网卡流出
 
-参考链接: https://www.linuxrumen.com/rmxx/642.html
+参考链接: https://www.linuxrumen.com/rmxx/642.html  (看下这个链接中的图就明白iptables是如何运作的了)
 
 3. iptables使用
    1) 查看rule
