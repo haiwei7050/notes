@@ -135,8 +135,64 @@ f、netty channel将读到的byte[]data传递到绑定到它身上的channelHand
     而传统的socket编程， 需要
     一个线程来accept, accept多少个连接，就需要再起多少个线程来
     处理accept的socket, 但是一个应用可以开启的线程是有限制的
-    
-                                                       
+
+
+3. netty如何注册Java Channel到Selector上，并设置其interestOps
+  1) 客户端
+      a. 通过下面方法, 将Java Channel注册到Selector, 并将其interestOps设为0,
+         Bootstrap.connect(String inetHost, int inetPort)
+         ---> Bootstrap.initAndRegister()
+         ---> 省略许多中间方法
+         ---> NioSocketChannel.doRegister()
+              javaChannel().register(eventLoop().unwrappedSelector(), interestOps = 0, nettyChannel);
+              interestOps为0代表不暂时不处理Java Channel的任何可读可写可连接的事件
+
+      b. 通过下面方法, 让Java Channel连接到服务器上, 如果没有连接成功, 就将Java Channel的interestOps设为SelectionKey.OP_CONNECT
+         Bootstrap.connect(String inetHost, int inetPort)
+         ---> Bootstrap.doResolveAndConnect0()
+         ---> 省略许多中间方法
+         ---> AbstractNioUnsafe.connect()
+         ---> NioSocketChannel.doConnect(remoteAddress, localAddress)
+
+      c. 如果连接成功, 就通过下面方法, 设置Java Channel的interestOps设为SelectionKey.OP_READ,
+         其中readInterestOp是在NioSocketChannel创建时, 其内部构造函数自己设置的
+         Bootstrap.connect(String inetHost, int inetPort)
+         ---> Bootstrap.doResolveAndConnect0()
+         ---> 省略许多中间方法
+         ---> AbstractNioUnsafe.connect()
+         ---> AbstractNioUnsafe.fulfillConnectPromise(promise, wasActive)
+         ---> DefaultChannelPipeline.fireChannelActive()
+         ---> HeadContext.channelActive()
+         ---> HeadContext.readIfIsAutoRead()
+         ---> AbstractNioChannel.doBeginRead()
+
+  2) 服务器端
+      a. 通过下面方法, 将Java Channel注册到Selector, 并将其interestOps设为0,
+         ServerBootstrap.bind(int inetPort)
+         ---> Bootstrap.initAndRegister()
+         ---> 省略许多中间方法
+         ---> NioSocketChannel.doRegister()
+              javaChannel().register(eventLoop().unwrappedSelector(), interestOps = 0, nettyChannel);
+              interestOps为0代表不暂时不处理Java Channel的任何可读可写可accept的事件
+
+      b. 通过下面方法, 让Java Channel监听指定的端口
+         Bootstrap.doBind0()
+         ---> Bootstrap.doResolveAndConnect0()
+         ---> 省略许多中间方法
+         ---> AbstractNioUnsafe.bind()
+         ---> NioServerSocketChannel.doBind(remoteAddress, localAddress)
+
+      c. 如果监听成功, 就通过下面方法, 设置Java Channel的interestOps设为SelectionKey.OP_ACCEPT,
+         其中readInterestOp是在NioServerSocketChannel创建时, 其内部构造函数自己设置的
+         Bootstrap.doBind0()
+         ---> Bootstrap.doResolveAndConnect0()
+         ---> 省略许多中间方法
+         ---> AbstractNioUnsafe.bind()
+         ---> AbstractNioUnsafe.invokeLater()
+         ---> DefaultChannelPipeline.fireChannelActive()
+         ---> HeadContext.channelActive()
+         ---> HeadContext.readIfIsAutoRead()
+         ---> AbstractNioChannel.doBeginRead()
 
 	      
 	        
