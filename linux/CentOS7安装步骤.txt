@@ -197,13 +197,14 @@
     cat /etc/sys/fs/nr_open
     vi /etc/sysctl.conf
     sysctl -p
-fs.file-max=100000000
-fs.nr_open=100000000
-net.ipv4.tcp_tw_reuse = 1
-net.ipv4.tcp_tw_recycle = 1            # 这个参数已经被弃用
-net.ipv4.tcp_max_syn_backlog=32768     #这个是 <未完成三步握手的队列> 的大小
-net.core.somaxconn=32768               #这个是 <已建立连接但未accept的队列>的大小
-net.core.netdev_max_backlog = 2000000  # 网卡缓存ip数据包的队列的大小
+
+    fs.file-max=20000000                   ----> linux内核最多能打开的文件数量, 这个默认值已经很大，不需要设置
+    fs.nr_open=10000000                    ----> 单线程可以打开的文件数量
+    net.ipv4.tcp_tw_recycle = 1            ----> 这个参数已经被弃用
+    net.ipv4.tcp_tw_reuse = 1              ----> 是否可以复用TIME-WAIT的端口, 0 - disable, 1 - global enable, 2 (default) - enable for loopback traffic only
+    net.ipv4.tcp_max_syn_backlog=300000    ----> 这个是 <未完成三步握手的队列> 的大小, 单个连接大小为304byte
+    net.core.somaxconn=300000              ----> 这个是 <已建立连接但未accept的队列>的大小
+    net.core.netdev_max_backlog = 2000000  ----> 网卡缓存ip数据包的队列的大小
 
 
     vi /usr/lib/systemd/system/mysqld.service  # 一定要看下原来有没有LimitNOFILE
