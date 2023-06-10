@@ -214,12 +214,13 @@ net.core.netdev_max_backlog = 2000000
 fs.file-max=100000000              ----> linux内核最多能打开的文件数量
 fs.nr_open=100000000               ----> 单线程可以打开的文件数量
 net.ipv4.tcp_tw_reuse = 1          ----> 是否可以复用TIME-WAIT的端口
-net.ipv4.tcp_max_syn_backlog=32768 ----> 保存处于半链接状态TCP链接的队列的大小
-net.core.somaxconn=32768           ----> 保存已经链接但未被应用accept的TCP链接的队列的大小
+net.ipv4.tcp_max_syn_backlog=32768 ----> 这个是 <未完成三步握手的队列> 的大小
+net.core.somaxconn=32768           ----> 这个是 <已建立连接但未accept的队列>的大小
 
 
 参考链接: https://access.redhat.com/solutions/1479623 (fs.nr_open的解释)
-        https://docs.kernel.org/admin-guide/sysctl/fs.html (官网文档, 看这个)
+        https://docs.kernel.org/admin-guide/sysctl/fs.html (fs相关参数的官网文档, 看这个)
+        https://www.kernel.org/doc/html/latest/networking/ip-sysctl.html (ipv4/*相关参数的官方文档)
 附录1、yum的使用
 
 	yum repolist all                     # 列出所有仓库 <启用的> 和 <未启用的>
