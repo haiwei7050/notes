@@ -211,11 +211,26 @@ net.core.netdev_max_backlog = 2000000
     LimitMEMLOCK=infinity
 
 对上面的参数的修正
-fs.file-max=20000000              ----> linux内核最多能打开的文件数量
-fs.nr_open=10000000               ----> 单线程可以打开的文件数量
-net.ipv4.tcp_tw_reuse = 1          ----> 是否可以复用TIME-WAIT的端口, 0 - disable, 1 - global enable, 2 (default) - enable for loopback traffic only
-net.ipv4.tcp_max_syn_backlog=300000 ----> 这个是 <未完成三步握手的队列> 的大小, 单个连接大小为304byte
-net.core.somaxconn=300000           ----> 这个是 <已建立连接但未accept的队列>的大小
+1) 查看系统级别的限制
+cat /proc/sys/fs/file-max
+cat /proc/sys/fs/nr_open
+cat /proc/sys/net/ipv4/tcp_tw_reuse
+cat /proc/sys/net/core/somaxconn
+
+2) 查看进程级别的限制
+cat /proc/{pid}/limits
+ulimit -a  #查看当前ssh session的各种资源的限制
+ulimit -n  #查看当前ssh session的能打开的最大文件数量(Soft级别,等同于ulimit -Sn), Soft级别代表程序可以超过，会有警告
+ulimit -Hn #查看当前ssh session的能打开的最大文件数量(Hard级别, 不能超过，超过会报错)
+
+3) 常见参数设置
+fs.file-max=20000000                 ----> linux内核最多能打开的文件数量, 这个默认值已经很大，不需要设置
+fs.nr_open=10000000                  ----> 单线程可以打开的文件数量
+net.ipv4.tcp_tw_reuse = 1            ----> 是否可以复用TIME-WAIT的端口, 0 - disable, 1 - global enable, 2 (default) - enable for loopback traffic only
+net.ipv4.tcp_max_syn_backlog=300000  ----> 这个是 <未完成三步握手的队列> 的大小, 单个连接大小为304byte
+net.core.somaxconn=300000            ----> 这个是 <已建立连接但未accept的队列>的大小
+
+
 
 
 参考链接: https://access.redhat.com/solutions/1479623 (fs.nr_open的解释)
