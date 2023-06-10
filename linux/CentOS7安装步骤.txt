@@ -218,7 +218,7 @@ cat /proc/sys/net/ipv4/tcp_tw_reuse
 cat /proc/sys/net/core/somaxconn
 
 2) 查看进程级别的限制
-cat /proc/{pid}/limits
+cat /proc/{pid}/limits    #查看进程id为pid的进程的各种资源限制
 ulimit -a  #查看当前ssh session的各种资源的限制
 ulimit -n  #查看当前ssh session的能打开的最大文件数量(Soft级别,等同于ulimit -Sn), Soft级别代表程序可以超过，会有警告
 ulimit -Hn #查看当前ssh session的能打开的最大文件数量(Hard级别, 不能超过，超过会报错)
