@@ -221,6 +221,7 @@ net.core.somaxconn=32768           ----> 这个是 <已建立连接但未accept�
 参考链接: https://access.redhat.com/solutions/1479623 (fs.nr_open的解释)
         https://docs.kernel.org/admin-guide/sysctl/fs.html (fs相关参数的官网文档, 看这个)
         https://www.kernel.org/doc/html/latest/networking/ip-sysctl.html (ipv4/*相关参数的官方文档)
+        https://www.kernel.org/doc/html/latest/admin-guide/sysctl/net.html (net.core.netdev_max_backlog)
 附录1、yum的使用
 
 	yum repolist all                     # 列出所有仓库 <启用的> 和 <未启用的>
