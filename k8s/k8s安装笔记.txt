@@ -39,10 +39,19 @@ systemctl enable systemd-modules-load.service
 6、安装docker并配置
    yum install -y docker-ce-18.06.3.ce-3.el7
    mkdir /etc/docker
-   cat > /etc/sysctl.d/daemon.json << EOF
+   cat > /etc/docker/daemon.json << EOF
     {
           "exec-opts": ["native.cgroupdriver=systemd"],
-          "registry-mirrors": ["https://dockerhub.azk8s.cn"]
+          "registry-mirrors": [
+             "https://dockerhub.azk8s.cn",
+             "https://docker.m.daocloud.io",
+             "https://dockerproxy.com",
+             "https://docker.mirrors.ustc.edu.cn",
+             "https://docker.nju.edu.cn",
+             "https://docker.mirrors.ustc.edu.cn",
+             "http://f1361db2.m.daocloud.io",
+             "https://registry.docker-cn.com"
+          ]
     }
 EOF
     systemctl enable docker
@@ -57,10 +66,20 @@ EOF
       yum install -y kubeadm-1.17.4-0 kubelet-1.17.4-0 kubectl-1.17.4-0
    
    3) 配置
+     a. 通过下面文件，改变kubelet的cgroup-driver
       cat > /etc/sysconfig/kubelet << EOF
-KUBELET_CGROUP_ARGS="--cgroup-driver=systemd"
-KUBE_PROXY_MODE="ipvs"
+KUBELET_EXTRA_ARGS="--cgroup-driver=systemd"
 EOF
+   
+   b.删除配置文件/var/lib/kubelet/kubeadm-flags.env中关于cgroup-driver的配置
+     vim /var/lib/kubelet/kubeadm-flags.env
+     删除其中的 --cgroup-driver=
+    c. 怎么找到这个位置的/var/lib/kubelet/kubeadm-flags.env
+       systemctl status -l kubelet           # 查看kublet的日志, -l不要折叠参数, 打印所有参数
+       根据上面的输出, 我们可以看到一个目录/usr/lib/systemd/system/kubelet.service.d
+       它里面有个kubeadm自动为kubelet生成的配置文件10-kubeadm.conf
+       在它里面可以找到/var/lib/kubelet/kubeadm-flags.env
+     
     4) 开机自启
        systemctl enable kubelet 
 
