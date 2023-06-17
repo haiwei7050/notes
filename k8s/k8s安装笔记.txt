@@ -83,7 +83,7 @@ EOF
     4) 开机自启
        systemctl enable kubelet 
 
-8.在本地构建, k8s组件所需的docker镜像
+8.在本地构建, k8s组件所需的docker镜像 (这步可以通过指定kubeadm的--image-repository来解决, 所以可以跳过)
    1) 原因
       a. 如下面所示, docker定位镜像是通过: library + image的方式 
          docker image pull library/image
@@ -136,18 +136,23 @@ EOF
       
 
 9. 集群配置 (只在master执行)
-    1) 利用kubeadm进行集群的初始化
+    1) 查看kubeadm需要通过安装哪些docker镜像来安装k8s集群
+       kubeadm config images list
+
+    2) 利用kubeadm进行集群的初始化
     kubeadm init \
-            --kubernetes-version=v1.17.4 \
-            --pod-network-cidr=172.30.0.0/16 \
-            --service-cidr=192.20.0.0/16 \
-            --apiserver-advertise-address=192.30.0.100 \
+            --kubernetes-version=v1.17.4 \                                               # 指定要安装k8s的版本
+            --pod-network-cidr=172.30.0.0/16 \                                           # 指定pod内容器的ip地址范围
+            --service-cidr=192.20.0.0/16 \                                               # 指定service的ip地址范围
+            --apiserver-advertise-address=192.30.0.100 \                                 # 指定master节点的ip
+            --image-repository=registry.cn-hangzhou.aliyuncs.com/google_containers       # 指定要下载镜像的地址
             >& kubeadm.log
     cat  kubeadm.log
-    2) 第1步的输出有许多重要的内容 (都保存在文件kubeadm.log)
+    3) 第1步的输出有许多重要的内容 (都保存在文件kubeadm.log)
        a. 如何配置kubectl, 如果不按它说的配置就无法使用kubectl
        b. 如何让worker node 加入到k8s集群中, 在文件kubeadm.log末尾
        c. kubectl get nodes 查看k8s是否安好, 如果输出ready就代表好了, 会有延迟
+       d. 去哪下载k8s的网络插件
 
 10. 安装k8s网路插件
     kubectl apply -f flannel.yaml # 文件在该笔记同一个目录下
