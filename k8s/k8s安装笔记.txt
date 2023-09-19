@@ -39,10 +39,19 @@ systemctl enable systemd-modules-load.service
 6、安装docker并配置
    yum install -y docker-ce-18.06.3.ce-3.el7
    mkdir /etc/docker
-   cat > /etc/sysctl.d/daemon.json << EOF
+   cat > /etc/docker/daemon.json << EOF
     {
           "exec-opts": ["native.cgroupdriver=systemd"],
-          "registry-mirrors": ["https://dockerhub.azk8s.cn"]
+          "registry-mirrors": [
+             "https://dockerhub.azk8s.cn",
+             "https://docker.m.daocloud.io",
+             "https://dockerproxy.com",
+             "https://docker.mirrors.ustc.edu.cn",
+             "https://docker.nju.edu.cn",
+             "https://docker.mirrors.ustc.edu.cn",
+             "http://f1361db2.m.daocloud.io",
+             "https://registry.docker-cn.com"
+          ]
     }
 EOF
     systemctl enable docker
@@ -57,14 +66,24 @@ EOF
       yum install -y kubeadm-1.17.4-0 kubelet-1.17.4-0 kubectl-1.17.4-0
    
    3) 配置
+     a. 通过下面文件，改变kubelet的cgroup-driver
       cat > /etc/sysconfig/kubelet << EOF
-KUBELET_CGROUP_ARGS="--cgroup-driver=systemd"
-KUBE_PROXY_MODE="ipvs"
+KUBELET_EXTRA_ARGS="--cgroup-driver=systemd"
 EOF
+   
+   b.删除配置文件/var/lib/kubelet/kubeadm-flags.env中关于cgroup-driver的配置
+     vim /var/lib/kubelet/kubeadm-flags.env
+     删除其中的 --cgroup-driver=
+    c. 怎么找到这个位置的/var/lib/kubelet/kubeadm-flags.env
+       systemctl status -l kubelet           # 查看kublet的日志, -l不要折叠参数, 打印所有参数
+       根据上面的输出, 我们可以看到一个目录/usr/lib/systemd/system/kubelet.service.d
+       它里面有个kubeadm自动为kubelet生成的配置文件10-kubeadm.conf
+       在它里面可以找到/var/lib/kubelet/kubeadm-flags.env
+     
     4) 开机自启
        systemctl enable kubelet 
 
-8.在本地构建, k8s组件所需的docker镜像
+8.在本地构建, k8s组件所需的docker镜像 (这步可以通过指定kubeadm的--image-repository来解决, 所以可以跳过)
    1) 原因
       a. 如下面所示, docker定位镜像是通过: library + image的方式 
          docker image pull library/image
@@ -117,18 +136,23 @@ EOF
       
 
 9. 集群配置 (只在master执行)
-    1) 利用kubeadm进行集群的初始化
+    1) 查看kubeadm需要通过安装哪些docker镜像来安装k8s集群
+       kubeadm config images list
+
+    2) 利用kubeadm进行集群的初始化
     kubeadm init \
-            --kubernetes-version=v1.17.4 \
-            --pod-network-cidr=172.30.0.0/16 \
-            --service-cidr=192.20.0.0/16 \
-            --apiserver-advertise-address=192.30.0.100 \
+            --kubernetes-version=v1.17.4 \                                               # 指定要安装k8s的版本
+            --pod-network-cidr=172.30.0.0/16 \                                           # 指定pod内容器的ip地址范围
+            --service-cidr=192.20.0.0/16 \                                               # 指定service的ip地址范围
+            --apiserver-advertise-address=192.30.0.100 \                                 # 指定master节点的ip
+            --image-repository=registry.cn-hangzhou.aliyuncs.com/google_containers       # 指定要下载镜像的地址
             >& kubeadm.log
     cat  kubeadm.log
-    2) 第1步的输出有许多重要的内容 (都保存在文件kubeadm.log)
+    3) 第1步的输出有许多重要的内容 (都保存在文件kubeadm.log)
        a. 如何配置kubectl, 如果不按它说的配置就无法使用kubectl
        b. 如何让worker node 加入到k8s集群中, 在文件kubeadm.log末尾
        c. kubectl get nodes 查看k8s是否安好, 如果输出ready就代表好了, 会有延迟
+       d. 去哪下载k8s的网络插件
 
 10. 安装k8s网路插件
     kubectl apply -f flannel.yaml # 文件在该笔记同一个目录下
