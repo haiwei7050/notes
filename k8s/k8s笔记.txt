@@ -1,0 +1,28 @@
+1. LVS
+1) LVS即linux 虚拟服务器, 它是一个工作在4层负载均衡器
+2) 怎么使用lvs创建4层负载均衡器
+ipvsadm -A -t 192.168.56.102:80 -s rr                      # 在主节点创建一个负载均衡器的, 其ip和端口为192.168.56.102:80, '-s rr'代表使用轮询的方式进行负载均衡
+ipvsadm -a -t 192.168.56.102:80 -r 172.17.0.2:8000 -m      # 第二行和第三行, 代表在主节点上创建两个'转发规则', 即将负载均衡器收到的请求以轮询的方式转发到
+ipvsadm -a -t 192.168.56.102:80 -r 172.17.0.3:8000 -m      # 172.17.0.2:8000和172.17.0.3:8000,
+                                                           # -m 代表的是使用NAT模式, -g则代表使用DR模式
+
+ipvsadm -Ln                                                # 可以查看本机创建好的负载均衡器以及其转发规则, 其中Forward列代表lvs的工作模式, Masq(代表NAT模式), Route(代表DR模式)
+ipvsadm -h                                                 # 可以查看参数的解释比如, -m 和-g, 其中DR模式是lvs的默认工作模式,
+                                                           # 但是k8s使用的是lvs的NAT模式, 并且在所有机子上都创建了负载均衡器和转发规则, 所以从任何一台机子访问
+
+参考文档: https://fafucoder.github.io/2021/12/19/linux-lvs/
+
+2. k8s service
+  1) clusterIp类型: 本质使用lvs在每台运行pod的机子上创建一个负载均衡器, 注意是每台运行pod的机子都创建了负载均衡器和对应的转发规则, 所以从任意节点都可以用service的ip访问到对应的pod
+  2) headless类型: a. 本质是注册了一个域名到k8s的域名服务器上, 即<service-name>.<namespace>.svc.cluster.local, 通过该域名可以拿到service对应的所有pod的ip
+                  b. 当headless service和Deployment一起使用时, 它仅会注册上面service的域名到dns服务器, 而不会为它代理的每个pod注册域名, 通过service的域名只能拿到所有pod的ip
+                  c. 当headless service和StatefulSet一起使用时, 它还会为每个pod注册一个域名, <pod-name>.<service-name>.<namespace>.svc.cluster.local, 通过pod域名可以拿到对应pod的地址
+                  d. 上述域名注册的dns服务器只在pod内部进行了配置, 即只有在pod里面访问上面的域名才能被正确解析, 域名服务的配置在pod的/etc/resolve.conf文件中
+                  e. 所以headless service一般都是和StatefulSet一起使用
+  3) nodePort类型: 本质是在service运行的机子上, 做了一次端口映射即 request --> nodeIp:nodePort --> 负载均衡器ip:port, 所以只要外面可以访问到service运行的机子, 就可以访问到service代理的pod
+
+参考文档: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/
+
+3. StatefulSet
+  1) 它和Deployment一样都是pod的控制器, 区别点在于, 它创建的pod的名字都带有序号, pod-name-index (index = 0,1,2....,n)
+  2) 它
