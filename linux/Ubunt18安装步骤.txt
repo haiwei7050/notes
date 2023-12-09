@@ -117,9 +117,9 @@
  
 附录4、apt和apt-get的对比
       https://itsfoss.com/apt-vs-apt-get-difference/
-      介绍apt-get
-      https://itsfoss.com/apt-command-guide/
       介绍apt
+      https://itsfoss.com/apt-command-guide/
+      介绍apt-get
       https://itsfoss.com/apt-get-linux-guide/
       
 附录5、vim分屏和粘贴带注释的解决方法
