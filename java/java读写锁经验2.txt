@@ -1,0 +1,396 @@
+package qg.localcache.service.refresh;
+
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.thread.ThreadFactoryBuilder;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.redisson.api.RBucket;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
+import org.redisson.client.codec.LongCodec;
+import qg.commons.cache.*;
+
+import java.time.Duration;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+/**
+ * @author Administrator
+ */
+@Slf4j
+public abstract class AbstractLocalCacheRefresh implements BasicLocalCacheRefresh {
+    private final LocalCacheDiskStore diskStore;
+    private final RedissonClient redisson;
+    private final LocalCacheChangeNotifier notifier;
+    private final AtomicBoolean readyToMergeTempCache = new AtomicBoolean(false);
+    private volatile Map<Object, Object> localCacheMap;
+    private final Map<Object, Object> localCacheTempMap = new ConcurrentHashMap<>();
+    private final ReentrantLock updateMainLock = new ReentrantLock();
+    private final ReadWriteLock updateTempLock = new ReentrantReadWriteLock();
+    private final ThreadPoolExecutor storeDataThreadPool;
+    private final BlockingQueue<StoreTask> storeTaskQueue = new LinkedBlockingQueue<>(1);
+    private final static String CACHE_UPDATE_TIME = "CACHE_UPDATE_TIME_%s";
+    private static final String REFRESH_LOCAL_CACHE_LOCK_SEPARATE = "REFRESH_LOCAL_CACHE_LOCK_SEPARATE_%s";
+
+    protected AbstractLocalCacheRefresh(LocalCacheDiskStore diskStore, RedissonClient redisson, LocalCacheChangeNotifier notifier) {
+        this.diskStore = diskStore;
+        this.redisson = redisson;
+        this.notifier = notifier;
+        this.storeDataThreadPool = initStoreDataThreadPool();
+    }
+
+    @Override
+    public void refresh(LocalCacheChangeEvent changeEvent) {
+        // 1、先发通知
+        long startTime = System.currentTimeMillis();
+        boolean shouldNotify = shouldNotify(changeEvent);
+        log.info("#0#本地缓存增量更新, 检查是否获取发送redis通知的权利, id = {}, cacheName={}, request id={}, shouldNotify={}", startTime, changeEvent.getCacheName(), changeEvent.getRequestId(), shouldNotify);
+        Map<Object, Object> payload = convertToPayload(changeEvent.getPayload());
+        if (Objects.isNull(payload) || payload.isEmpty()) {
+            return;
+        }
+        if (shouldNotify) {
+            notifier.notifyLoad(LocalCacheLoadEvent.create(changeEvent.getCacheName(), payload, changeEvent.getEventType(), changeEvent.getRequestTime()));
+        }
+        log.info("#1#本地缓存增量更新, 先发通知, id = {}, cacheName={}, request id={}, shouldNotify={}, 发通知耗时={}ms, 当前总耗时={}ms",
+                startTime, changeEvent.getCacheName(), changeEvent.getRequestId(), shouldNotify, System.currentTimeMillis() - startTime, System.currentTimeMillis() - startTime);
+        // 2、缓存通知的数据
+        cacheChangeData(changeEvent, payload);
+        //3、创建异步刷盘任务
+        if (shouldNotify) {
+            BasicLocalCacheEnum type = BasicLocalCacheEnum.getFromCacheName(changeEvent.getCacheName());
+            log.info("#2.1.0#本地缓存增量更新, 创建写盘任务获取锁前, id = {}, cacheName={}, request id={}, shouldNotify={}, 积压的写盘任务数量={}",
+                    startTime, changeEvent.getCacheName(), changeEvent.getRequestId(), shouldNotify, storeTaskQueue.size());
+            synchronized (storeTaskQueue) {
+                log.info("#2.1.1#本地缓存增量更新, 创建写盘任务获取锁后, id = {}, cacheName={}, request id={}, shouldNotify={}, 积压的写盘任务数量={}",
+                        startTime, changeEvent.getCacheName(), changeEvent.getRequestId(), shouldNotify, storeTaskQueue.size());
+                StoreTask lastStoreTask = this.storeTaskQueue.poll();
+                StoreTask currStoreTask = StoreTask.builder()
+                        .id(startTime)
+                        .cacheName(changeEvent.getCacheName())
+                        .type(type)
+                        .requestId(changeEvent.getRequestId())
+                        .requestTime(changeEvent.getRequestTime())
+                        .build();
+                log.info("#2.1.2#本地缓存增量更新, 对比当前写盘任务和积压的写盘任务, id = {}, cacheName={}, request id={}, shouldNotify={}, 积压的写盘任务数量={}, curr={}, last={}",
+                        startTime, changeEvent.getCacheName(), changeEvent.getRequestId(), shouldNotify, storeTaskQueue.size(), currStoreTask, lastStoreTask);
+                boolean addTaskResult;
+                boolean dropOldTask = true;
+                boolean clearCurrTask = false;
+                boolean clearLasTask = false;
+                if (Objects.isNull(lastStoreTask)) {
+                    addTaskResult = this.storeTaskQueue.offer(currStoreTask);
+                } else if (lastStoreTask.isOldThan(currStoreTask)) {
+                    addTaskResult = this.storeTaskQueue.offer(currStoreTask);
+                    clearLasTask = true;
+                } else {
+                    addTaskResult = this.storeTaskQueue.offer(lastStoreTask);
+                    dropOldTask = false;
+                    clearCurrTask = true;
+                }
+                log.info("#2.1.3#本地缓存增量更新, 添加完写盘任务, id = {}, cacheName={}, request id={}, shouldNotify={}, 积压的写盘任务数量={}, 添加成功={}, 添加的是新任务={}, curr={}, last={}",
+                        startTime, changeEvent.getCacheName(), changeEvent.getRequestId(), shouldNotify, storeTaskQueue.size(), addTaskResult, dropOldTask, currStoreTask, lastStoreTask);
+
+                if (clearCurrTask) {
+                    // GC优化
+                    currStoreTask.clear();
+                    currStoreTask = null;
+                }
+                if (clearLasTask) {
+                    // GC优化
+                    lastStoreTask.clear();
+                    lastStoreTask = null;
+                }
+            }
+        } else {
+            log.info("#2.2#本地缓存增量更新, 因为不通知所以不写磁盘, id = {}, cacheName={}, request id={}, shouldNotify={}, 当前总耗时={}ms",
+                    startTime, changeEvent.getCacheName(), changeEvent.getRequestId(), shouldNotify, System.currentTimeMillis() - startTime);
+        }
+    }
+
+    @Override
+    public void refresh(BasicLocalCacheEnum basicLocalCacheEnum, String requestId, boolean onlyReloadData) throws Throwable {
+        long startTime = System.currentTimeMillis();
+        String now = DateUtil.now();
+        String cacheName = basicLocalCacheEnum.getCacheName();
+        log.info("#1# 本地缓存定时刷新, 开始, id = {}, cacheName = {}，开始时间 = {}, requestId ={}, onlyReloadData ={}",
+                startTime, cacheName, now, requestId, onlyReloadData);
+        // 拉取数据并序列化数据到磁盘上，如果可以的话
+        if (onlyReloadData) {
+            storeDataIfNeed(basicLocalCacheEnum, startTime, requestId, true);
+        }
+        log.info("#2# 本地缓存定时刷新, 结束, id = {}, cacheName = {}，开始时间 = {}, requestId ={}, onlyReloadData ={}, 耗时={}ms",
+                startTime, cacheName, now, requestId, onlyReloadData, (System.currentTimeMillis() - startTime));
+    }
+
+    protected void storeDataIfNeed(BasicLocalCacheEnum type, Long updateTimestamp, String requestId, boolean forceLoadFromDB) throws Throwable {
+        String cacheName = type.getCacheName();
+        if (canRefresh(requestId, cacheName, updateTimestamp, false)) {
+            // 从数据库加载数据
+            Map<Object, Object> dataMap = loadData(forceLoadFromDB);
+            log.info("#1# storeDataIfNeed 从DB加载完数据 id = {}, requestId = {}, cacheName='{}', 耗时={}ms",
+                    updateTimestamp, requestId, cacheName, (System.currentTimeMillis() - updateTimestamp));
+
+            // 将数据序列化到磁盘
+            long timeStampBeforeStoreDataToFile = System.currentTimeMillis();
+            String localCacheFilePath = diskStore.storeLocalCacheToFile(type, dataMap, new Date(updateTimestamp));
+            log.info("#2# storeDataIfNeed 序列化完数据到磁盘 id = {}, requestId = {}, cacheName='{}', localCacheFilePath={}, 生成文件耗时={}ms, 总耗时={}ms, ",
+                    updateTimestamp, requestId, cacheName, localCacheFilePath,
+                    (System.currentTimeMillis() - timeStampBeforeStoreDataToFile),
+                    (System.currentTimeMillis() - updateTimestamp));
+
+            // GC优化
+            dataMap.clear();
+            dataMap = null;
+             /*
+               这里需要再次判断的原因
+               1、 DB加载数据和diskStore.storeLocalCacheToFile()序列化操作这两部都比较耗时
+               2、执行到这里时我们已经把锁释放掉，所以会出现并发操作
+               3、如果再次确认时出现了比我们还要新的更新请求，我们就放弃，从而避免覆盖了最新的请求
+              */
+            if (canRefresh(requestId, cacheName, updateTimestamp, true)) {
+                doSetLocalCacheFilePathToRedis(requestId, updateTimestamp, cacheName, localCacheFilePath, type.getRedisKey());
+            }
+        }
+    }
+
+    protected abstract Map<Object, Object> loadDataFromDB();
+
+    protected abstract Map<Object, Object> convertToPayload(List<Object> payload);
+
+    // -------------------------------- private methods
+
+    private ThreadPoolExecutor initStoreDataThreadPool() {
+        String threadPoolNamePrefix = "store-data-thread-for-" + ClassUtils.getShortClassName(getClass());
+        ThreadPoolExecutor threadPool = new ThreadPoolExecutor(
+                1,
+                1,
+                0L,
+                TimeUnit.SECONDS,
+                new SynchronousQueue<>(),
+                ThreadFactoryBuilder.create()
+                        .setDaemon(true)
+                        .setNamePrefix(threadPoolNamePrefix)
+                        .build()
+        );
+        threadPool.execute(() -> {
+            while (true) {
+                StoreTask task = null;
+                try {
+                    task = storeTaskQueue.take();
+                    log.info("#3.1.4#本地缓存增量更新, 加载数据和写盘前, id = {}, cacheName={}, request id={}, shouldNotify={}", task.getId(), task.getCacheName(), task.getRequestId(), true);
+                    long startTime = System.currentTimeMillis();
+                    storeDataIfNeed(task.getType(), task.getRequestTime(), task.getRequestId(), false);
+                    log.info("#3.1.5#本地缓存增量更新, 加载数据和写盘后, id = {}, cacheName={}, request id={}, shouldNotify={}, 将数据写入磁盘={}ms", task.getId(), task.getCacheName(), task.getRequestId(), true, System.currentTimeMillis() - startTime);
+                    // GC优化
+                    task.clear();
+                    task = null;
+                } catch (InterruptedException interruptedException) {
+                    break;
+                } catch (Throwable onlyLog) {
+                    log.error("#3.1.6#本地缓存增量更新, 写盘任务失败, stacktrace = {}, 写盘任务={}", ExceptionUtils.getStackTrace(onlyLog), task, onlyLog);
+                }
+            }
+        });
+        return threadPool;
+    }
+
+    private void doSetLocalCacheFilePathToRedis(String requestId, long startTime, String cacheName, String localCacheFilePath, String redisKey) {
+        RBucket<String> localCacheFilePathBucket = redisson.getBucket(redisKey);
+        log.info("#3# storeDataIfNeed 设置本地缓存'{}'的文件路径前, id={}, requestId={}, localCacheFilePathBucket={}, prev file path ={}, localCacheFilePath={}",
+                cacheName, startTime, requestId, localCacheFilePathBucket.getName(), localCacheFilePathBucket.get(), localCacheFilePath);
+        localCacheFilePathBucket.set(localCacheFilePath);
+        log.info("#3# storeDataIfNeed 设置本地缓存'{}'的文件路径后, id={}, requestId={}, localCacheFilePathBucket={}, cur file path ={}, localCacheFilePath={}",
+                cacheName, startTime, requestId, localCacheFilePathBucket.getName(), localCacheFilePathBucket.get(), localCacheFilePath);
+    }
+
+    private RLock getRefreshLock(String cacheName) {
+        return redisson.getLock(String.format(REFRESH_LOCAL_CACHE_LOCK_SEPARATE, cacheName));
+    }
+
+    private boolean canRefresh(String requestId, String cacheName, Long updateTimestamp, boolean secondConfirm) {
+        long startTime = updateTimestamp;
+        RLock refreshLock = getRefreshLock(cacheName);
+        String thread = Thread.currentThread().getName() + "：" + Thread.currentThread().getId();
+        String lockName = refreshLock.getName();
+        try {
+            log.info("#1# canRefresh 准备全量刷新本地缓存'{}'，获取分布式锁前, id = {}, requestId={}, 线程={}, lockName={}",
+                    cacheName, startTime, requestId, thread, lockName);
+            refreshLock.lock();
+            log.info("#2# canRefresh 准备全量刷新本地缓存'{}'，成功获取锁, id = {}, requestId={}, 线程={}, lockName={}",
+                    cacheName, startTime, requestId, thread, lockName);
+            RBucket<Long> updateTimeBucket = getUpdateTimeBucket(cacheName);
+            Long prevUpdateTimestamp = updateTimeBucket.get();
+            log.info("#3# canRefresh 拿取最后更新时间, id = {}, requestId={}, cacheName={}, updateTimeBucket={}, prevUpdateTimestamp={}, updateTimestamp={}, secondConfirm ={}, 线程={}, lockName={}",
+                    startTime, requestId, cacheName, updateTimeBucket.getName(), prevUpdateTimestamp, updateTimestamp, secondConfirm, thread, lockName);
+            int compareResult;
+            if (Objects.isNull(prevUpdateTimestamp) ||
+                    (compareResult = updateTimestamp.compareTo(prevUpdateTimestamp)) > 0 ||
+                    (secondConfirm && compareResult == 0)
+            ) {
+                updateTimeBucket.set(updateTimestamp);
+                log.info("#4# canRefresh 成功设置最后更新时间, id = {}, requestId={}, cacheName={}, updateTimeBucket={}, prevUpdateTimestamp={}, updateTimestamp={}, canRefresh=true, the curr of updateTimeBucket={}, secondConfirm ={}, 线程={}, lockName={}",
+                        startTime, requestId, cacheName, updateTimeBucket.getName(), prevUpdateTimestamp, updateTimestamp, updateTimeBucket.get(), secondConfirm, thread, lockName);
+                return true;
+            } else {
+                log.info("#5# canRefresh 没有抢到设置最后更新时间的机会, id = {}, requestId={}, cacheName={}, updateTimeBucket={}, prevUpdateTimestamp={}, updateTimestamp={}, canRefresh=false, the curr of updateTimeBucket={}, secondConfirm ={}, 线程={}, lockName={}",
+                        startTime, requestId, cacheName, updateTimeBucket.getName(), prevUpdateTimestamp, updateTimestamp, updateTimeBucket.get(), secondConfirm, thread, lockName);
+                return false;
+            }
+        } finally {
+            if (refreshLock.isHeldByCurrentThread()) {
+                Thread curThread = Thread.currentThread();
+                log.info("#6# canRefresh 准备全量刷新本地缓存'{}'，释放分布式锁前, id = {}, requestId={}, 锁名称={}, 锁定次数={}, 当前线程={}, 锁是否被当前线程持有={}, 线程={}, lockName={}",
+                        cacheName, startTime, requestId, refreshLock.getName(), refreshLock.getHoldCount(), curThread.getId() + "#" + curThread.getName(), refreshLock.isHeldByCurrentThread(), thread, lockName);
+                refreshLock.unlock();
+                log.info("#7# canRefresh准备全量刷新本地缓存'{}'，成功释放锁, id = {}, requestId={}, 锁名称={}, 锁定次数={}, 当前线程={}, 锁是否被当前线程持有={}, 线程={}, lockName={}",
+                        cacheName, startTime, requestId, refreshLock.getName(), refreshLock.getHoldCount(), curThread.getId() + "#" + curThread.getName(), refreshLock.isHeldByCurrentThread(), thread, lockName);
+            }
+        }
+    }
+
+    private RBucket<Long> getUpdateTimeBucket(String cacheName) {
+        return redisson.getBucket(String.format(CACHE_UPDATE_TIME, cacheName), LongCodec.INSTANCE);
+    }
+    private void cacheChangeData(
+            LocalCacheChangeEvent changeEvent,
+            Map<Object, Object> payload
+    ) {
+        Map<Object, Object> localCacheMap = this.localCacheMap;
+        if (Objects.isNull(localCacheMap)) {
+            boolean locked = false;
+            if (!readyToMergeTempCache.get()) {
+                locked = updateTempLock.readLock().tryLock();
+            }
+            try {
+                if (locked && !readyToMergeTempCache.get()) {
+                    // 更新缓存
+                    if (changeEvent.isDeleteEvent()) {
+                        // 删除事件
+                        localCacheTempMap.keySet().removeAll(payload.keySet());
+                    } else {
+                        // 更新事件
+                        localCacheTempMap.putAll(payload);
+                    }
+                    return;
+                }
+            } finally {
+                if(locked){
+                    updateTempLock.readLock().unlock();
+                }
+            }
+        }
+        // 更新缓存
+        if (changeEvent.isDeleteEvent()) {
+            // 删除事件
+            localCacheMap.keySet().removeAll(payload.keySet());
+        } else {
+            // 更新事件
+            localCacheMap.putAll(payload);
+        }
+    }
+
+    private Map<Object, Object> loadData(boolean forceLoadFromDB) {
+        return forceLoadFromDB ? forceLoadDataFromDB() : loadDataIfNeed();
+    }
+
+    private Map<Object, Object> loadDataIfNeed() {
+        // 1、主缓存不为空, 直接返回主缓存
+        Map<Object, Object> currLocalCacheMap = localCacheMap;
+        if (Objects.nonNull(currLocalCacheMap)) {
+            return new HashMap<>(currLocalCacheMap);
+        }
+        // 2、主缓存为空，调forceLoadDataFromDB
+        return forceLoadDataFromDB();
+    }
+
+    private Map<Object, Object> forceLoadDataFromDB() {
+        try {
+            updateMainLock.lock();
+            // 1 保存之前的localCacheMap, 后面清理使用
+            Map<Object, Object> prevLocalCacheMap = localCacheMap;
+
+            // 2、通知主缓存要重置
+            readyToMergeTempCache.set(false);
+            this.localCacheMap = null;
+
+            // 3 从数据库加载数据
+            Map<Object, Object> currLocalCacheMap = new ConcurrentHashMap<>(loadDataFromDB());
+            // 并重置主缓存
+            localCacheMap = currLocalCacheMap;
+            // 通知要合并临时缓存
+            readyToMergeTempCache.set(true);
+            updateTempLock.writeLock().lock();
+            try{
+              currLocalCacheMap.putAll(localCacheTempMap);
+              localCacheTempMap.clear();
+            }finally {
+                updateTempLock.writeLock().unlock();
+            }
+
+            // 4 GC优化
+            if (MapUtils.isNotEmpty(prevLocalCacheMap)) {
+                prevLocalCacheMap.clear();
+                prevLocalCacheMap = null;
+            }
+            return currLocalCacheMap;
+        } finally {
+            if (updateMainLock.isHeldByCurrentThread()) {
+                updateMainLock.unlock();
+            }
+        }
+    }
+
+    private boolean shouldNotify(LocalCacheChangeEvent event) {
+        String key = event.getCacheName() + ":" + event.getRequestId();
+        String value = Thread.currentThread().getId() + ":" + Thread.currentThread().getName() + ":" + key;
+        return redisson.getBucket(event.getCacheName() + ":" + event.getRequestId()).setIfAbsent(value, Duration.ofMinutes(30));
+    }
+
+    @AllArgsConstructor
+    @Getter
+    @Builder
+    private static class StoreTask {
+        private Long id;
+        private String cacheName;
+        private BasicLocalCacheEnum type;
+        private String requestId;
+        private Long requestTime;
+
+        public boolean isOldThan(StoreTask other) {
+            return other.requestTime > this.requestTime;
+        }
+
+        public void clear() {
+            this.id = null;
+            this.cacheName = null;
+            this.type = null;
+            this.requestId = null;
+            this.requestTime = null;
+        }
+
+        public static StoreTaskBuilder builder() {
+            return new StoreTaskBuilder();
+        }
+
+        @Override
+        public String toString() {
+            return "StoreTask{" +
+                    "id=" + id +
+                    ", cacheName='" + cacheName + '\'' +
+                    ", type=" + type +
+                    ", requestId='" + requestId + '\'' +
+                    ", requestTime=" + requestTime +
+                    '}';
+        }
+    }
+}
