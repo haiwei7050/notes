@@ -22,7 +22,7 @@
 
 4、修改/etc/skel/.bashrc
     vi /etc/skel/.bashrc
-    PS1='[\u@\h \w]\$ '                     
+    PS1='[\u@\h \w]\$ '
     alias ll='/bin/ls -lF'
     alias la='/bin/ls -lA'
     alias grep='/bin/grep --color=auto -P'
@@ -78,6 +78,7 @@
    systemctl restart docker
 
 8、安装chrome
+   下载 113版本的chrome，要不输入法用不了https://mirror.cs.uchicago.edu/google-chrome/pool/main/g/google-chrome-stable/
    dpkg -i chrome.deb
    vi /opt/google/chrome/google-chrome
    把
