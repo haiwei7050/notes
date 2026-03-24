@@ -26,6 +26,26 @@
          iptables table: (raw, mangle, nat)                   (mangle, filter)                               (mangle, nat)
       c. 数据包从网卡流出
 
+
+外部数据包进入 (Incoming)
+       │
+       ▼
+┌─────────────┐     ┌──────────────┐
+│  PREROUTING │────>│   路由决策     │──┬──> 目标是本机 ──> INPUT ──> 本机进程
+│  (DNAT发生) │     │ (查路由表)    │  │
+└─────────────┘     └──────────────┘  └──> 要转发 ───────> FORWARD ──> POSTROUTING
+                                                       (过滤转发流量)       │
+                                                                       ▼
+                                                                  发出网卡
+
+本机进程生成 (Outgoing)
+       │
+       ▼
+┌─────────────┐     ┌──────────────┐
+│   进程     │────>│   OUTPUT     │────> 路由决策 ──> POSTROUTING(SNAT) ──> 网卡
+│  生成数据   │     │ (本机出站过滤)│
+└─────────────┘     └──────────────┘
+
 参考链接: https://www.linuxrumen.com/rmxx/642.html  (看下这个链接中的图就明白iptables是如何运作的了)
 
 3. iptables使用
